@@ -1,5 +1,5 @@
 import weakref
-from tornado.websocket import WebSocketHandler
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.web import Application
@@ -35,15 +35,17 @@ class WsHandler(WebSocketHandler):
 
         self.write_message('ready to transmit data')
         IOLoop.current().add_callback(
-            lambda: self.tail()
+            lambda: self.monitor()
         )
 
-    async def tail(self):
+    async def monitor(self):
         try:
             while True:
                 await sleep(3)
                 await self.write_message(system_data())
         except StreamClosedError:
+            pass
+        except WebSocketClosedError:
             pass
         finally:
             self.close()
@@ -52,7 +54,6 @@ class WsHandler(WebSocketHandler):
         self.write_message('message received %s' % message)
 
     def on_close(self):
-        self.write_message('close connection request received')
         worker = self.worker_ref() if self.worker_ref else None
 
         if worker:

@@ -92,51 +92,52 @@
                 }
             }
             
-            fetch('/', {
-                method: 'POST',
-                body: { connection: 'monitor' }
-            }).then((response) => {
-                return response.json()
-            }).then((worker) => {
-                const url = `ws://192.168.1.100:4200/ws?id=${worker.id}`
-                
-                let connection = null
-                document.querySelector('#endpoint-open').addEventListener('click', () => {
-                    log.write('event', 'connecting to websocket')
-                    connection = connection ?? new WebSocket(url)
-                    
-                    connection.onopen = () => {
-                        log.write('event', 'websocket is connected')
-                    }
-                    
-                    connection.onmessage = (response) => {
-                        log.write('output', response.data)
-                        try {
-                            const data = JSON.parse(response.data)
-                            for (const key in data.cpu) {
-                                state.set('cpu', key, data.cpu[key])
-                            }
-                            for (const key in data.memory) {
-                                state.set('memory', key, data.memory[key])
-                            }
-                        } catch (error) {}
-                    }
+            let connection = null
+            document.querySelector('#endpoint-open').addEventListener('click', async () => {
+                log.write('event', 'connecting to websocket')
+                const client = await fetch(location.pathname, {
+                    method: 'POST',
+                    body: { connection: 'monitor' }
+                })
+                const worker = await client.json()
 
-                    connection.onclose = (response) => {
-                        log.write('event', 'websocket connection closed')
-                        connection = null;
-                    }
-                })
+                log.write('event', `created worker (${worker.id})`)
+
+                const url = `ws://192.168.1.100:4200/ws?id=${worker.id}`
+
+                connection = connection ?? new WebSocket(url)
                 
+                connection.onopen = () => {
+                    log.write('event', 'websocket is connected')
+                }
                 
-                document.querySelector('#endpoint-close').addEventListener('click', () => {
-                    console.log(connection)
-                    if (connection) {
-                        log.write('event', 'closing websocket connection')
-                        window.conn = connection
-                        connection.close()
-                    }
-                })
+                connection.onmessage = (response) => {
+                    log.write('output', response.data)
+                    try {
+                        const data = JSON.parse(response.data)
+                        for (const key in data.cpu) {
+                            state.set('cpu', key, data.cpu[key])
+                        }
+                        for (const key in data.memory) {
+                            state.set('memory', key, data.memory[key])
+                        }
+                    } catch (error) {}
+                }
+                
+                connection.onclose = (response) => {
+                    log.write('event', 'websocket connection closed')
+                    connection = null;
+                }
+            })
+            
+            
+            document.querySelector('#endpoint-close').addEventListener('click', () => {
+                console.log(connection)
+                if (connection) {
+                    log.write('event', 'closing websocket connection')
+                    window.conn = connection
+                    connection.close()
+                }
             })
         })
     </script>
