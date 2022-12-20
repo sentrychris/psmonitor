@@ -1,4 +1,6 @@
 from tornado.websocket import WebSocketHandler
+from asyncio import sleep
+from ..system import data
 
 
 class WsHandler(WebSocketHandler):
@@ -8,8 +10,10 @@ class WsHandler(WebSocketHandler):
     def check_origin(self, origin: str):
         return True
 
-    def open(self):
-        self.write_message("Connected!")
+    async def open(self):
+        while True:
+            await self.write_message(data())
+            await sleep(5)
 
     def on_message(self, message):
         self.write_message('message received %s' % message)
