@@ -2,6 +2,7 @@ from tornado.ioloop import IOLoop
 from app.main.handlers.base import BaseHandler, workers, recycle
 from ..worker import Worker
 
+
 class HttpHandler(BaseHandler):
     def connect(self):
         worker = Worker()

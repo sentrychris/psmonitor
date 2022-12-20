@@ -3,20 +3,20 @@ import psutil
 
 def system_data():
     system = dict()
-    system["cpu"] = cpu()
-    system["memory"] = memory()
-    system["uptime"] = uptime()
+    system['cpu'] = cpu()
+    system['memory'] = memory()
+    system['uptime'] = uptime()
 
     return system
 
 
 def uptime():
     try:
-        f = open("/proc/uptime")
+        f = open('/proc/uptime')
         contents = f.read().split()
         f.close()
     except Exception:
-        return "Cannot open uptime file: /proc/uptime"
+        return 'Cannot open uptime file: /proc/uptime'
 
     return float(contents[0])
 

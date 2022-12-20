@@ -4,7 +4,7 @@ from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.web import Application
 from tornado.httputil import HTTPServerRequest
-from ..system import *
+from ..system import system_data
 from .base import workers
 
 
