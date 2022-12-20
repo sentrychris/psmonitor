@@ -1,6 +1,6 @@
 from tornado.websocket import WebSocketHandler
 from asyncio import sleep
-from ..system import data
+from ..system import system_data
 
 
 class WsHandler(WebSocketHandler):
@@ -12,8 +12,7 @@ class WsHandler(WebSocketHandler):
 
     async def open(self):
         while True:
-            await self.write_message(data())
-            await sleep(5)
+            await self.write_message(system_data())
 
     def on_message(self, message):
         self.write_message('message received %s' % message)

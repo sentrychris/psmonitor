@@ -1,7 +1,7 @@
 import psutil
 
 
-def data():
+def system_data():
     system = dict()
     system["cpu"] = cpu()
     system["memory"] = memory()
