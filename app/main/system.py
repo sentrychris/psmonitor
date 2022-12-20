@@ -7,7 +7,7 @@ def system_data():
     system["memory"] = memory()
     system["uptime"] = uptime()
 
-    return str(system["cpu"]["temp"])
+    return system
 
 
 def uptime():
@@ -22,11 +22,11 @@ def uptime():
 
 
 def cpu():
-    return {
+    return dict({
         'usage': round(psutil.cpu_percent(1), 2),
-        'temp': 50,  # round(psutil.sensors_temperatures()['cpu_thermal'][0].current, 2),
+        'temp': round(psutil.sensors_temperatures()['cpu_thermal'][0].current, 2),
         'freq': round(psutil.cpu_freq().current, 2)
-    }
+    })
 
 
 def memory():

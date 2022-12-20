@@ -1,1 +1,129 @@
-Silence is golden.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Websocket Client</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        p {
+            margin-bottom: 0
+        }
+        #app {
+            max-height: 500px;
+        }
+        #event-log, #output-log {
+            height: 500px;
+            overflow-y: scroll;
+            border: 1px solid #aaaaaa;
+            background: #eeeeee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4 px-5">
+        <p class="lead">Websocket Connections</p>
+        <div class="row mt-3">
+            <div class="col d-flex justify-content-start align-items-center gap-3">
+                <button class="btn btn-sm btn-success" id="endpoint-open">Open</button>
+                <button class="btn btn-sm btn-danger" id="endpoint-close">Close</button>
+            </div>
+        </div>
+        <hr />
+        <p class="lead">Websocket Data</p>
+        <div class="row mt-3 small">
+            <div class="col">
+                <p class="lead mb-2">CPU:</p>
+                <p>Temperature: <span id="cpu-temp">--</span> C</p>
+                <p>Usage: <span id="cpu-usage">--</span> %</p>
+                <p>Frequency: <span id="cpu-freq">--</span> MHz</p>
+            </div>
+            <div class="col">
+                <p class="lead mb-2">RAM:</p>
+                <p>Used: <span id="mem-used">--</span> GB</p>
+                <p>Free: <span id="mem-free">--</span> GB</p>
+                <p>Total: <span id="mem-total">--</span> GB</p>
+            </div>
+        </div>
+        <hr class="my-3" />
+        <p class="lead">Log Output</p>
+        <div class="row mt-3">
+            <div class="col-4">
+                <p class="lead mb-2">Events:</p>
+                <div id="event-log" class="font-monospace small">
+
+                </div>
+            </div>
+            <div class="col-8">
+                <p class="lead mb-2">Messages:</p>
+                <div id="output-log" class="flex-fill font-monospace small">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const url = 'ws://192.168.1.100:4200/ws'
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const log = {
+                event: document.querySelector('#event-log'),
+                output: document.querySelector('#output-log'),
+                write: (type, message) => {
+                    const node = document.createElement('p')
+                    node.innerText = message
+                    log[type].append(node)
+                }
+            }
+
+            const state = {
+                cpu: {
+                    temp: document.querySelector('#cpu-temp'),
+                    usage: document.querySelector('#cpu-usage'),
+                    freq: document.querySelector('#cpu-freq'),
+                },
+                memory: {
+                    used: document.querySelector('#mem-used'),
+                    free: document.querySelector('#mem-free'),
+                    total: document.querySelector('#mem-total'),
+                },
+                set: (key, metric, value) => {
+                    if (state[key] && Object.prototype.hasOwnProperty.call(state[key], metric)) {
+                        state[key][metric].innerText = value
+                    }
+                }
+            }
+
+            let connection = null
+            document.querySelector('#endpoint-open').addEventListener('click', () => {
+                log.write('event', 'connecting to websocket')
+                connection = connection ?? new WebSocket(url)
+                connection.onopen = () => {
+                    log.write('event', 'websocket is connected')
+                }
+                connection.onmessage = (response) => {
+                    log.write('output', response.data)
+                    const data = JSON.parse(response.data)
+                    for (const key in data.cpu) {
+                        state.set('cpu', key, data.cpu[key])
+                    }
+                    for (const key in data.memory) {
+                        state.set('memory', key, data.memory[key])
+                    }
+                }
+                connection.onclose = (response) => {
+                    log.write('event', 'websocket connection closed')
+                    connection = null;
+                }
+            })
+            document.querySelector('#endpoint-close').addEventListener('click', () => {
+                console.log(connection)
+                if (connection) {
+                    console.log("closing websocket connection")
+                    connection.close()
+                }
+            })
+        })
+    </script>
+</body>
+</html>
