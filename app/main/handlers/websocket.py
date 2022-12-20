@@ -4,7 +4,6 @@ from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.web import Application
 from tornado.httputil import HTTPServerRequest
-from asyncio import sleep
 from ..system import *
 from .base import workers
 
@@ -33,7 +32,7 @@ class WsHandler(WebSocketHandler):
         worker.set_handler(self)
         self.worker_ref = weakref.ref(worker)
 
-        self.write_message('ready to transmit data')
+        self.write_message('connected to monitor, transmitting data...')
         IOLoop.current().add_callback(
             lambda: self.monitor()
         )
@@ -41,7 +40,6 @@ class WsHandler(WebSocketHandler):
     async def monitor(self):
         try:
             while True:
-                await sleep(3)
                 await self.write_message(system_data())
         except StreamClosedError:
             pass
