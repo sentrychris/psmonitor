@@ -52,7 +52,7 @@
             <div class="col-4">
                 <p class="lead mb-2">Events:</p>
                 <div id="event-log" class="font-monospace small">
-
+                    
                 </div>
             </div>
             <div class="col-8">
@@ -63,8 +63,6 @@
         </div>
     </div>
     <script>
-        const url = 'ws://192.168.1.100:4200/ws'
-
         document.addEventListener('DOMContentLoaded', () => {
             const log = {
                 event: document.querySelector('#event-log'),
@@ -75,7 +73,7 @@
                     log[type].append(node)
                 }
             }
-
+            
             const state = {
                 cpu: {
                     temp: document.querySelector('#cpu-temp'),
@@ -93,35 +91,52 @@
                     }
                 }
             }
+            
+            fetch('/', {
+                method: 'POST',
+                body: { connection: 'monitor' }
+            }).then((response) => {
+                return response.json()
+            }).then((worker) => {
+                const url = `ws://192.168.1.100:4200/ws?id=${worker.id}`
+                
+                let connection = null
+                document.querySelector('#endpoint-open').addEventListener('click', () => {
+                    log.write('event', 'connecting to websocket')
+                    connection = connection ?? new WebSocket(url)
+                    
+                    connection.onopen = () => {
+                        log.write('event', 'websocket is connected')
+                    }
+                    
+                    connection.onmessage = (response) => {
+                        log.write('output', response.data)
+                        try {
+                            const data = JSON.parse(response.data)
+                            for (const key in data.cpu) {
+                                state.set('cpu', key, data.cpu[key])
+                            }
+                            for (const key in data.memory) {
+                                state.set('memory', key, data.memory[key])
+                            }
+                        } catch (error) {}
+                    }
 
-            let connection = null
-            document.querySelector('#endpoint-open').addEventListener('click', () => {
-                log.write('event', 'connecting to websocket')
-                connection = connection ?? new WebSocket(url)
-                connection.onopen = () => {
-                    log.write('event', 'websocket is connected')
-                }
-                connection.onmessage = (response) => {
-                    log.write('output', response.data)
-                    const data = JSON.parse(response.data)
-                    for (const key in data.cpu) {
-                        state.set('cpu', key, data.cpu[key])
+                    connection.onclose = (response) => {
+                        log.write('event', 'websocket connection closed')
+                        connection = null;
                     }
-                    for (const key in data.memory) {
-                        state.set('memory', key, data.memory[key])
+                })
+                
+                
+                document.querySelector('#endpoint-close').addEventListener('click', () => {
+                    console.log(connection)
+                    if (connection) {
+                        log.write('event', 'closing websocket connection')
+                        window.conn = connection
+                        connection.close()
                     }
-                }
-                connection.onclose = (response) => {
-                    log.write('event', 'websocket connection closed')
-                    connection = null;
-                }
-            })
-            document.querySelector('#endpoint-close').addEventListener('click', () => {
-                console.log(connection)
-                if (connection) {
-                    console.log("closing websocket connection")
-                    connection.close()
-                }
+                })
             })
         })
     </script>

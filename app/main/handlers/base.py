@@ -1,6 +1,16 @@
 import tornado.web
 
 
+workers = {}
+
+
+def recycle(worker):
+    if worker.handler:
+        return
+    workers.pop(worker.id, None)
+    worker.close()
+
+
 class BaseHandler(tornado.web.RequestHandler):
     def data_received(self, chunk: bytes):
         pass
