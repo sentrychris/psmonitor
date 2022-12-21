@@ -4,7 +4,7 @@ import psutil
 def system_data():
     system = dict()
     system["cpu"] = cpu()
-    system["memory"] = memory()
+    system["mem"] = memory()
     system["uptime"] = uptime()
 
     return system
@@ -18,7 +18,24 @@ def uptime():
     except Exception:
         return "Cannot open uptime file: /proc/uptime"
 
-    return float(contents[0])
+    total_seconds = float(contents[0])
+    days = int(total_seconds / 86400)
+    hours = int((total_seconds % 86400) / 3600)
+    minutes = int((total_seconds % 3600) / 60)
+    seconds = int(total_seconds % 60)
+
+    uptime = ""
+
+    if days > 0:
+        uptime += str(days) + " " + (days == 1 and "day" or "days") + ", "
+    if len(uptime) > 0 or hours > 0:
+        uptime += str(hours) + " " + (hours == 1 and "hour" or "hours") + ", "
+    if len(uptime) > 0 or minutes > 0:
+        uptime += str(minutes) + " " + (minutes == 1 and "minute" or "minutes") + ", "
+
+    uptime += str(seconds) + " " + (seconds == 1 and "second" or "seconds")
+
+    return uptime
 
 
 def cpu():

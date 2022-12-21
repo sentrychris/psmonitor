@@ -28,6 +28,7 @@
             <div class="col d-flex justify-content-start align-items-center gap-3">
                 <button class="btn btn-sm btn-success" id="endpoint-open">Open</button>
                 <button class="btn btn-sm btn-danger" id="endpoint-close">Close</button>
+                <button class="btn btn-sm btn-dark" id="output-clear">Clear</button>
             </div>
         </div>
         <hr />
@@ -63,14 +64,25 @@
         </div>
     </div>
     <script>
+        function time() {
+            const time = new Date()
+            return ("0" + time.getHours()).slice(-2)   + ":" + 
+                ("0" + time.getMinutes()).slice(-2) + ":" + 
+                ("0" + time.getSeconds()).slice(-2)
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const log = {
                 event: document.querySelector('#event-log'),
                 output: document.querySelector('#output-log'),
                 write: (type, message) => {
                     const node = document.createElement('p')
-                    node.innerText = message
+                    node.innerText = `[${time()}] ${message}`
                     log[type].append(node)
+                },
+                clear: () => {
+                    log.output.innerHTML = ''
+                    log.write('event', 'output log cleared')
                 }
             }
             
@@ -80,7 +92,7 @@
                     usage: document.querySelector('#cpu-usage'),
                     freq: document.querySelector('#cpu-freq'),
                 },
-                memory: {
+                mem: {
                     used: document.querySelector('#mem-used'),
                     free: document.querySelector('#mem-free'),
                     total: document.querySelector('#mem-total'),
@@ -118,8 +130,8 @@
                         for (const key in data.cpu) {
                             state.set('cpu', key, data.cpu[key])
                         }
-                        for (const key in data.memory) {
-                            state.set('memory', key, data.memory[key])
+                        for (const key in data.mem) {
+                            state.set('mem', key, data.mem[key])
                         }
                     } catch (error) {}
                 }
@@ -132,13 +144,14 @@
             
             
             document.querySelector('#endpoint-close').addEventListener('click', () => {
-                console.log(connection)
                 if (connection) {
                     log.write('event', 'closing websocket connection')
                     window.conn = connection
                     connection.close()
                 }
             })
+
+            document.querySelector('#output-clear').addEventListener('click', log.clear)
         })
     </script>
 </body>
