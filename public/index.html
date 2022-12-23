@@ -10,6 +10,9 @@
         p {
             margin-bottom: 0
         }
+        .small {
+            font-size: .75rem
+        }
         #app {
             max-height: 500px;
         }
@@ -18,6 +21,13 @@
             overflow-y: scroll;
             border: 1px solid #aaaaaa;
             background: #eeeeee;
+        }
+        #output-log p {
+            color: #aaaaaa;
+        }
+        #output-log p:last-child {
+            color: #5f5feb;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -45,6 +55,14 @@
                 <p>Used: <span id="mem-used">--</span> GB</p>
                 <p>Free: <span id="mem-free">--</span> GB</p>
                 <p>Total: <span id="mem-total">--</span> GB</p>
+                <p>Percent: <span id="mem-percent">--</span> %</p>
+            </div>
+            <div class="col">
+                <p class="lead mb-2">Disk:</p>
+                <p>Used: <span id="disk-used">--</span> GB</p>
+                <p>Free: <span id="disk-free">--</span> GB</p>
+                <p>Total: <span id="disk-total">--</span> GB</p>
+                <p>Percent: <span id="disk-percent">--</span> %</p>
             </div>
         </div>
         <hr class="my-3" />
@@ -79,6 +97,7 @@
                     const node = document.createElement('p')
                     node.innerText = `[${time()}] ${message}`
                     log[type].append(node)
+                    log[type].scrollTop = log[type].scrollHeight
                 },
                 clear: () => {
                     log.output.innerHTML = ''
@@ -96,6 +115,13 @@
                     used: document.querySelector('#mem-used'),
                     free: document.querySelector('#mem-free'),
                     total: document.querySelector('#mem-total'),
+                    percent: document.querySelector('#mem-percent'),
+                },
+                disk: {
+                    used: document.querySelector('#disk-used'),
+                    free: document.querySelector('#disk-free'),
+                    total: document.querySelector('#disk-total'),
+                    percent: document.querySelector('#disk-percent'),
                 },
                 set: (key, metric, value) => {
                     if (state[key] && Object.prototype.hasOwnProperty.call(state[key], metric)) {
@@ -132,6 +158,9 @@
                         }
                         for (const key in data.mem) {
                             state.set('mem', key, data.mem[key])
+                        }
+                        for (const key in data.disk) {
+                            state.set('disk', key, data.disk[key])
                         }
                     } catch (error) {}
                 }

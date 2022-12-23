@@ -1,5 +1,7 @@
 import uuid
 import os.path
+# import ssl
+from tornado.httpserver import HTTPServer
 from tornado.options import define, options
 from tornado.ioloop import IOLoop
 from app.main import create_app
@@ -14,12 +16,16 @@ app = create_app({
     'debug': True
 })
 
-define('address', default='0.0.0.0', help='Listen address')
 define('port', default=4200, help='Listen port', type=int)
 
+# ssl_dir = str(base_dir + '/ssl')
+# ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+# ssl_ctx.load_cert_chain(os.path.join(ssl_dir, "host.crt"),
+#                         os.path.join(ssl_dir, "host.key"))
 
 def run():
-    app.listen(options.port, options.address)
+    http = HTTPServer(app)
+    http.listen(options.port)
     print("Listening on http://localhost:" + str(options.port))
     IOLoop.current().start()
 

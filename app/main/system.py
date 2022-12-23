@@ -5,6 +5,7 @@ def system_data():
     system = dict()
     system["cpu"] = cpu()
     system["mem"] = memory()
+    system["disk"] = disk()
     system["uptime"] = uptime()
 
     return system
@@ -49,9 +50,20 @@ def cpu():
 def memory():
     mem = psutil.virtual_memory()
 
-    return {
+    return dict({
         'total': round(mem.total / (1024.0 ** 3), 2),
         'used': round(mem.used / (1024.0 ** 3), 2),
         'free': round(mem.free / (1024.0 ** 3), 2),
         'percent': mem.percent
-    }
+    })
+
+
+def disk():
+    disk = psutil.disk_usage('/')
+
+    return dict({
+        'total': round(disk.total / (1024.0 ** 3), 2),
+        'used': round(disk.used / (1024.0 ** 3), 2),
+        'free': round(disk.free / (1024.0 ** 3), 2),
+        'percent': disk.percent
+    })
