@@ -13,15 +13,15 @@ class HttpHandler(BaseHandler):
         self.render('index.html')
 
     def post(self):
-        worker_id = None
-        status = None
+        id = None
+        error = None
 
         try:
             worker = self.connect()
         except Exception as e:
-            status = str(e)
+            error = str(e)
         else:
-            worker_id = worker.id
-            workers[worker_id] = worker
+            id = worker.id
+            workers[id] = worker
 
-        self.write(dict(id=worker_id, status=status))
+        self.write(dict(id=id, error=error))

@@ -5,6 +5,7 @@ from tornado.iostream import StreamClosedError
 from tornado.web import Application
 from tornado.httputil import HTTPServerRequest
 from ..system import system_data
+from ..network import network_data
 from .base import workers
 
 
@@ -48,6 +49,18 @@ class WsHandler(WebSocketHandler):
         finally:
             self.close()
 
+    async def network(self):
+        try:
+            while True:
+                data = await network_data()
+                await self.write_message(data)
+        except StreamClosedError:
+            pass
+        except WebSocketClosedError:
+            pass
+        finally:
+            self.close()
+
     def on_message(self, message):
         self.write_message('message received %s' % message)
 
@@ -55,4 +68,4 @@ class WsHandler(WebSocketHandler):
         worker = self.worker_ref() if self.worker_ref else None
 
         if worker:
-            worker.close()
+            worker.close()        
