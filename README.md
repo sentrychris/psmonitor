@@ -92,3 +92,6 @@ I hope you like it!
 Feel free to contribute to this project, or the [Pi Monitor](https://github.com/chrisrowles/pi-monitor-v3), or the [Pi Monitor API](https://github.com/chrisrowles/pi-monitor-api).
 
 I'm alaways looking for help and new ideas, this is a fun personal project and so if you're a bit new of a bit anxious about contributing to projects, then please feel free to get in tocuh with me and we'll find a way to get you started, we all start somewhere! :)
+
+## License
+This software is open-sourced software licensed under the MIT license.
