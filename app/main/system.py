@@ -7,6 +7,7 @@ def system_data():
     system["mem"] = memory()
     system["disk"] = disk()
     system["uptime"] = uptime()
+    system["processes"] = processes()
 
     return system
 
@@ -67,3 +68,18 @@ def disk():
         'free': round(disk.free / (1024.0 ** 3), 2),
         'percent': disk.percent
     })
+
+
+def processes():
+    processes = []
+    for proc in psutil.process_iter():
+        try:
+            process = proc.as_dict(attrs=['pid', 'name', 'username'])
+            process['mem'] = round(proc.memory_info().rss / (1024 * 1024), 2)
+            processes.append(process)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+    processes = sorted(processes, key=lambda sort: sort['mem'], reverse=True)
+
+    return processes[:10]
