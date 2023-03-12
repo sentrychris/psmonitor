@@ -1,8 +1,0 @@
-# -*- conf -*-
-
-[program:pi-monitor-websoscket]
-process_name = pi-monitor-websocket-%(process_num)s
-command = python /var/www/tornado-websocket/manage.py --daemon
-stdout_logfile=/var/log/supervisor/%(program_name)s-%(process_num)s.log
-numprocs = 1
-numprocs_start = 9005
