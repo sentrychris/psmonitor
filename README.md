@@ -35,9 +35,36 @@ This project includes [psutil](https://pypi.org/project/psutil/) scripts for gat
     python manage.py run --port=<port> --address=<address>
     ```
 
+## Structure
+
+The project is structured as follows:
+
+```
+app/
+├── handlers/            - Request handlers 
+│   ├── base.py          - Base handler (sets default headers for CORS)
+│   ├── http.py          - HTTP hanlder (handles standard HTTP requests)
+│   └── websocket.py     - Websocket handler (handles websocket connections)
+├── http/                - Services containing logic for HTTP requests
+│   └── system.py        - Contains logic to handle requests for system data
+├── websocket/           - Services containing logic for websocket connections
+│   └── system.py        - Contains logic to handle requests for system data
+├── network.py           - Core network monitoring script
+├── system.py            - Core system monitoring script
+├── worker.py            - Handles workers for concurrent socket connections
+├── public/              - Public folder
+│   └── index.html       - Simple dashboard with js websocket implementation
+├── supervisor/          - Supervisor script to run the service as a managed process
+├── .gitignore           - Ignore files for git
+├── LICENSE              - License
+├── manage.py            - Utility to control the server
+├── README.md            - This file
+└── requirements.txt     - Project dependencies
+```
+
 ### Testing it works
 
-The websocket server comes with a simple frontend to test the websocket connection:
+The websocket server comes with a simple dashboard to test the websocket connection:
 
 ![Image](https://i.imgur.com/d52ULxS.png)
 
@@ -47,7 +74,7 @@ If you would like to run the server in the background, you can use the superviso
 
 1. Copy the supervisor script:
     ```sh
-    cp ./supervisor/monitor.supervisor /etc/supervisor/conf.d/
+    cp ./supervisor/psutil-websocket-monitor.supervisor /etc/supervisor/conf.d/
     ```
 
 2. Make any necessary changes (for example, you might need to modify the filepath in the command):

@@ -1,8 +1,0 @@
-# -*- conf -*-
-
-[program:pi-monitor-wss]
-process_name = pi-monitor-wss-%(process_num)s
-command = python /var/www/pi-monitor-wss/manage.py --daemon
-stdout_logfile=/var/log/supervisor/%(program_name)s-%(process_num)s.log
-numprocs = 1
-numprocs_start = 9005
