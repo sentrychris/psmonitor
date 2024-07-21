@@ -1,4 +1,9 @@
 import psutil
+from concurrent.futures import ThreadPoolExecutor
+
+
+# Create a thread pool executor for parallel data gathering
+executor = ThreadPoolExecutor(max_workers=5)
 
 
 def system_data():
@@ -16,14 +21,20 @@ def system_data():
             - "processes": List of top 10 processes by memory usage.
     """
 
-    system = dict()
-    system["cpu"] = cpu()
-    system["mem"] = memory()
-    system["disk"] = disk()
-    system["uptime"] = uptime()
-    system["processes"] = processes()
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        cpu_future = executor.submit(cpu)
+        memory_future = executor.submit(memory)
+        disk_future = executor.submit(disk)
+        uptime_future = executor.submit(uptime)
+        processes_future = executor.submit(processes)
 
-    return system
+        return {
+            "cpu": cpu_future.result(),
+            "mem": memory_future.result(),
+            "disk": disk_future.result(),
+            "uptime": uptime_future.result(),
+            "processes": processes_future.result()
+        }
 
 
 def uptime():
@@ -39,30 +50,23 @@ def uptime():
     """
 
     try:
-        f = open('/proc/uptime')
-        contents = f.read().split()
-        f.close()
+        with open('/proc/uptime') as f:
+            total_seconds = float(f.read().split()[0])
     except Exception:
         return 'Cannot open uptime file: /proc/uptime'
 
-    total_seconds = float(contents[0])
-    days = int(total_seconds / 86400)
-    hours = int((total_seconds % 86400) / 3600)
-    minutes = int((total_seconds % 3600) / 60)
-    seconds = int(total_seconds % 60)
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
 
-    uptime = ""
+    uptime_parts = [
+        f"{int(days)} day{'s' if days != 1 else ''}" if days else "",
+        f"{int(hours)} hour{'s' if hours != 1 else ''}" if hours else "",
+        f"{int(minutes)} minute{'s' if minutes != 1 else ''}" if minutes else "",
+        f"{int(seconds)} second{'s' if seconds != 1 else ''}" if seconds else ""
+    ]
 
-    if days > 0:
-        uptime += str(days) + " " + (days == 1 and "day" or "days") + ", "
-    if len(uptime) > 0 or hours > 0:
-        uptime += str(hours) + " " + (hours == 1 and "hour" or "hours") + ", "
-    if len(uptime) > 0 or minutes > 0:
-        uptime += str(minutes) + " " + (minutes == 1 and "minute" or "minutes") + ", "
-
-    uptime += str(seconds) + " " + (seconds == 1 and "second" or "seconds")
-
-    return uptime
+    return ", ".join(part for part in uptime_parts if part)
 
 
 def cpu():
@@ -78,11 +82,11 @@ def cpu():
             - "freq": Current CPU frequency in MHz.
     """
 
-    return dict({
+    return {
         'usage': round(psutil.cpu_percent(1), 2),
         'temp': 50,  # Placeholder value for CPU temperature
         'freq': round(psutil.cpu_freq().current, 2)
-    })
+    }
 
 
 def memory():
@@ -99,14 +103,14 @@ def memory():
             - "percent": Memory usage percentage.
     """
 
-    mem = psutil.virtual_memory()
+    memory_data = psutil.virtual_memory()
 
-    return dict({
-        'total': round(mem.total / (1024.0 ** 3), 2),
-        'used': round(mem.used / (1024.0 ** 3), 2),
-        'free': round(mem.free / (1024.0 ** 3), 2),
-        'percent': mem.percent
-    })
+    return {
+        'total': round(memory_data.total / (1024.0 ** 3), 2),
+        'used': round(memory_data.used / (1024.0 ** 3), 2),
+        'free': round(memory_data.free / (1024.0 ** 3), 2),
+        'percent': memory_data.percent,
+    }
 
 
 def disk():
@@ -123,14 +127,14 @@ def disk():
             - "percent": Disk usage percentage.
     """
 
-    disk = psutil.disk_usage('/')
+    disk_data = psutil.disk_usage('/')
 
-    return dict({
-        'total': round(disk.total / (1024.0 ** 3), 2),
-        'used': round(disk.used / (1024.0 ** 3), 2),
-        'free': round(disk.free / (1024.0 ** 3), 2),
-        'percent': disk.percent
-    })
+    return {
+        'total': round(disk_data.total / (1024.0 ** 3), 2),
+        'used': round(disk_data.used / (1024.0 ** 3), 2),
+        'free': round(disk_data.free / (1024.0 ** 3), 2),
+        'percent': disk_data.percent,
+    }
 
 
 def processes():
@@ -149,14 +153,12 @@ def processes():
     """
     
     processes = []
-    for proc in psutil.process_iter():
+    for proc in psutil.process_iter(['pid', 'name', 'username', 'memory_info']):
         try:
-            process = proc.as_dict(attrs=['pid', 'name', 'username'])
-            process['mem'] = round(proc.memory_info().rss / (1024 * 1024), 2)
-            processes.append(process)
+            process_info = proc.info
+            process_info['mem'] = round(process_info['memory_info'].rss / (1024 * 1024), 2)
+            processes.append(process_info)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
+            continue
 
-    processes = sorted(processes, key=lambda sort: sort['mem'], reverse=True)
-
-    return processes[:10]
+    return sorted(processes, key=lambda p: p['mem'], reverse=True)[:10]
