@@ -8,7 +8,7 @@ def parse_wifi_info():
     info = {}
 
     interface = get_wifi_interface()
-    print(interface)
+    print(str(" interface: ") + interface)
 
     try:
         interface = get_wifi_interface()
@@ -35,7 +35,10 @@ def parse_wifi_info():
 
 def get_wifi_interface():
     interfaces = netifaces.interfaces()
-    print(interfaces)
+    for interface in interfaces:
+        if interface.startswith("wl") or "wireless" in interface:
+            return interface
+        return None
 
 
 def run_wifi_speedtest():
