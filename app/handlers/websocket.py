@@ -7,7 +7,7 @@ from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from ..websocket.system import get_system_data, executor
-from ..network import network_data
+from ..websocket.network import get_network_data
 from .base import workers
 
 
@@ -29,8 +29,8 @@ class WebsocketHandler(WebSocketHandler):
         data_received(chunk: bytes): Receives data chunks (no operation in this handler).
         check_origin(origin: str): Checks the origin of the request (always allows connections).
         open(): Handles the opening of a WebSocket connection.
-        monitor(): Coroutine that continuously sends system data to the client.
-        network(): Coroutine that continuously sends network data to the client.
+        monitor_system(): Coroutine that continuously sends system data to the client.
+        monitor_network(): Coroutine that continuously sends network data to the client.
         on_message(message: str): Handles incoming messages from the WebSocket client.
         on_close(): Cleans up and closes the associated worker when the connection closes.
     """
@@ -90,10 +90,11 @@ class WebsocketHandler(WebSocketHandler):
         self.worker_ref = weakref.ref(worker)
 
         self.write_message('connected to monitor, transmitting data...')
-        self.loop.add_callback(self.monitor)
+        self.loop.add_callback(self.monitor_system)
+        # self.loop.add_callback(self.monitor_network)
 
 
-    async def monitor(self):
+    async def monitor_system(self):
         """
         Coroutine that continuously retrieves system data using a thread pool executor
         and sends it to the WebSocket client. Closes the connection if an error occurs
@@ -111,7 +112,7 @@ class WebsocketHandler(WebSocketHandler):
             self.close()
 
 
-    async def network(self):
+    async def monitor_network(self):
         """
         Coroutine that continuously retrieves network data using asynchronous methods
         and sends it to the WebSocket client. Closes the connection if an error occurs
@@ -120,11 +121,10 @@ class WebsocketHandler(WebSocketHandler):
 
         try:
             while True:
-                data = await network_data()
-                await self.write_message(data)
-        except StreamClosedError:
-            pass
-        except WebSocketClosedError:
+                data = await self.loop.run_in_executor(executor, get_network_data)
+                if data:
+                    await self.write_message(data)
+        except (StreamClosedError, WebSocketClosedError):
             pass
         finally:
             self.close()

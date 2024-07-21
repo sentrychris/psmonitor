@@ -2,41 +2,6 @@ import asyncio
 import psutil
 
 
-def network_data(avg_in_out=False):
-    """
-    Gathers network data including interface details and statistics.
-
-    This function retrieves the list of network interfaces and their statistics. Optionally,
-    it can also calculate the average network I/O statistics over a specified interval for each interface.
-
-    Args:
-        avg_in_out (bool): If True, calculates and includes average network I/O statistics over a specified interval.
-                           Defaults to False.
-
-    Returns:
-        dict: A dictionary containing network interfaces, their statistics, and optionally their average I/O statistics.
-              The structure is as follows:
-                - "interfaces": List of network interface names.
-                - "statistics": A dictionary of network statistics for each interface.
-                - "averages" (optional): A dictionary of average network I/O statistics for each interface (included only if avg_in_out is True).
-    """
-
-    data = {
-        "interfaces": get_interfaces(),
-        "statistics": get_statistics(),
-    }
-
-    if avg_in_out is True:
-        interfaces = get_interfaces()
-
-        averages = {}
-        for interface in interfaces:
-            averages[interface] = asyncio.run(get_avg_in_out(interface))
-        data["averages"] = averages
-
-    return data
-
-
 async def get_avg_in_out(inet="wlan0", interval=5, sample_rate=0.1):
     """
     Asynchronously calculates average network statistics for a given network interface over a specified interval.
