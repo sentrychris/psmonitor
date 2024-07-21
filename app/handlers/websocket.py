@@ -6,7 +6,7 @@ from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
-from ..system import system_data, executor
+from ..websocket.system import get_system_data, executor
 from ..network import network_data
 from .base import workers
 
@@ -102,7 +102,7 @@ class WebsocketHandler(WebSocketHandler):
 
         try:
             while True:
-                data = await self.loop.run_in_executor(executor, system_data)
+                data = await self.loop.run_in_executor(executor, get_system_data)
                 if data:
                     await self.write_message(data)
         except (StreamClosedError, WebSocketClosedError):

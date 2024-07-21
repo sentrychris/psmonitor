@@ -1,43 +1,7 @@
 import psutil
 
-from concurrent.futures import ThreadPoolExecutor
 
-
-# Determine the number of available CPU cores
-num_cores = psutil.cpu_count(logical=True)
-max_workers = num_cores * 4
-
-# Create a thread pool executor for parallel data gathering
-executor = ThreadPoolExecutor(max_workers=max_workers)
-
-
-def system_data():
-    """
-    Gathers system data including CPU, memory, disk usage, uptime, and processes.
-
-    This function collects various system statistics and returns them in a dictionary.
-
-    Returns:
-        dict: A dictionary containing the following keys:
-            - "cpu": CPU usage, temperature, and frequency.
-            - "mem": Memory usage statistics.
-            - "disk": Disk usage statistics.
-            - "uptime": System uptime.
-            - "processes": List of top 10 processes by memory usage.
-    """
-
-    futures = {
-        "cpu": executor.submit(cpu),
-        "mem": executor.submit(memory),
-        "disk": executor.submit(disk),
-        "uptime": executor.submit(uptime),
-        "processes": executor.submit(processes)
-    }
-
-    return {key: future.result() for key, future in futures.items()}
-
-
-def uptime():
+def get_uptime():
     """
     Retrieves system uptime.
 
@@ -69,7 +33,7 @@ def uptime():
     return ", ".join(part for part in uptime_parts if part)
 
 
-def cpu():
+def get_cpu():
     """
     Retrieves CPU usage statistics.
 
@@ -89,7 +53,7 @@ def cpu():
     }
 
 
-def memory():
+def get_memory():
     """
     Retrieves memory usage statistics.
 
@@ -113,7 +77,7 @@ def memory():
     }
 
 
-def disk():
+def get_disk():
     """
     Retrieves disk usage statistics.
 
@@ -137,7 +101,7 @@ def disk():
     }
 
 
-def processes():
+def get_processes():
     """
     Retrieves a list of top 10 processes by memory usage.
 

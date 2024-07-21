@@ -15,11 +15,11 @@ async def network_data():
     """
 
     return {
-        "stats": await stats()
+        "stats": await get_statistics()
     }
 
 
-async def stats(inet="wlan0"):
+async def get_statistics(inet="wlan0"):
     """
     Asynchronously calculates network statistics for a given network interface.
 

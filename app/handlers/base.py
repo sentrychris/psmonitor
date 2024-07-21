@@ -30,7 +30,7 @@ class BaseHandler(RequestHandler):
 
     def set_default_headers(self):
         """
-        Sets default headers for CORS.
+        Sets default headers for CORS and content type.
         """
 
         self.set_header("Access-Control-Allow-Origin", "*")

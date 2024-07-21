@@ -2,12 +2,13 @@ from tornado.ioloop import IOLoop
 
 from ..worker import Worker
 from .base import BaseHandler, workers, recycle
+from ..http.system import get_system_data
 
 
 class HttpHandler(BaseHandler):
     """
-    HTTPHandler class for managing connections. This handler processes connection requests
-    via HTTP POST and serves the connection index page via HTTP GET. 
+    HTTPHandler class for managing connections and serving requests for data. This handler processes
+    connection requests via HTTP POST and serves the connection index page and data via HTTP GET. 
     """
 
 
@@ -50,3 +51,33 @@ class HttpHandler(BaseHandler):
             workers[id] = worker
 
         self.write(dict(id=id, status=status))
+
+
+class HttpSystemHandler(BaseHandler):
+    """
+    HttpSystemHandler class for handling http requests for data. This handler processes requests
+    via HTTP GET and serves system data. 
+    """
+
+    def get(self):
+        """
+        Default GET handler
+        """
+
+        self.set_header("Content-Type", "application/json")
+        self.write(get_system_data())
+
+
+class HttpNetworkHandler(BaseHandler):
+    """
+    HttpNetworkHandler class for handling http requests for data. This handler processes requests
+    via HTTP GET and serves system data. 
+    """
+
+    def get(self):
+        """
+        Default GET handler
+        """
+
+        self.set_header("Content-Type", "application/json")
+        self.write(get_system_data())

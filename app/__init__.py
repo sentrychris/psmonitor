@@ -1,6 +1,6 @@
 from tornado.web import Application
 
-from .handlers.http import HttpHandler
+from .handlers.http import HttpHandler, HttpSystemHandler, HttpNetworkHandler
 from .handlers.websocket import WebsocketHandler
 
 
@@ -29,7 +29,9 @@ def create_app(settings):
 
     handlers = [
         (r'/', HttpHandler),
-        (r'/ws', WebsocketHandler)
+        (r'/system', HttpSystemHandler),
+        (r'/network', HttpNetworkHandler),
+        (r'/connect', WebsocketHandler),
     ]
 
     if settings is None:
