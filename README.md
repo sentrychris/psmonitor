@@ -68,6 +68,67 @@ The websocket server comes with a simple dashboard to test the websocket connect
 
 ![Image](https://i.imgur.com/d52ULxS.png)
 
+
+### Output
+
+Here is the example output from the websocket connection:
+
+```json
+{
+    "cpu": {
+        "usage": 0,
+        "temp": 50,
+        "freq": 2496
+    },
+    "mem": {
+        "total": 15.54,
+        "used": 1.61,
+        "free": 13.62,
+        "percent": 12.2
+    },
+    "disk": {
+        "total": 1006.85,
+        "used": 15.67,
+        "free": 939.97,
+        "percent": 1.6
+    },
+    "uptime": "18 hours, 43 minutes, 4 seconds",
+    "processes": [
+        {
+            "memory_info": [
+                601661440,
+                2731663360,
+                47755264,
+                84582400,
+                0,
+                611880960,
+                0
+            ],
+            "name": "node",
+            "username": "chris",
+            "pid": 424191,
+            "mem": 573.79
+        },
+        {
+            "memory_info": [
+                262885376,
+                12823240704,
+                55906304,
+                84582400,
+                0,
+                292528128,
+                0
+            ],
+            "name": "node",
+            "username": "chris",
+            "pid": 423236,
+            "mem": 250.71
+        },
+        ...
+    ]
+}
+```
+
 ### Running in the background
 
 If you would like to run the server in the background, you can use the supervisor script provided.
