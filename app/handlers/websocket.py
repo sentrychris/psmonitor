@@ -124,7 +124,7 @@ class WebsocketHandler(WebSocketHandler):
             self.close()
 
 
-    def on_message(self, message):
+    def on_message(self, message: str):
         """
         Handles incoming messages from the WebSocket client.
 
