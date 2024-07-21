@@ -8,12 +8,9 @@ from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
-from ..system import system_data
+from ..system import system_data, executor
 from ..network import network_data
 from .base import workers
-
-# Create a thread pool executor
-executor = ThreadPoolExecutor(max_workers=16)
 
 
 class WebsocketHandler(WebSocketHandler):
@@ -84,7 +81,7 @@ class WebsocketHandler(WebSocketHandler):
         self.worker_ref = weakref.ref(worker)
 
         self.write_message('connected to monitor, transmitting data...')
-        IOLoop.current().add_callback(self.monitor)
+        self.loop.add_callback(self.monitor)
 
 
     async def monitor(self):
@@ -96,7 +93,7 @@ class WebsocketHandler(WebSocketHandler):
 
         try:
             while True:
-                data = await IOLoop.current().run_in_executor(executor, system_data)
+                data = await self.loop.run_in_executor(executor, system_data)
                 if data:
                     await self.write_message(data)
         except (StreamClosedError, WebSocketClosedError):
