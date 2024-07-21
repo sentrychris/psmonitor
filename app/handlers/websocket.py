@@ -1,7 +1,5 @@
 import weakref
 
-from concurrent.futures import ThreadPoolExecutor
-from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.httputil import HTTPServerRequest
@@ -11,6 +9,10 @@ from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from ..system import system_data, executor
 from ..network import network_data
 from .base import workers
+
+
+active_connections = set()
+max_connections = 20
 
 
 class WebsocketHandler(WebSocketHandler):
@@ -68,6 +70,13 @@ class WebsocketHandler(WebSocketHandler):
         Handles the opening of a WebSocket connection. Retrieves the worker based on the 'id'
         argument, sets the worker for this handler, and starts the monitoring coroutine.
         """
+
+        if len(active_connections) >= max_connections:
+            self.write_message('Server is at full capacity. Please try again later.')
+            self.close()
+            return
+        
+        active_connections.add(self)
 
         worker = workers.pop(self.get_argument('id'), None)
 
@@ -139,6 +148,8 @@ class WebsocketHandler(WebSocketHandler):
         Handles the closing of the WebSocket connection. Cleans up and closes
         the associated worker if it exists.
         """
+
+        active_connections.discard(self)
 
         worker = self.worker_ref() if self.worker_ref else None
 
