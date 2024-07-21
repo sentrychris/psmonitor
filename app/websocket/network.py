@@ -1,18 +1,9 @@
 import asyncio
-from psutil import cpu_count
-from concurrent.futures import ThreadPoolExecutor
-
+from ..thread_pool import executor
 from ..network import get_avg_in_out, get_interfaces, get_statistics
 
-# Determine the number of available CPU cores
-num_cores = cpu_count(logical=True)
-max_workers = num_cores * 4
 
-# Create a thread pool executor for parallel data gathering
-executor = ThreadPoolExecutor(max_workers=max_workers)
-
-
-def get_network_data(avg_in_out=False):
+async def get_network_data(avg_in_out=False):
     """
     Gathers network data including interface details and statistics.
 
@@ -31,17 +22,20 @@ def get_network_data(avg_in_out=False):
                 - "averages" (optional): A dictionary of average network I/O statistics for each interface (included only if avg_in_out is True).
     """
 
+    loop = asyncio.get_running_loop()
+
     futures = {
-        "interfaces": executor.submit(get_interfaces),
-        "statistics": executor.submit(get_statistics),
+        "interfaces": loop.run_in_executor(executor, get_interfaces),
+        "statistics": loop.run_in_executor(executor, get_statistics),
     }
 
-    if avg_in_out is True:
-        interfaces = get_interfaces()
+    results = {key: await future for key, future in futures.items()}
 
-        averages = {}
-        for interface in interfaces:
-            averages[interface] = executor.submit(asyncio.run(get_avg_in_out(interface)))
-        futures["averages"] = averages
+    if avg_in_out:
+        interfaces = results["interfaces"]
+        avg_futures = {
+            interface: loop.run_in_executor(executor, get_avg_in_out, interface) for interface in interfaces
+        }
+        results["averages"] = {interface: await future for interface, future in avg_futures.items()}
 
-    return {key: future.result() for key, future in futures.items()}
+    return results
