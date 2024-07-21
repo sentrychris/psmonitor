@@ -22,8 +22,8 @@ app = create_app({
 
 
 # Define command-line options
-define('address', default='0.0.0.0', help='Listen address for the application')
-define('port', default=4200, help='Listen port for the application', type=int)
+define('address', default='localhost', help='Listen address for the application')
+define('port', default=4500, help='Listen port for the application', type=int)
 
 
 def run():

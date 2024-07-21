@@ -141,7 +141,7 @@
 
                 log.write('event', `created worker (${worker.id})`)
 
-                const url = `ws://localhost:4200/ws?id=${worker.id}`
+                const url = `ws://localhost:4500/ws?id=${worker.id}`
 
                 connection = connection ?? new WebSocket(url)
                 

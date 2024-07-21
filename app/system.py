@@ -21,20 +21,15 @@ def system_data():
             - "processes": List of top 10 processes by memory usage.
     """
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        cpu_future = executor.submit(cpu)
-        memory_future = executor.submit(memory)
-        disk_future = executor.submit(disk)
-        uptime_future = executor.submit(uptime)
-        processes_future = executor.submit(processes)
+    futures = {
+        "cpu": executor.submit(cpu),
+        "mem": executor.submit(memory),
+        "disk": executor.submit(disk),
+        "uptime": executor.submit(uptime),
+        "processes": executor.submit(processes)
+    }
 
-        return {
-            "cpu": cpu_future.result(),
-            "mem": memory_future.result(),
-            "disk": disk_future.result(),
-            "uptime": uptime_future.result(),
-            "processes": processes_future.result()
-        }
+    return {key: future.result() for key, future in futures.items()}
 
 
 def uptime():
