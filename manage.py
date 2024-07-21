@@ -22,7 +22,8 @@ app = create_app({
 
 
 # Define command-line options
-define('port', default=4200, help='Listen port', type=int)
+define('address', default='0.0.0.0', help='Listen address for the application')
+define('port', default=4200, help='Listen port for the application', type=int)
 
 
 def run():
@@ -33,10 +34,10 @@ def run():
     # Parse command line arguments
     parse_command_line()
 
+    # Create the server and listen on the specified port and address
     http = HTTPServer(app)
-    http.listen(options.port)
-
-    print("Listening on http://localhost:" + str(options.port))
+    http.listen(port=options.port, address=options.address)
+    print("Listening on http://{}:{}".format(options.address, options.port))
     IOLoop.current().start()
 
 
