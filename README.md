@@ -72,24 +72,21 @@ To connect to the WebSocket server, you can use any WebSocket client. Here is an
 1. Retrieve the assigned worker:
 
     ```js
-    const client = await fetch(location.pathname, {
+    const client = await fetch(`http://<server-address>`, {
         method: 'POST',
         body: { connection: 'monitor' }
     });
-
     const worker = await client.json()
     ```
 
 2. Open the WebSocket connection and retrieve data:
     ```js
-    const url = `ws://{{WSS_URL}}:{{WSS_PORT}}/ws?id=${worker.id}`;
+    const url = `ws://<server-address>:<port>/ws?id=${worker.id}`;
 
     connection = new WebSocket(url);
-
     connection.onopen = () => {
         log.write('event', 'websocket is connected');
     }
-
     connection.onmessage = (response) => {
         const data = JSON.parse(response.data);
     }
@@ -102,7 +99,7 @@ You can also use WebSocket clients in other programming languages, such as Pytho
     ```python
     import requests
 
-    response = requests.post('http://<server-address>/your-endpoint', json={'connection': 'monitor'})
+    response = requests.post('http://<server-address>', json={'connection': 'monitor'})
     worker = response.json()
     ```
 
