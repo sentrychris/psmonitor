@@ -43,7 +43,7 @@ def uptime():
 def cpu():
     return dict({
         'usage': round(psutil.cpu_percent(1), 2),
-        'temp': round(psutil.sensors_temperatures()['cpu_thermal'][0].current, 2),
+        'temp': 50, # round(psutil.sensors_temperatures()['cpu_thermal'][0].current, 2),
         'freq': round(psutil.cpu_freq().current, 2)
     })
 
