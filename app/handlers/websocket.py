@@ -154,4 +154,4 @@ class WebsocketHandler(WebSocketHandler):
         worker = self.worker_ref() if self.worker_ref else None
 
         if worker:
-            worker.close()        
+            worker.close()

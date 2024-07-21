@@ -1,4 +1,4 @@
-import asyncio
+from tornado.ioloop import IOLoop
 
 from ..thread_pool import executor
 from ..system import get_cpu, get_disk, get_memory, get_processes, get_uptime
@@ -19,7 +19,7 @@ async def get_system_data():
             - "processes": List of top 10 processes by memory usage.
     """
 
-    loop = asyncio.get_running_loop()
+    loop = IOLoop.current()
 
     futures = {
         "cpu": loop.run_in_executor(executor, get_cpu),

@@ -1,7 +1,26 @@
+import sys
+
+from tornado.ioloop import IOLoop
 from tornado.web import Application
 
 from .handlers.http import HttpHandler, HttpSystemHandler, HttpNetworkHandler
 from .handlers.websocket import WebsocketHandler
+from .thread_pool import executor
+
+
+def signal_handler(sig, frame):
+    """
+    Signal handler for graceful shutdown of the application.
+
+    Args:
+        sig (int): The signal number that triggered this handler.
+        frame (FrameType): The current stack frame (not used in this handler).
+    """
+
+    print('Shutting down gracefully...')
+    IOLoop.current().stop()
+    executor.shutdown(wait=True)
+    sys.exit(0)
 
 
 def create_app(settings):

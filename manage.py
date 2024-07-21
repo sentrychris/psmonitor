@@ -1,11 +1,12 @@
 import uuid
 import os.path
+import signal
 
 from tornado.httpserver import HTTPServer
 from tornado.options import define, options, parse_command_line
 from tornado.ioloop import IOLoop
 
-from app import create_app
+from app import create_app, signal_handler
 
 
 # Define base directory
@@ -43,4 +44,7 @@ def run():
 
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
     run()
