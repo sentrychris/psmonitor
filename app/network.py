@@ -13,8 +13,9 @@ async def network_data():
         dict: A dictionary containing network statistics for a specified network interface.
     """
 
-    network = dict()
-    network["stats"] = await stats()
+    return {
+        "stats": await stats()
+    }
 
 
 async def stats(inet="wlan0"):
@@ -34,21 +35,25 @@ async def stats(inet="wlan0"):
             - "out": Amount of data sent in MB over the interval.
     """
 
+    # Capture initial network stats
     net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inet]
     net_in_1 = net_stat.bytes_recv
     net_out_1 = net_stat.bytes_sent
 
+    # Wait for a second to capture the delta
     await sleep(1)
 
+    # Capture network stats after 1 second
     net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inet]
     net_in_2 = net_stat.bytes_recv
     net_out_2 = net_stat.bytes_sent
 
+    # Calculate the data received and sent in MB
     net_in = round((net_in_2 - net_in_1) / 1024 / 1024, 3)
     net_out = round((net_out_2 - net_out_1) / 1024 / 1024, 3)
 
-    return dict({
+    return {
         "interface": inet,
         "in": net_in,
         "out": net_out
-    })
+    }
