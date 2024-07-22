@@ -1,5 +1,6 @@
 import os
-import pwd
+import ctypes
+import getpass
 import psutil
 import platform
 
@@ -108,14 +109,22 @@ def get_uptime():
 
     Returns:
         str: A string representing the system uptime in days, hours, minutes, and seconds.
-              If the file cannot be read, returns an error message.
+            If the file cannot be read, returns an error message.
     """
 
-    try:
-        with open('/proc/uptime') as f:
-            total_seconds = float(f.read().split()[0])
-    except Exception:
-        return 'Cannot open uptime file: /proc/uptime'
+    if platform.system() == "Windows":
+        try:
+            # Get uptime in milliseconds
+            uptime_ms = ctypes.windll.kernel32.GetTickCount64()
+            total_seconds = uptime_ms / 1000.0
+        except Exception:
+            return 'Cannot retrieve uptime on Windows'
+    else:
+        try:
+            with open('/proc/uptime') as f:
+                total_seconds = float(f.read().split()[0])
+        except Exception:
+            return 'Cannot open uptime file: /proc/uptime'
 
     days, remainder = divmod(total_seconds, 86400)
     hours, remainder = divmod(remainder, 3600)
@@ -132,11 +141,18 @@ def get_uptime():
 
 
 def get_user():
-    return pwd.getpwuid(os.getuid())[0]
+    if platform.system() == "Windows":
+        return getpass.getuser()
+    else:
+        import pwd
+        return pwd.getpwuid(os.getuid())[0]
 
 
 def get_distro():
-    return os.popen('cat /etc/*-release | awk NR==1 | cut -c 12-').read().replace('"', '').rstrip()
+    if platform.system() == "Windows":
+        return platform.platform()
+    else:
+        return os.popen('cat /etc/*-release | grep "^PRETTY_NAME=" | cut -d= -f2').read().replace('"', '').strip()
 
 
 def get_kernel():
