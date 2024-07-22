@@ -1,4 +1,4 @@
-from ..system import get_cpu, get_disk, get_distro, get_kernel,\
+from ..system_service import get_cpu, get_disk, get_distro, get_kernel,\
     get_memory, get_processes, get_uptime, get_user
 
 

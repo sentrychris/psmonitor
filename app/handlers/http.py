@@ -3,6 +3,7 @@ from tornado.ioloop import IOLoop
 from ..worker import Worker
 from .base import BaseHandler, workers, recycle
 from ..http.system import get_system_data
+from ..http.network import get_network_data
 
 
 class HttpHandler(BaseHandler):
@@ -74,10 +75,10 @@ class HttpNetworkHandler(BaseHandler):
     via HTTP GET and serves system data. 
     """
 
-    def get(self):
+    async def get(self):
         """
         Default GET handler
         """
 
         self.set_header("Content-Type", "application/json")
-        self.write(get_system_data())
+        self.write(await get_network_data(True))

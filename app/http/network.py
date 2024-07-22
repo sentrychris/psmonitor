@@ -1,6 +1,3 @@
-from tornado.ioloop import IOLoop
-
-from ..thread_pool import executor
 from ..network_service import get_avg_in_out, get_interfaces, get_statistics
 
 
@@ -23,20 +20,16 @@ async def get_network_data(avg_in_out=False):
                 - "averages" (optional): A dictionary of average network I/O statistics for each interface (included only if avg_in_out is True).
     """
 
-    loop = IOLoop.current()
-
-    futures = {
-        "interfaces": loop.run_in_executor(executor, get_interfaces),
-        "statistics": loop.run_in_executor(executor, get_statistics),
+    results = {
+        "interfaces": get_interfaces(),
+        "statistics": get_statistics(),
     }
-
-    results = {key: await future for key, future in futures.items()}
 
     if avg_in_out:
         interfaces = results["interfaces"]
-        avg_futures = {
-            interface: loop.run_in_executor(executor, get_avg_in_out, interface) for interface in interfaces
+        averages = {
+            "interface": await get_avg_in_out(interface) for interface in interfaces
         }
-        results["averages"] = {interface: await future for interface, future in avg_futures.items()}
+        results["averages"] = averages
 
     return results
