@@ -102,29 +102,27 @@ Here is the example output from the websocket connection:
 }
 ```
 
-### Running in the background
+### Running as a managed process
 
-If you would like to run the server in the background, you can use the supervisor script provided.
+If you would like to run the server as a managed process, you can use the systemd service file provided.
 
-1. Copy the supervisor script:
+1. Copy the service file and make any necessary changes:
     ```sh
-    cp ./supervisor/psutil-websocket-monitor.supervisor /etc/supervisor/conf.d/
+    sudo cp ./psutil-websocket-monitor.service /etc/systemd/system/
     ```
 
-2. Make any necessary changes (for example, you might need to modify the filepath in the command):
-    ```conf
-    [program:psutil-websocket-monitor]
-    process_name = psutil-websocket-monitor-%(process_num)s
-    command = python /var/www/psutil-websocket-monitor/manage.py --daemon
-    stdout_logfile=/var/log/supervisor/%(program_name)s-%(process_num)s.log
-    numprocs = 1
-    numprocs_start = 9005
-    ```
-
-3. Start supervisor
+2. Reload the daemon to recognize the new service:
     ```sh
-    supervisord
+    sudo systemctl daemon-reload
     ```
+
+3. Start the service:
+    ```sh
+    sudo systemctl start psutil-websocket-monitor
+    ```
+
+Alternatively, you could use [supervisor](http://supervisord.org/) or something similar.
+
 
 ### Next steps
 

@@ -87,6 +87,8 @@ class WebsocketHandler(WebSocketHandler):
         self.set_nodelay(True)
 
         worker.set_handler(self)
+        # allow the handler to refer to the worker without preventing it from being garbage
+        # collected when it is no longer needed.
         self.worker_ref = weakref.ref(worker)
 
         self.write_message('connected to monitor, transmitting data...')

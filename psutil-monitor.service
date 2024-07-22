@@ -1,0 +1,13 @@
+[Unit]
+Description=Psutil Monitoring Service
+After=network.target
+
+[Service]
+User=chris
+Group=chris
+WorkingDirectory=/home/user/workspace/psutil-websocket-monitor
+ExecStart=/usr/bin/python3 /home/user/workspace/psutil-websocket-monitor/manage.py run
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

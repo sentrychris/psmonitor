@@ -1,8 +1,0 @@
-# -*- conf -*-
-
-[program:psutil-websocket-monitor]
-process_name = psutil-websocket-monitor-%(process_num)s
-command = python /var/www/psutil-websocket-monitor/manage.py --daemon
-stdout_logfile=/var/log/supervisor/%(program_name)s-%(process_num)s.log
-numprocs = 1
-numprocs_start = 9005
