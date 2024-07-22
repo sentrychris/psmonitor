@@ -1,14 +1,15 @@
 
 # psutil-websocket-monitor
 
-A simple system and network monitoring solution with real-time data transmission via a websocket server. This project was originally designed for connecting with the [Pi Monitor](https://github.com/sentrychris/pi-monitor-v3), however it can be used on any generic system.
+A simple system and network monitoring solution with real-time data transmission via a websocket server.
 
 This project includes [psutil](https://pypi.org/project/psutil/) scripts for gathering system and network statistics, and a [tornado](https://pypi.org/project/tornado/)-based websocket server for transmitting these statistics to connected clients.
+
+View an example [client dashboard here](https://github.com/sentrychris/system-monitor)
 
 ## Requirements
 
 - Python 3
-- Supervisor (required if you would like to run the websocket server process as a daemon)
 
 ## Features
 
