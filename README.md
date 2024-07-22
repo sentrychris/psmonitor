@@ -1,5 +1,5 @@
 
-# psutil-websocket-monitor
+# psmonitor
 
 A simple system and network monitoring solution with real-time data transmission via a websocket server.
 
@@ -23,7 +23,7 @@ View an example [client dashboard here](https://github.com/sentrychris/system-mo
 
 1. Clone this repository:
     ```sh
-    git clone git@github.com:sentrychris/psutil-websocket-monitor.git
+    git clone git@github.com:sentrychris/psmonitor.git
     ```
 
 2. Install dependencies:
@@ -109,7 +109,7 @@ If you would like to run the server as a managed process, you can use the system
 
 1. Copy the service file and make any necessary changes:
     ```sh
-    sudo cp ./psutil-websocket-monitor.service /etc/systemd/system/
+    sudo cp ./psmonitor.service /etc/systemd/system/
     ```
 
 2. Reload the daemon to recognize the new service:
@@ -119,7 +119,7 @@ If you would like to run the server as a managed process, you can use the system
 
 3. Start the service:
     ```sh
-    sudo systemctl start psutil-websocket-monitor
+    sudo systemctl start psmonitor
     ```
 
 Alternatively, you could use [supervisor](http://supervisord.org/) or something similar.

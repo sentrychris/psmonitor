@@ -81,4 +81,4 @@ class HttpNetworkHandler(BaseHandler):
         """
 
         self.set_header("Content-Type", "application/json")
-        self.write(await get_network_data(True))
+        self.write(await get_network_data())
