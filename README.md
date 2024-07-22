@@ -35,33 +35,6 @@ This project includes [psutil](https://pypi.org/project/psutil/) scripts for gat
     python manage.py run --port=<port> --address=<address>
     ```
 
-## Structure
-
-The project is structured as follows:
-
-```
-app/
-├── handlers/            - Request handlers 
-│   ├── base.py          - Base handler (sets default headers for CORS)
-│   ├── http.py          - HTTP hanlder (handles standard HTTP requests)
-│   └── websocket.py     - Websocket handler (handles websocket connections)
-├── http/                - Services containing logic for HTTP requests
-│   └── system.py        - Contains logic to handle requests for system data
-├── websocket/           - Services containing logic for websocket connections
-│   └── system.py        - Contains logic to handle requests for system data
-├── network.py           - Core network monitoring script
-├── system.py            - Core system monitoring script
-├── worker.py            - Handles workers for concurrent socket connections
-├── public/              - Public folder
-│   └── index.html       - Simple dashboard with js websocket implementation
-├── supervisor/          - Supervisor script to run the service as a managed process
-├── .gitignore           - Ignore files for git
-├── LICENSE              - License
-├── manage.py            - Utility to control the server
-├── README.md            - This file
-└── requirements.txt     - Project dependencies
-```
-
 ### Testing it works
 
 The websocket server comes with a simple dashboard to test the websocket connection:
