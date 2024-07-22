@@ -3,8 +3,8 @@ import sys
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
-from .handlers.http.http import HttpHandler, HttpSystemHandler, HttpNetworkHandler
-from .handlers.websocket.websocket import WebsocketHandler
+from .handler.http.http import HttpHandler, HttpSystemHandler, HttpNetworkHandler
+from .handler.websocket.websocket import WebsocketHandler
 from .thread_pool import executor
 
 
