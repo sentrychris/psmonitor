@@ -1,14 +1,28 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+
+
+project_root = os.getcwd()
+manage_script = os.path.join(project_root, 'manage.py')
+
+public_folder = os.path.join(project_root, 'public')
+icon_file = os.path.join(project_root, 'package', 'psmonitor.ico')
+version_file = os.path.join(project_root, 'package', 'version.rc')
+
 
 block_cipher = None
 
 
 a = Analysis(
-    ['manage.py'],
-    pathex=[],
+    [manage_script],
+    pathex=[project_root],
     binaries=[],
-    datas=[('public', 'public')],
+    datas=[
+        (public_folder, 'public'),
+        (icon_file, 'psmonitor.ico'),
+        (version_file, 'version.rc')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -20,9 +34,9 @@ a = Analysis(
     noarchive=False,
 )
 
-a.datas += [('psmonitor.ico', 'psmonitor.ico', 'DATA')]
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
 
 exe = EXE(
     pyz,
@@ -32,8 +46,8 @@ exe = EXE(
     a.datas,
     [],
     name='psmonitor',
-    icon='psmonitor.ico',
-    version='version.rc',
+    icon=icon_file,
+    version=version_file,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
