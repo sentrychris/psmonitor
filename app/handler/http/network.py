@@ -1,4 +1,5 @@
 from ...service.network_service import get_avg_in_out, get_interfaces, get_statistics
+from ...service.wifi_service import get_wifi_data
 
 
 async def get_network_data(avg_in_out=False):
@@ -22,6 +23,7 @@ async def get_network_data(avg_in_out=False):
 
     results = {
         "interfaces": get_interfaces(),
+        "wireless": get_wifi_data(),
         "statistics": get_statistics(),
     }
 
