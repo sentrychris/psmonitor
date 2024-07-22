@@ -6,9 +6,9 @@ from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
-from ..websocket.system import get_system_data
-from ..websocket.network import get_network_data
-from .base import workers
+from ..base import workers
+from .system import get_system_data
+from .network import get_network_data
 
 
 active_connections = set()

@@ -1,4 +1,4 @@
-from ..network_service import get_avg_in_out, get_interfaces, get_statistics
+from ...service.network_service import get_avg_in_out, get_interfaces, get_statistics
 
 
 async def get_network_data(avg_in_out=False):

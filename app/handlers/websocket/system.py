@@ -1,7 +1,7 @@
 from tornado.ioloop import IOLoop
 
-from ..thread_pool import executor
-from ..system_service import get_cpu, get_disk, get_memory, get_processes, get_uptime
+from ...thread_pool import executor
+from ...service.system_service import get_cpu, get_disk, get_memory, get_processes, get_uptime
 
 
 async def get_system_data():

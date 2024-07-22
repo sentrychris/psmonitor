@@ -1,6 +1,6 @@
 from tornado.ioloop import IOLoop
 
-from .handlers.websocket import WebsocketHandler
+from .handlers.websocket.websocket import WebsocketHandler
 
 
 class Worker(object):

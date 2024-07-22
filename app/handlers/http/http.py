@@ -1,9 +1,9 @@
 from tornado.ioloop import IOLoop
 
-from ..worker import Worker
-from .base import BaseHandler, workers, recycle
-from ..http.system import get_system_data
-from ..http.network import get_network_data
+from ...worker import Worker
+from ..base import BaseHandler, workers, recycle
+from .system import get_system_data
+from .network import get_network_data
 
 
 class HttpHandler(BaseHandler):
