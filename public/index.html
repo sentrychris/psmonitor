@@ -150,7 +150,7 @@
                 }
                 
                 connection.onmessage = (response) => {
-                    log.write('output', response.data)
+                    log.write('output', response.data + "\n\n")
                     try {
                         const data = JSON.parse(response.data)
                         for (const key in data.cpu) {

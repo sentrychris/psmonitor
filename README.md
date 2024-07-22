@@ -39,7 +39,7 @@ This project includes [psutil](https://pypi.org/project/psutil/) scripts for gat
 
 The websocket server comes with a simple dashboard to test the websocket connection:
 
-![Image](https://i.imgur.com/d52ULxS.png)
+![Image](./screenshot.png)
 
 
 ### Output
