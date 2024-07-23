@@ -18,9 +18,15 @@ def get_cpu():
             - "freq": Current CPU frequency in MHz.
     """
 
+    if platform.system() in ["Windows", "Darwin"]:
+        cpu_temp = "N/A" # TODO find an acceptable alternative for temps on windows and mac.
+    else:
+        cpu_temp = round(psutil.sensors_temperatures()['coretemp'][0].current, 2)
+
+
     return {
         'usage': round(psutil.cpu_percent(1), 2),
-        'temp': 50,  # Placeholder value for CPU temperature
+        'temp': cpu_temp,
         'freq': round(psutil.cpu_freq().current, 2)
     }
 

@@ -257,6 +257,8 @@ class SystemMonitorApp(tk.Tk):
             value = data.get(key, '')
             if meta and meta[0] and meta[0] == 'icon':
                 self.add_label_with_icon(frame, label, value)
+            elif meta and meta[0]:
+                self.add_label(frame, label, f"{value} {meta[0]}".strip())
             else:
                 self.add_label(frame, label, f"{value}".strip())
 
