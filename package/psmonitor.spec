@@ -4,7 +4,7 @@ import os
 
 
 project_root = os.getcwd()
-manage_script = os.path.join(project_root, 'manage.py')
+main_script = os.path.join(project_root, 'main.py')
 
 public_folder = os.path.join(project_root, 'public')
 icon_file = os.path.join(project_root, 'package', 'psmonitor.ico')
@@ -15,7 +15,7 @@ block_cipher = None
 
 
 a = Analysis(
-    [manage_script],
+    [main_script],
     pathex=[project_root],
     binaries=[],
     datas=[
@@ -54,7 +54,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

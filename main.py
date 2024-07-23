@@ -1,9 +1,38 @@
-import tkinter as tk
-from tkinter import ttk
+import uuid
+import json
+import os.path
+import signal
 import requests
 import websocket
 import threading
-import json
+
+import tkinter as tk
+from tkinter import ttk
+
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
+
+from app import create_app, signal_handler
+
+
+def start_server():
+    # Define base directory
+    base_dir = os.path.dirname(__file__)
+
+    # Create application with specified settings
+    app = create_app({
+        'template_path': os.path.join(base_dir, 'public'),
+        'static_path': os.path.join(base_dir, 'public'),
+        'cookie_secret': uuid.uuid1().hex,
+        'xsrf_cookies': False,
+        'debug': True
+    })
+
+    # Create the server and listen on the specified port and address
+    http = HTTPServer(app)
+    http.listen(port=4500, address='localhost')
+    print("Listening on http://{}:{}".format('localhost', 4500))
+    IOLoop.current().start()
 
 
 data = {
@@ -30,8 +59,10 @@ data = {
         "kernel": "",
         "uptime": ""
     },
+    "uptime": "",
     "processes": []
 }
+
 
 class SystemMonitorApp(tk.Tk):
 
@@ -39,7 +70,8 @@ class SystemMonitorApp(tk.Tk):
     def __init__(self, data):
         super().__init__()
         self.title("System Monitor")
-        self.geometry("450x480")
+        self.geometry("460x480")
+        self.resizable(False, False)
         self.create_widgets(data)
         self.ws = None
 
@@ -197,7 +229,7 @@ class SystemMonitorApp(tk.Tk):
         data['mem'] = new_data.get('mem', data['mem'])
         data['disk'] = new_data.get('disk', data['disk'])
         data['user'] = new_data.get('user', data['user'])
-        data['platform']['uptime'] = new_data.get('platform', {}).get('uptime', data['platform']['uptime'])
+        data['platform']['uptime'] = new_data.get('uptime', data['uptime'])
         data['processes'] = new_data.get('processes', data['processes'])
 
 
@@ -243,5 +275,14 @@ class SystemMonitorApp(tk.Tk):
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    # Start Tornado server in a separate thread
+    tornado_thread = threading.Thread(target=start_server)
+    tornado_thread.daemon = True
+    tornado_thread.start()
+
+    # Start the Tkinter GUI
     app = SystemMonitorApp(data)
     app.mainloop()
