@@ -53,7 +53,6 @@ def start_server():
 
 class SystemMonitorApp(tk.Tk):
 
-
     def __init__(self, data):
         super().__init__()
         self.title("PSMonitor - System monitoring utility")
@@ -145,8 +144,11 @@ class SystemMonitorApp(tk.Tk):
         icon_file = 'windows.png'
         icon_width = 14
         if platform.system() == 'Darwin':
-            icon_width = 18
             icon_file = 'macOS.png'
+            icon_width = 16
+        elif platform.system() == 'Linux':
+            icon_width = 18
+            icon_file = 'linux.png'
         png_path = os.path.join(BASE_DIR, 'public', 'assets', 'icons', icon_file)
         photo = self.load_image(png_path, icon_width)
         icon_label = ttk.Label(container, image=photo)
@@ -203,15 +205,16 @@ class SystemMonitorApp(tk.Tk):
 
     def start_websocket(self, worker_id):
         self.worker_id = worker_id
-        websocket.enableTrace(True)
+        websocket.enableTrace(False)
         self.ws = websocket.WebSocketApp(f"{WS_URL}{worker_id}",
                                          on_message=self.on_message,
                                          on_error=self.on_error,
                                          on_close=self.on_close)
         self.ws.on_open = self.on_open
         self.ws_thread = threading.Thread(target=self.ws.run_forever)
+        self.ws_thread.daemon = True
         self.ws_thread.start()
-        self.after(1000, self.update_gui)
+        self.after(2000, self.update_gui)
 
 
     def on_message(self, ws, message):
@@ -247,7 +250,7 @@ class SystemMonitorApp(tk.Tk):
         self.update_section(self.cpu_frame, data['cpu'], [('temp', 'Temperature:', '°C'), ('freq', 'Frequency:', 'MHz'), ('usage', 'Usage:', '%')])
         self.update_section(self.mem_frame, data['mem'], [('used', 'Used:', 'GB'), ('free', 'Free:', 'GB'), ('percent', 'Usage:', '%')])
         self.update_processes(data['processes'])
-        self.after(1000, self.update_gui)
+        self.after(2000, self.update_gui)
 
 
     def update_section(self, frame, data, fields):
