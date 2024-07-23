@@ -2,13 +2,13 @@ import uuid
 import json
 import os.path
 import signal
+import platform
 import requests
 import websocket
 import threading
-
 import tkinter as tk
 from tkinter import ttk
-
+from PIL import Image, ImageTk
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
@@ -69,14 +69,31 @@ class SystemMonitorApp(tk.Tk):
 
     def __init__(self, data):
         super().__init__()
-        self.title("System Monitor")
+        self.title("PSMonitor - System monitoring utility")
         self.geometry("460x480")
         self.resizable(False, False)
+        self.image_cache = {}
+
+        # Set the window icon
+        app_icon = os.path.join(os.path.dirname(__file__), 'public', 'assets', 'icons', 'psmonitor.png')
+        self.set_window_icon(app_icon)
+
         self.create_widgets(data)
         self.ws = None
+        self.ws_thread = None
 
         # Fetch initial data and start WebSocket connection
         self.fetch_initial_data_and_connect()
+
+        # Override the window close event
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+    
+
+    def set_window_icon(self, icon_path):
+        icon = Image.open(icon_path)
+        icon = icon.resize((32, 32), Image.LANCZOS)
+        icon_photo = ImageTk.PhotoImage(icon)
+        self.iconphoto(True, icon_photo)
 
 
     def create_widgets(self, data):
@@ -86,7 +103,7 @@ class SystemMonitorApp(tk.Tk):
 
         # Platform Section
         self.platform_frame = self.create_section_frame(main_frame, "Platform")
-        self.add_label(self.platform_frame, "Distro:", data['platform']['distro'])
+        self.add_label_with_icon(self.platform_frame, "", data['platform']['distro'])
         self.add_label(self.platform_frame, "Kernel:", data['platform']['kernel'])
         self.add_label(self.platform_frame, "Up:", data['platform']['uptime'])
         self.platform_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
@@ -135,6 +152,37 @@ class SystemMonitorApp(tk.Tk):
     def add_label(self, frame, text, value):
         label = ttk.Label(frame, text=f"{text} {value}")
         label.grid(sticky='w', padx=5, pady=2)
+
+    
+    def load_image(self, path, width):
+        if path in self.image_cache:
+            return self.image_cache[path]
+        image = Image.open(path)
+        image = image.resize((width, int(image.height * width / image.width)), Image.LANCZOS)
+        photo = ImageTk.PhotoImage(image)
+        self.image_cache[path] = photo
+        return photo
+    
+
+    def add_label_with_icon(self, frame, text, value):
+        container = ttk.Frame(frame)
+        container.grid(sticky='w', padx=5, pady=2)
+
+        # Load PNG and display it with a specified width
+        icon_file = 'windows.png'
+        icon_width = 14
+        if platform.system() == 'Darwin':
+            icon_width = 18
+            icon_file = 'macOS.png'
+
+        png_path = os.path.join(os.path.dirname(__file__), 'public', 'assets', 'icons', icon_file)
+        photo = self.load_image(png_path, icon_width)
+        icon_label = ttk.Label(container, image=photo)
+        icon_label.image = photo
+        icon_label.pack(side=tk.LEFT)
+
+        text_label = ttk.Label(container, text=f"{text} {value}")
+        text_label.pack(side=tk.LEFT)
 
 
     def add_processes_table(self, frame, processes_data):
@@ -189,6 +237,7 @@ class SystemMonitorApp(tk.Tk):
 
 
     def start_websocket(self, worker_id):
+        self.worker_id = worker_id
         websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp(f"ws://localhost:4500/connect?id={worker_id}",
                                          on_message=self.on_message,
@@ -197,9 +246,8 @@ class SystemMonitorApp(tk.Tk):
         self.ws.on_open = self.on_open
 
         # Run WebSocket in a separate thread
-        wst = threading.Thread(target=self.ws.run_forever)
-        wst.daemon = True
-        wst.start()
+        self.ws_thread = threading.Thread(target=self.ws.run_forever)
+        self.ws_thread.start()
 
         # Schedule the GUI to update periodically
         self.after(1000, self.update_gui)
@@ -212,6 +260,15 @@ class SystemMonitorApp(tk.Tk):
 
     def on_error(self, ws, error):
         print(f"WebSocket error: {error}")
+
+
+    def on_closing(self):
+        if self.ws is not None:
+            self.ws.close()
+        if self.ws_thread is not None:
+            self.ws_thread.join()
+        IOLoop.instance().add_callback(IOLoop.instance().stop)
+        self.destroy()
 
 
     def on_close(self, ws, close_status_code, close_msg):
@@ -237,7 +294,7 @@ class SystemMonitorApp(tk.Tk):
         # Update Platform Section (only uptime, leave distro and kernel as is)
         for widget in self.platform_frame.winfo_children():
             widget.destroy()
-        self.add_label(self.platform_frame, "Distro:", data['platform']['distro'])
+        self.add_label_with_icon(self.platform_frame, "", data['platform']['distro'])
         self.add_label(self.platform_frame, "Kernel:", data['platform']['kernel'])
         self.add_label(self.platform_frame, "Up:", data['platform']['uptime'])
 
