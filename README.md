@@ -1,11 +1,13 @@
 
 # psmonitor
 
-![app](./screenshot2.png)
-
 A simple system and network monitoring solution with real-time data transmission via a websocket server.
 
 This project includes [psutil](https://pypi.org/project/psutil/) scripts for gathering system and network statistics, and a [tornado](https://pypi.org/project/tornado/)-based websocket server for transmitting these statistics to connected clients.
+
+Psmonitor also includes a desktop application.
+
+![app](./public/assets/screenshot2.png)
 
 View an example [web client dashboard here](https://github.com/sentrychris/system-monitor)
 
@@ -35,12 +37,12 @@ View an example [web client dashboard here](https://github.com/sentrychris/syste
 
 3. Run the server:
     ```sh
-    python manage.py run --port=<port> --address=<address>
+    python server.py run --port=<port> --address=<address>
     ```
 
 The websocket server comes with a simple dashboard to test the websocket connection:
 
-![Image](./screenshot.png)
+![Image](./public/assets/screenshot.png)
 
 
 ## Output

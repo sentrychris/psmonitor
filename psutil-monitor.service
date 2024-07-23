@@ -6,7 +6,7 @@ After=network.target
 User=chris
 Group=chris
 WorkingDirectory=/home/user/workspace/psmonitor
-ExecStart=/usr/bin/python3 /home/user/workspace/psmonitor/manage.py run
+ExecStart=/usr/bin/python3 /home/user/workspace/psmonitor/server.py run
 Restart=always
 
 [Install]
