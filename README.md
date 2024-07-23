@@ -1,11 +1,13 @@
 
 # psmonitor
 
+![app](./screenshot2.png)
+
 A simple system and network monitoring solution with real-time data transmission via a websocket server.
 
 This project includes [psutil](https://pypi.org/project/psutil/) scripts for gathering system and network statistics, and a [tornado](https://pypi.org/project/tornado/)-based websocket server for transmitting these statistics to connected clients.
 
-View an example [client dashboard here](https://github.com/sentrychris/system-monitor)
+View an example [web client dashboard here](https://github.com/sentrychris/system-monitor)
 
 ## Requirements
 
@@ -36,14 +38,12 @@ View an example [client dashboard here](https://github.com/sentrychris/system-mo
     python manage.py run --port=<port> --address=<address>
     ```
 
-### Testing it works
-
 The websocket server comes with a simple dashboard to test the websocket connection:
 
 ![Image](./screenshot.png)
 
 
-### Output
+## Output
 
 Here is the example output from the websocket connection:
 
@@ -103,7 +103,34 @@ Here is the example output from the websocket connection:
 }
 ```
 
-### Running as a managed process
+## Desktop application
+
+A desktop application is provided, everything is self-contained:
+
+- The websocket server
+- The system monitoring scripts
+- The GUI
+
+### Requirements
+
+#### Linux
+- python3-tk
+- python3-pil.imagetk
+
+To quickly run the desktop application:
+
+```sh
+python3 main.py
+```
+
+To build a single-file executable for Windows:
+```sh
+./scripts/build-exe
+```
+
+## Websocker server
+
+### Running the server as a managed process
 
 If you would like to run the server as a managed process, you can use the systemd service file provided.
 
@@ -177,17 +204,11 @@ You can also use WebSocket clients in other programming languages, such as Pytho
     asyncio.run(connect())
     ```
 
-You can use the frontend client located at `public/index.html`  for further testing and exploration.
+You can use the quick dashboard located at `public/index.html`  for further testing and exploration.
 
-If you are using the [Pi Monitor](https://github.com/chrisrowles/pi-monitor-v3), there are instructions contained there to help you get setup and connected.
+If you are using the [system monitor web client](https://github.com/sentrychris/system-monitor), there are instructions contained there to help you get setup and connected.
 
 I hope you like it!
-
-## Contributing
-
-Feel free to contribute to this project, or the [Pi Monitor](https://github.com/chrisrowles/pi-monitor-v3), or the [Pi Monitor API](https://github.com/chrisrowles/pi-monitor-api).
-
-I'm always looking for help and new ideas, this is a fun personal project and so if you're a bit new of a bit anxious about contributing to projects, then please feel free to get in tocuh with me and we'll find a way to get you started, we all start somewhere! :)
 
 ## License
 This software is open-sourced software licensed under the MIT license.

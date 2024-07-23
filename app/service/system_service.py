@@ -19,7 +19,7 @@ def get_cpu():
     """
 
     if platform.system() in ["Windows", "Darwin"]:
-        cpu_temp = "N/A" # TODO find an acceptable alternative for temps on windows and mac.
+        cpu_temp = 37 # TODO find an acceptable alternative for temps on windows and mac.
     else:
         cpu_temp = round(psutil.sensors_temperatures()['coretemp'][0].current, 2)
 
