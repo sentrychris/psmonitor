@@ -1,8 +1,9 @@
-import os
 import ctypes
 import getpass
+import os
 import psutil
 import platform
+import sys
 
 
 def get_cpu():
@@ -18,8 +19,8 @@ def get_cpu():
             - "freq": Current CPU frequency in MHz.
     """
 
-    if platform.system() in ["Windows", "Darwin"]:
-        cpu_temp = "N/A" # TODO find an acceptable alternative for temps on windows and mac.
+    if sys.platform == "win32":
+        cpu_temp = "N/A" # TODO find an acceptable alternative for temps on windows.
     else:
         cpu_temp = round(psutil.sensors_temperatures()['coretemp'][0].current, 2)
 
@@ -118,7 +119,7 @@ def get_uptime():
             If the file cannot be read, returns an error message.
     """
 
-    if platform.system() == "Windows":
+    if sys.platform == "win32":
         try:
             # Get uptime in milliseconds
             uptime_ms = ctypes.windll.kernel32.GetTickCount64()
@@ -147,7 +148,7 @@ def get_uptime():
 
 
 def get_user():
-    if platform.system() == "Windows":
+    if sys.platform == "win32":
         return getpass.getuser()
     else:
         import pwd
@@ -155,7 +156,7 @@ def get_user():
 
 
 def get_distro():
-    if platform.system() == "Windows":
+    if sys.platform == "win32":
         return platform.platform()
     else:
         return os.popen('cat /etc/*-release | grep "^PRETTY_NAME=" | cut -d= -f2').read().replace('"', '').strip()

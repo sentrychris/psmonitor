@@ -2,7 +2,7 @@ import uuid
 import json
 import os.path
 import signal
-import platform
+import sys
 import requests
 import websocket
 import webbrowser
@@ -174,10 +174,7 @@ class SystemMonitorApp(tk.Tk):
         container.grid(sticky='w', padx=5, pady=2)
         icon_file = 'windows.png'
         icon_width = 14
-        if platform.system() == 'Darwin':
-            icon_file = 'macOS.png'
-            icon_width = 16
-        elif platform.system() == 'Linux':
+        if sys.platform == 'linux':
             icon_width = 18
             icon_file = 'linux.png'
         png_path = os.path.join(BASE_DIR, 'public', 'assets', 'icons', icon_file)
@@ -249,8 +246,11 @@ class SystemMonitorApp(tk.Tk):
 
 
     def on_message(self, ws, message):
-        new_data = json.loads(message)
-        self.update_live_data(new_data)
+        try:
+            new_data = json.loads(message)
+            self.update_live_data(new_data)
+        except:
+            pass
 
 
     def on_error(self, ws, error):
@@ -318,6 +318,11 @@ class SystemMonitorApp(tk.Tk):
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    if sys.platform == "darwin":
+        print("MacOS is not supported.")
+        exit(0)
+
     tornado_thread = threading.Thread(target=start_server)
     tornado_thread.daemon = True
     tornado_thread.start()
