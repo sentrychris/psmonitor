@@ -23,6 +23,7 @@
             background: #eeeeee;
         }
         #output-log p {
+            word-wrap: break-word;
             color: #aaaaaa;
         }
         #output-log p:last-child {
@@ -33,39 +34,77 @@
 </head>
 <body>
     <div class="container py-4 px-5">
-        <p class="lead">Websocket Connections</p>
-        <div class="row mt-3">
-            <div class="col d-flex justify-content-start align-items-center gap-3">
-                <button class="btn btn-sm btn-success" id="endpoint-open">Open</button>
-                <button class="btn btn-sm btn-danger" id="endpoint-close">Close</button>
-                <button class="btn btn-sm btn-dark" id="output-clear">Clear</button>
+        <div class="row">
+            <div class="col-8">
+                <p class="lead">Websocket Data</p>
+                <div class="row mt-3 small">
+                    <div class="col">
+                        <p class="lead mb-2">CPU:</p>
+                        <p>Temperature: <span id="cpu-temp">--</span> C</p>
+                        <p>Usage: <span id="cpu-usage">--</span> %</p>
+                        <p>Frequency: <span id="cpu-freq">--</span> MHz</p>
+                    </div>
+                    <div class="col">
+                        <p class="lead mb-2">RAM:</p>
+                        <p>Used: <span id="mem-used">--</span> GB</p>
+                        <p>Free: <span id="mem-free">--</span> GB</p>
+                        <p>Total: <span id="mem-total">--</span> GB</p>
+                        <p>Percent: <span id="mem-percent">--</span> %</p>
+                    </div>
+                    <div class="col">
+                        <p class="lead mb-2">Disk:</p>
+                        <p>Used: <span id="disk-used">--</span> GB</p>
+                        <p>Free: <span id="disk-free">--</span> GB</p>
+                        <p>Total: <span id="disk-total">--</span> GB</p>
+                        <p>Percent: <span id="disk-percent">--</span> %</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <p class="lead">HTTP Data</p>
+                <div class="row mt-3 small">
+                    <div class="col">
+                        <p class="lead mb-2">Wifi:</p>
+                        <p>Name: <span id="wifi-name">--</span></p>
+                        <p>Quality: <span id="wifi-quality">--</span></p>
+                        <p>Channel: <span id="wifi-channel">--</span></p>
+                        <p>Encryption: <span id="wifi-encryption">--</span></p>
+                        <p>Address: <span id="wifi-address">--</span></p>
+                        <p>Signal: <span id="wifi-signal">--</span></p>
+                    </div>
+                </div>
             </div>
         </div>
         <hr />
-        <p class="lead">Websocket Data</p>
-        <div class="row mt-3 small">
-            <div class="col">
-                <p class="lead mb-2">CPU:</p>
-                <p>Temperature: <span id="cpu-temp">--</span> C</p>
-                <p>Usage: <span id="cpu-usage">--</span> %</p>
-                <p>Frequency: <span id="cpu-freq">--</span> MHz</p>
+        <div class="d-flex align-items-center justify-content-start gap-5">
+            <div class="me-5">
+                <p class="lead">Websocket Connection</p>
+                <div class="row mt-3">
+                    <div class="col d-flex justify-content-start align-items-center gap-3">
+                        <button class="btn btn-sm btn-success" id="endpoint-open">Open</button>
+                        <button class="btn btn-sm btn-danger" id="endpoint-close">Close</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <p class="lead mb-2">RAM:</p>
-                <p>Used: <span id="mem-used">--</span> GB</p>
-                <p>Free: <span id="mem-free">--</span> GB</p>
-                <p>Total: <span id="mem-total">--</span> GB</p>
-                <p>Percent: <span id="mem-percent">--</span> %</p>
+            <div class="me-5">
+                <p class="lead">HTTP Endpoints</p>
+                <div class="row mt-3">
+                    <div class="col d-flex justify-content-start align-items-center gap-3">
+                        <button class="btn btn-sm btn-outline-success" id="endpoint-system">GET /system: Fetch system data</button>
+                        <button class="btn btn-sm btn-outline-success" id="endpoint-network">GET /network: Fetch network and wifi data</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <p class="lead mb-2">Disk:</p>
-                <p>Used: <span id="disk-used">--</span> GB</p>
-                <p>Free: <span id="disk-free">--</span> GB</p>
-                <p>Total: <span id="disk-total">--</span> GB</p>
-                <p>Percent: <span id="disk-percent">--</span> %</p>
+            <div>
+                <p class="lead">Output Messages</p>
+                <div class="row mt-3">
+                    <div class="col d-flex justify-content-start align-items-center gap-3">
+                        <button class="btn btn-sm btn-warning" id="output-clear">Clear</button>
+                    </div>
+                </div>
             </div>
         </div>
-        <hr class="my-3" />
+        <hr />
         <p class="lead">Log Output</p>
         <div class="row mt-3">
             <div class="col-4">
@@ -90,6 +129,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+
             const log = {
                 event: document.querySelector('#event-log'),
                 output: document.querySelector('#output-log'),
@@ -101,11 +141,11 @@
                 },
                 clear: () => {
                     log.output.innerHTML = ''
-                    log.write('event', 'output log cleared')
+                    log.write('event', 'Output messages cleared')
                 }
             }
-            
-            const state = {
+
+            const system = {
                 cpu: {
                     temp: document.querySelector('#cpu-temp'),
                     usage: document.querySelector('#cpu-usage'),
@@ -124,29 +164,83 @@
                     percent: document.querySelector('#disk-percent'),
                 },
                 set: (key, metric, value) => {
-                    if (state[key] && Object.prototype.hasOwnProperty.call(state[key], metric)) {
-                        state[key][metric].innerText = value
+                    if (system[key] && Object.prototype.hasOwnProperty.call(system[key], metric)) {
+                        system[key][metric].innerText = value
                     }
                 }
             }
+
+            const wifi = {
+                "name": document.querySelector('#wifi-name'),
+                "quality": document.querySelector('#wifi-quality'),
+                "channel": document.querySelector('#wifi-channel'),
+                "encryption": document.querySelector('#wifi-encryption'),
+                "address": document.querySelector('#wifi-address'),
+                "signal": document.querySelector('#wifi-signal'),
+                set: (key, value) => {
+                    if (wifi[key]) {
+                        wifi[key].innerText = value
+                    }
+                }
+            }
+
+            document.querySelector('#endpoint-network').addEventListener('click', () => {
+                fetch(`http://localhost:4500/network`)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        for (const key in wifi) {
+                            wifi.set(key, data.wireless[key])
+                        }
+                        log.write('event', `Fetched network information from HTTP network/ endpoint`)
+                        log.write('output', JSON.stringify(data) + '\n\n')
+                    })
+                    .catch(() => {
+                        log.write('event', 'ERROR! Unable to fetch network information from the HTTP network/ endpoint')
+                    })
+            })
+
+            document.querySelector('#endpoint-system').addEventListener('click', () => {
+                fetch(`http://localhost:4500/system`)
+                    .then((response) => {
+                        return response.json()
+                    })
+                    .then((data) => {
+                        for (const key in data.cpu) {
+                            system.set('cpu', key, data.cpu[key])
+                        }
+                        for (const key in data.mem) {
+                            system.set('mem', key, data.mem[key])
+                        }
+                        for (const key in data.disk) {
+                            system.set('disk', key, data.disk[key])
+                        }
+                        log.write('event', `Fetched system information from HTTP system/ endpoint`)
+                        log.write('output', JSON.stringify(data) + '\n\n')
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                        log.write('event', 'ERROR! Unable to fetch system information from the HTTP system/ endpoint')
+                    })
+            })
             
             let connection = null
             document.querySelector('#endpoint-open').addEventListener('click', async () => {
-                log.write('event', 'connecting to websocket')
+                log.write('event', 'Connecting to websocket')
                 const client = await fetch(location.pathname, {
                     method: 'POST',
                     body: { connection: 'monitor' }
                 })
                 const worker = await client.json()
 
-                log.write('event', `created worker (${worker.id})`)
+                log.write('event', `Created worker (${worker.id})`)
 
                 const url = `ws://localhost:4500/connect?id=${worker.id}`
 
                 connection = connection ?? new WebSocket(url)
                 
                 connection.onopen = () => {
-                    log.write('event', 'websocket is connected')
+                    log.write('event', 'Websocket is connected')
+                    log.write('event', 'Receiving data...')
                 }
                 
                 connection.onmessage = (response) => {
@@ -154,27 +248,26 @@
                     try {
                         const data = JSON.parse(response.data)
                         for (const key in data.cpu) {
-                            state.set('cpu', key, data.cpu[key])
+                            system.set('cpu', key, data.cpu[key])
                         }
                         for (const key in data.mem) {
-                            state.set('mem', key, data.mem[key])
+                            system.set('mem', key, data.mem[key])
                         }
                         for (const key in data.disk) {
-                            state.set('disk', key, data.disk[key])
+                            system.set('disk', key, data.disk[key])
                         }
                     } catch (error) {}
                 }
                 
                 connection.onclose = (response) => {
-                    log.write('event', 'websocket connection closed')
+                    log.write('event', 'Websocket connection closed')
                     connection = null;
                 }
             })
             
-            
             document.querySelector('#endpoint-close').addEventListener('click', () => {
                 if (connection) {
-                    log.write('event', 'closing websocket connection')
+                    log.write('event', 'Closing websocket connection')
                     window.conn = connection
                     connection.close()
                 }
