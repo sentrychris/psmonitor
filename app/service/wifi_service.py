@@ -1,8 +1,67 @@
 import re
+import sys
 import subprocess
 
 
 def get_wifi_data():
+    """
+    Parses Wi-Fi information depending on the platform.
+
+    Returns:
+        dict: A dictionary containing parsed Wi-Fi information.
+    """
+
+    output = {}
+    if sys.platform == "win32":
+        output = get_wifi_data_windows()
+    elif sys.platform == "linux":
+        output = get_wifi_data_linux()
+    
+    return output
+
+
+def get_wifi_data_windows():
+    """
+    Parses Wi-Fi information by scanning available Wi-Fi networks using the netsh command.
+
+    Returns:
+        dict: A dictionary containing parsed Wi-Fi information.
+    """
+
+    try:
+        result = subprocess.check_output(["netsh", "wlan", "show", "interfaces"], universal_newlines=True)
+
+        output = {
+            "name": "",
+            "quality": "",
+            "channel": "",
+            "encryption": "",
+            "address": "",
+            "signal": ""
+        }
+
+        patterns = {
+            "name": re.compile(r"^\s*SSID\s*:\s*(.+)$"),
+            "quality": re.compile(r"^\s*Signal\s*:\s*(\d+)%$"),
+            "channel": re.compile(r"^\s*Channel\s*:\s*(\d+)$"),
+            "encryption": re.compile(r"^\s*Authentication\s*:\s*(.+)$"),
+            "address": re.compile(r"^\s*BSSID\s*:\s*(.+)$"),
+            "signal": re.compile(r"^\s*Signal\s*:\s*(\d+)%$")
+        }
+
+        for line in result.split('\n'):
+            for key, pattern in patterns.items():
+                match = pattern.match(line.strip())
+                if match:
+                    output[key] = match.groups()[0].strip()
+
+        return output
+
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to retrieve Wi-Fi information: {e}")
+
+
+def get_wifi_data_linux():
     """
     Parses Wi-Fi information by scanning available Wi-Fi networks using the iwlist command.
 
@@ -11,11 +70,10 @@ def get_wifi_data():
     """
 
     cells = [[]]
-    info = {}
+    output = {}
 
     try:
         interface = get_wifi_interface()
-        print(interface)
         proc = subprocess.Popen(["iwlist", interface, "scan"], stdout=subprocess.PIPE, universal_newlines=True)
         out, err = proc.communicate()
 
@@ -29,11 +87,11 @@ def get_wifi_data():
         cells = cells[1:]
 
         for cell in cells:
-            info.update(parse_cell(cell))
+            output.update(parse_cell(cell))
     except Exception:
-        pass
+        return "N/A"
 
-    return info
+    return output
 
 
 def get_wifi_interface():

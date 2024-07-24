@@ -138,9 +138,9 @@ def get_uptime():
 
     uptime_parts = [
         f"{int(days)} day{'s' if days != 1 else ''}" if days else "",
-        f"{int(hours)} hour{'s' if hours != 1 else ''}" if hours else "",
-        f"{int(minutes)} minute{'s' if minutes != 1 else ''}" if minutes else "",
-        f"{int(seconds)} second{'s' if seconds != 1 else ''}" if seconds else ""
+        f"{int(hours)} hr{'s' if hours != 1 else ''}" if hours else "",
+        f"{int(minutes)} min{'s' if minutes != 1 else ''}" if minutes else "",
+        f"{int(seconds)} sec{'s' if seconds != 1 else ''}" if seconds else ""
     ]
 
     return ", ".join(part for part in uptime_parts if part)

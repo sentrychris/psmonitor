@@ -5,6 +5,7 @@ import signal
 import platform
 import requests
 import websocket
+import webbrowser
 import threading
 import tkinter as tk
 from tkinter import ttk
@@ -63,6 +64,7 @@ class SystemMonitorApp(tk.Tk):
         app_icon = os.path.join(BASE_DIR, 'public', 'assets', 'icons', 'psmonitor.png')
         self.set_window_icon(app_icon)
         self.create_widgets(data)
+        self.create_menu()
         self.ws = None
         self.ws_thread = None
 
@@ -115,6 +117,35 @@ class SystemMonitorApp(tk.Tk):
         main_frame.rowconfigure(1, weight=1)
         main_frame.rowconfigure(2, weight=1)
         main_frame.rowconfigure(3, weight=1)
+
+    def create_menu(self):
+        menu_bar = tk.Menu(self)
+        self.config(menu=menu_bar)
+
+        file_menu = tk.Menu(menu_bar, tearoff=0)
+        help_menu = tk.Menu(menu_bar, tearoff=0)
+        menu_bar.add_cascade(label="File", menu=file_menu)
+        menu_bar.add_cascade(label="Help", menu=help_menu)
+        help_menu.add_command(label="About", command=self.show_about)
+
+    def show_about(self):
+        about_window = tk.Toplevel(self)
+        about_window.title("About PSMonitor")
+        about_window.geometry("300x150")
+        about_window.resizable(False, False)
+
+        label_version = ttk.Label(about_window, text="PSMonitor - system monitoring utility.", font=("Arial", 12))
+        label_version.pack(pady=10)
+
+        label_version = ttk.Label(about_window, text="Version 1.2.0.1151", font=("Arial", 8))
+        label_version.pack(pady=5)
+
+        label_author = ttk.Label(about_window, text="Made by Chris Rowles", font=("Arial", 10))
+        label_author.pack(pady=2)
+
+        label_github = ttk.Label(about_window, text="View on Github", font=("Arial", 10), foreground="blue", cursor="hand2")
+        label_github.pack(pady=2)
+        label_github.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/sentrychris/psmonitor"))
 
 
     def create_section_frame(self, parent, title):
