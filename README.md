@@ -1,11 +1,8 @@
 
 # psmonitor
 
-A simple system and network monitoring solution with real-time data transmission via a websocket server.
+A simple system and network monitoring solution with a built-in server for remote monitoring capabilities.
 
-This project includes [psutil](https://pypi.org/project/psutil/) scripts for gathering system and network statistics, and a [tornado](https://pypi.org/project/tornado/)-based websocket server for transmitting these statistics to connected clients.
-
-Psmonitor also includes a desktop application.
 
 ![app](./public/assets/app.png)
 
@@ -17,11 +14,11 @@ View an example [web client dashboard here](https://github.com/sentrychris/syste
 
 ## Features
 
-- **Asynchronous Data Collection**: Utilizes asyncio and ThreadPoolExecutor for efficient, non-blocking data collection.
-- **Real-Time Monitoring**: Transmits live system and network statistics to clients via WebSocket.
-- **System Statistics**: Provides CPU usage, memory usage, disk usage, system uptime, and top processes by memory usage.
-- **Network Statistics**: Monitors data sent and received on a specified network interface.
-- **Websocket Server**: Tornado-based server for real-time data transmission.
+- **Asynchronous Data Collection**: Efficient, non-blocking data collection.
+- **Real-Time Monitoring**: Transmits live system and network statistics.
+- **System Statistics**: Provides CPU, memory, and disk usage, uptime, and top processes.
+- **Network Statistics**: Monitors data sent and received on network interfaces.
+- **Websocket Server**: Includes a [tornado](https://www.tornadoweb.org/en/stable/) server for remote monitoring (built-in and standalone).
 
 ## Quick Start
 
@@ -40,97 +37,58 @@ View an example [web client dashboard here](https://github.com/sentrychris/syste
     python server.py run --port=<port> --address=<address>
     ```
 
-The websocket server comes with a simple dashboard to test the websocket connection:
+The websocket server comes with a simple dashboard to test the websocket connection which can be accessed through your web browser.
 
-![Image](./public/assets/web.png)
-
-
-## Output
-
-Here is the example output from the websocket connection:
-
-```json
-{
-    "cpu": {
-        "usage": 0,
-        "temp": 50,
-        "freq": 2496
-    },
-    "mem": {
-        "total": 15.54,
-        "used": 1.61,
-        "free": 13.62,
-        "percent": 12.2
-    },
-    "disk": {
-        "total": 1006.85,
-        "used": 15.67,
-        "free": 939.97,
-        "percent": 1.6
-    },
-    "uptime": "18 hours, 43 minutes, 4 seconds",
-    "processes": [
-        {
-            "memory_info": [
-                601661440,
-                2731663360,
-                47755264,
-                84582400,
-                0,
-                611880960,
-                0
-            ],
-            "name": "node",
-            "username": "chris",
-            "pid": 424191,
-            "mem": 573.79
-        },
-        {
-            "memory_info": [
-                262885376,
-                12823240704,
-                55906304,
-                84582400,
-                0,
-                292528128,
-                0
-            ],
-            "name": "node",
-            "username": "chris",
-            "pid": 423236,
-            "mem": 250.71
-        },
-        ...
-    ]
-}
-```
 
 ## Desktop application
 
-A desktop application is provided, everything is self-contained:
+The desktop application is built with [Tkinter](https://docs.python.org/3/library/tkinter.html), Python's binding to the Tk GUI toolkit, it consists of:
 
-- The websocket server
-- The system monitoring scripts
-- The GUI
+- **Core logic**: The collection of modules, scripts and binaries that are used to provide the functionality.
+- **The server**: Used by the app to receive data to display, but can also be run as its own standalone service.
 
-### Requirements
+## Server
 
-#### Linux
-- python3-tk
-- python3-pil.imagetk
+The server manages the execution of the monitoring scripts, using multiple threads managed through an executor to retrieve data asynchronously and mitigate blocking operations from calls to read system data.
 
-To quickly run the desktop application:
+The server is built with [tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections. It's non-blocking nature makes it ideal for building real-time services.
 
-```sh
-python3 main.py
-```
+### HTTP
 
-To build a single-file executable for Windows:
-```sh
-./scripts/build-exe
-```
+Three standard HTTP endpoints are provided:
 
-## Websocker server
+#### **GET `/system`**:
+
+Retrieves system monitoring information
+
+- **CPU**: Temperature*, Frequency, Usage
+- **Disk**: Used, Free, Total, Usage
+- **Mem**: Used, Free, Total, Usage
+- **User**: Logged in user
+- **Platform**: Distribution, Kernel, Uptime
+- **Processes** Top 10 processes by memory usage
+
+#### **GET `/network`**:
+
+Retrieves network monitoring information:
+- **Interfaces**: Visible network interfaces
+- **Wireless**: Name, Quality, Channel, Encryption, Address, Signal
+- **Statistics**: For each interface: MB sent, MB received, packets sent, packets received, errors receiving packets, error sending packets, dropout rate.
+
+#### **GET `/`**:
+Renders a simple dashboard to check or test the server.
+
+#### **POST `/`**:
+Creates a worker to manage the execution of monitoring scripts. Responds with a worker ID which is then used in the websocket connection endpoint URL (below).
+
+
+### Websocket
+
+One singular websocket endpoint is provided (realtime network monitoring is yet to be implemented).
+
+#### WS `/connect?id={<worker_id>}`
+
+- Creates the websocket connection, data immediately begins being sent through the connection.
 
 ### Running the server as a managed process
 
@@ -154,7 +112,7 @@ If you would like to run the server as a managed process, you can use the system
 Alternatively, you could use [supervisor](http://supervisord.org/) or something similar.
 
 
-### Next steps
+### Connecting to the server from your own app
 
 To connect to the WebSocket server, you can use any WebSocket client. Here is an example of how to connect using JavaScript:
 
@@ -181,7 +139,7 @@ To connect to the WebSocket server, you can use any WebSocket client. Here is an
     }
     ```
 
-You can also use WebSocket clients in other programming languages, such as Python, to connect to the server:
+You can also use WebSocket clients in other programming languages, such as Python:
 
 1. Retrieve an assigned worker:
 
@@ -214,3 +172,7 @@ I hope you like it!
 
 ## License
 This software is open-sourced software licensed under the MIT license.
+
+## Credits
+
+This software uses [LibreHardwareMonitorLib.dll](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) in order to provide CPU temperature readings on Windows. The DLL forms part of the **libwincputemp** program which is part of this project. LibreOpenHardwareMonitor is licensed under MPL 2.0, a copy of the license can be found in the [third-party licenses file](./THIRD_PARTY_LICENSES).
