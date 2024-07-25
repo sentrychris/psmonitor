@@ -1,11 +1,9 @@
 import weakref
-
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
-
 from ..base import workers
 from .system import get_system_data
 from .network import get_network_data

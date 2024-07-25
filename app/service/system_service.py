@@ -3,6 +3,8 @@ import psutil
 import platform
 import sys
 import subprocess
+import functools
+
 
 # Platform-specific imports
 if sys.platform == "win32":
@@ -27,6 +29,7 @@ def convert_bytes(x: int, pre: int = 2) -> float:
     return round(x / (1024.0 ** 3), pre)
 
 
+@functools.lru_cache(maxsize=5)
 def get_cpu() -> dict:
     """
     Retrieves CPU usage statistics.
@@ -47,12 +50,13 @@ def get_cpu() -> dict:
 
 
     return {
-        'usage': round(psutil.cpu_percent(1), 2),
+        'usage': round(psutil.cpu_percent(), 2),
         'temp': cpu_temp,
         'freq': round(psutil.cpu_freq().current, 2)
     }
 
 
+@functools.lru_cache(maxsize=5)
 def get_disk() -> dict:
     """
     Retrieves disk usage statistics.
@@ -77,6 +81,7 @@ def get_disk() -> dict:
     }
 
 
+@functools.lru_cache(maxsize=5)
 def get_memory() -> dict:
     """
     Retrieves memory usage statistics.
@@ -101,6 +106,7 @@ def get_memory() -> dict:
     }
 
 
+@functools.lru_cache(maxsize=5)
 def get_processes() -> list:
     """
     Retrieves a list of top 10 processes by memory usage.
@@ -167,6 +173,7 @@ def get_uptime() -> str:
     return ", ".join(part for part in uptime_parts if part)
 
 
+@functools.lru_cache(maxsize=1024)
 def get_user() -> str:
     """
     Retrieves the username of the current user.
@@ -184,6 +191,7 @@ def get_user() -> str:
         return pwd.getpwuid(os.getuid())[0]
 
 
+@functools.lru_cache(maxsize=1024)
 def get_distro() -> str:
     """
     Retrieves the name of the operating system distribution.
@@ -207,6 +215,7 @@ def get_distro() -> str:
         return os.popen('cat /etc/*-release | grep "^PRETTY_NAME=" | cut -d= -f2').read().replace('"', '').strip()
 
 
+@functools.lru_cache(maxsize=1024)
 def get_kernel() -> str:
     """
     Retrieves the kernel version of the operating system.

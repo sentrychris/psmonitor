@@ -258,7 +258,7 @@ class SystemMonitorApp(tk.Tk):
         self.ws_thread = threading.Thread(target=self.ws.run_forever)
         self.ws_thread.daemon = True
         self.ws_thread.start()
-        self.after(2000, self.update_gui)
+        self.after(1000, self.update_gui)
 
 
     def on_message(self, ws, message):
@@ -297,7 +297,7 @@ class SystemMonitorApp(tk.Tk):
         self.update_section(self.cpu_frame, data['cpu'], [('temp', 'Temperature:', '°C'), ('freq', 'Frequency:', 'MHz'), ('usage', 'Usage:', '%')])
         self.update_section(self.mem_frame, data['mem'], [('used', 'Used:', 'GB'), ('free', 'Free:', 'GB'), ('percent', 'Usage:', '%')])
         self.update_processes(data['processes'])
-        self.after(2000, self.update_gui)
+        self.after(1000, self.update_gui)
 
 
     def update_section(self, frame, data, fields):

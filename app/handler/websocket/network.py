@@ -1,5 +1,4 @@
 from tornado.ioloop import IOLoop
-
 from ...thread_pool import executor
 from ...service.network_service import get_avg_in_out, get_interfaces, get_statistics
 

@@ -1,9 +1,7 @@
 import sys
-
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 from typing import Union
-
 from .handler.http.http import HttpHandler, HttpSystemHandler, HttpNetworkHandler
 from .handler.websocket.websocket import WebsocketHandler
 from .thread_pool import executor
