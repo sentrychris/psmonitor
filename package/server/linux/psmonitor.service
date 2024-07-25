@@ -1,0 +1,12 @@
+[Unit]
+Description=PSMonitor system monitoring - standalone server
+After=network.target
+
+[Service]
+User=[user]
+Group=[group]
+ExecStart=/usr/bin/psmonitor-server
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

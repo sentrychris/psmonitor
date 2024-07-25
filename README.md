@@ -30,6 +30,8 @@ The server manages the execution of the monitoring scripts, using multiple threa
 
 The server is built with [tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections. It's non-blocking nature makes it ideal for building real-time services.
 
+While the server is included in the desktop application, a [standalone version](https://github.com/sentrychris/psmonitor/releases/download/v1.2.2.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own clients, or for people who want to port-forward and setup remote monitoring.
+
 ### HTTP
 
 Three standard HTTP endpoints are provided:
@@ -66,7 +68,7 @@ Creates a worker to manage the execution of monitoring scripts. Responds with a 
 
 ### Websocket
 
-One singular websocket endpoint is provided (realtime network monitoring is yet to be implemented).
+A single websocket endpoint is provided.
 
 #### WS `/connect?id={<worker_id>}`
 
@@ -74,7 +76,7 @@ One singular websocket endpoint is provided (realtime network monitoring is yet 
 
 ### Running the server as a managed process
 
-If you would like to run the server as a managed process, you can use the systemd service file provided.
+If you would like to run the [standalone server](https://github.com/sentrychris/psmonitor/releases/download/v1.2.2.1551/psmonitor-standalone-server-no-gui.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
 
 1. Copy the service file and make any necessary changes:
     ```sh
@@ -147,8 +149,6 @@ You can also use WebSocket clients in other programming languages, such as Pytho
     ```
 
 You can use the quick dashboard located at `public/web.html`  for further testing and exploration.
-
-If you are using the [system monitor web client](https://github.com/sentrychris/system-monitor), there are instructions contained there to help you get setup and connected.
 
 I hope you like it!
 

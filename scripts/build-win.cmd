@@ -14,10 +14,10 @@ if "%1"=="" (
     exit /b 1
 )
 
-set "BUILD_FOR=%1"
+set "BUILD_TYPE=%1"
 
-:: Set conditional spec file based on SUBDIR
-if "%BUILD_FOR%"=="server" (
+:: Set conditional spec file based on the build type
+if "%BUILD_TYPE%"=="server" (
     set "BUILD_SPEC=psmonitor_server.spec"
 ) else (
     set "BUILD_SPEC=psmonitor.spec"
@@ -30,7 +30,7 @@ set "BUILD_DIR=%PWD%\build"
 set "DIST_DIR=%PWD%\dist"
 
 set "PKG_DIR=%PWD%\package"
-set "SPEC_FILE=%PKG_DIR%\%BUILD_FOR%\windows\%BUILD_SPEC%"
+set "SPEC_FILE=%PKG_DIR%\%BUILD_TYPE%\windows\%BUILD_SPEC%"
 
 set "UPX_VER=upx-4.2.1-win64"
 
