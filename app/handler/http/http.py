@@ -24,10 +24,10 @@ class HttpHandler(BaseHandler):
 
     def get(self):
         """
-        Get the index page
+        Get the simple web UI.
         """
 
-        self.render('index.html')
+        self.render('web.html')
 
 
     def post(self):

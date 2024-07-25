@@ -1,7 +1,7 @@
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 1, 0, 1167),
-    prodvers=(1, 1, 0, 1167),
+    filevers=(1, 2, 1, 1167),
+    prodvers=(1, 2, 1, 1167),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -15,13 +15,13 @@ VSVersionInfo(
       StringTable(
         u'040904B0',
         [StringStruct(u'CompanyName', u'Chris Rowles'),
-        StringStruct(u'FileDescription', u'System monitoring service using psutil and tornado.'),
-        StringStruct(u'FileVersion', u'1.1.0.1167'),
+        StringStruct(u'FileDescription', u'PSMonitor - system monitoring utility'),
+        StringStruct(u'FileVersion', u'1.2.1.1167'),
         StringStruct(u'InternalName', u'psmonitor'),
-        StringStruct(u'LegalCopyright', u'\xa9 Chris Rowles. All rights reserved.'),
+        StringStruct(u'LegalCopyright', u'\xa9 Chris Rowles. All rights reserved'),
         StringStruct(u'OriginalFilename', u'psmonitor.exe'),
         StringStruct(u'ProductName', u'PSMonitor'),
-        StringStruct(u'ProductVersion', u'1.1.0.1167')])
+        StringStruct(u'ProductVersion', u'1.2.1.1167')])
       ]), 
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]

@@ -95,7 +95,7 @@ class SystemMonitorApp(tk.Tk):
         super().__init__()
         self.title("PSMonitor - System monitoring utility")
         self.geometry("460x480")
-        self.resizable(False, False)
+        self.resizable(True, True)
         self.image_cache = {}
 
         app_icon = os.path.join(BASE_DIR, 'public', 'assets', 'icons', 'psmonitor.png')
@@ -231,6 +231,7 @@ class SystemMonitorApp(tk.Tk):
 
         section_frame = ttk.LabelFrame(parent, text=title)
         section_frame.grid(sticky="nsew", padx=5, pady=5)
+
         return section_frame
 
 
@@ -251,6 +252,7 @@ class SystemMonitorApp(tk.Tk):
         label_text = f"{text} {value} {suffix}".strip()
         label = ttk.Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
+
         return label, suffix
 
 
@@ -272,6 +274,7 @@ class SystemMonitorApp(tk.Tk):
         image = image.resize((width, int(image.height * width / image.width)), Image.LANCZOS)
         photo = ImageTk.PhotoImage(image)
         self.image_cache[path] = photo
+
         return photo
 
 
@@ -302,6 +305,7 @@ class SystemMonitorApp(tk.Tk):
         icon_label.pack(side=tk.LEFT)
         text_label = ttk.Label(container, text=f"{value}")
         text_label.pack(side=tk.LEFT)
+
         return text_label
 
 
@@ -523,6 +527,7 @@ class SystemMonitorApp(tk.Tk):
             self.ws.close()
         if self.ws_thread:
             self.ws_thread.join()
+
         IOLoop.instance().add_callback(IOLoop.instance().stop)
         self.destroy()
 

@@ -42,7 +42,7 @@ View an example [web client dashboard here](https://github.com/sentrychris/syste
 
 The websocket server comes with a simple dashboard to test the websocket connection:
 
-![Image](./public/assets/screenshot.png)
+![Image](./public/assets/web.png)
 
 
 ## Output
@@ -206,7 +206,7 @@ You can also use WebSocket clients in other programming languages, such as Pytho
     asyncio.run(connect())
     ```
 
-You can use the quick dashboard located at `public/index.html`  for further testing and exploration.
+You can use the quick dashboard located at `public/web.html`  for further testing and exploration.
 
 If you are using the [system monitor web client](https://github.com/sentrychris/system-monitor), there are instructions contained there to help you get setup and connected.
 
