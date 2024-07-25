@@ -33,13 +33,13 @@ DIST_DIR="$PWD/dist"
 PKG_DIR="$PWD/package"
 SPEC_FILE="$PKG_DIR/$BUILD_TYPE/linux/$BUILD_SPEC"
 
-UPX_VER="upx-4.2.1-win64"
+UPX_VER="upx-4.2.4-amd64_linux"
 
 # Check for UPX
 echo "Checking for UPX..."
 if [ ! -d "$PKG_DIR/$UPX_VER" ]; then
     echo "Downloading UPX"
-    curl -L "https://github.com/upx/upx/releases/download/v4.2.1/$UPX_VER.tar.xz" -o "$PKG_DIR"
+    curl -L "https://github.com/upx/upx/releases/download/v4.2.4/$UPX_VER.tar.xz" -o "$PKG_DIR/$UPX_VER.tar.xz"
     tar -xf "$PKG_DIR/$UPX_VER.tar.xz" -C "$PKG_DIR"
     rm -f "$PKG_DIR/$UPX_VER.tar.xz"
 else
