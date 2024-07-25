@@ -208,7 +208,7 @@ class SystemMonitorApp(tk.Tk):
         icon_label = ttk.Label(container, image=photo)
         icon_label.image = photo
         icon_label.pack(side=tk.LEFT)
-        text_label = ttk.Label(container, text=f"{text} {value}")
+        text_label = ttk.Label(container, text=f"{value}")
         text_label.pack(side=tk.LEFT)
         return text_label
 
@@ -319,7 +319,10 @@ class SystemMonitorApp(tk.Tk):
                     label.config(text=f"{label.cget('text').split(':')[0]}: {value} {suffix}".strip())
                 else:
                     label = labels[key]
-                    label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
+                    if key == 'distro':
+                        label.config(text=f"{value}".strip())
+                    else:
+                        label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
 
 
 
