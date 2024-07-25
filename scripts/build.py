@@ -7,7 +7,34 @@ import zipfile
 import tarfile
 
 
-def check_and_download_upx(pkg_dir, upx_ver, upx_url, is_windows):
+def print_usage():
+    """
+    Prints the usage information for the script and exits.
+
+    This function provides instructions on how to use the script, including
+    the available build types and an example of how to run the script.
+    """
+
+    print("Usage: Build binary executables for PSMonitor.\n")
+    print("Example:")
+    print("  python build.py <build-type>\n")
+    print("Available build types (at least one is required):")
+    print("  - desktop : Build the desktop application with the server included.")
+    print("  - server  : Build the standalone server only.\n")
+    sys.exit(1)
+
+
+def prepare_upx(pkg_dir: str, upx_ver: str, upx_url: str, is_windows: bool):
+    """
+    Checks for the presence of UPX, downloads and extracts it if not present.
+
+    Args:
+        pkg_dir (str): The directory where the UPX package should be located.
+        upx_ver (str): The version of UPX to check/download.
+        upx_url (str): The URL from which to download the UPX package.
+        is_windows (bool): True if the script is running on Windows, False otherwise.
+    """
+
     upx_dir = os.path.join(pkg_dir, upx_ver)
     
     if not os.path.exists(upx_dir):
@@ -27,26 +54,45 @@ def check_and_download_upx(pkg_dir, upx_ver, upx_url, is_windows):
         print("UPX is available")
 
 
-def clean_directory(directory):
+def clean_directory(directory: str):
+    """
+    Deletes the specified directory and all its contents if it exists.
+
+    Args:
+        directory (str): The directory to be cleaned.
+    """
+
     if os.path.exists(directory):
         print(f"Cleaning {directory} directory...")
         shutil.rmtree(directory)
 
 
-def build_psmonitor(spec_file, upx_dir):
+def build_psmonitor(spec_file: str, upx_dir: str):
+    """
+    Builds the PSMonitor application using PyInstaller.
+
+    Args:
+        spec_file (str): The path to the PyInstaller spec file.
+        upx_dir (str): The directory where UPX is located.
+    """
+
     print("Building psmonitor...")
     subprocess.run(["pyinstaller", spec_file, "--upx-dir", upx_dir], check=True)
 
 
-def main(build_type):
+def main(build_type: str):
+    """
+    Main function that orchestrates the build process for PSMonitor.
+
+    Args:
+        build_type (str): The type of build to perform ('desktop' or 'server').
+
+    This function sets up the build environment, downloads UPX if necessary,
+    cleans the build and dist directories, and then builds the application.
+    """
+
     if build_type not in ["desktop", "server"]:
-        print("Usage: Build executables for psmonitor.\n")
-        print("Example:")
-        print("  python build_script.py <build-type>\n")
-        print("Available build types (at least one is required):")
-        print("  - desktop : Build the desktop application with the server included.")
-        print("  - server  : Build the standalone server only.\n")
-        sys.exit(1)
+        print_usage()
 
     build_spec = "psmonitor_server.spec" if build_type == "server" else "psmonitor.spec"
     pwd = os.getcwd()
@@ -63,8 +109,9 @@ def main(build_type):
         upx_url = f"https://github.com/upx/upx/releases/download/v4.2.4/{upx_ver}.tar.xz"
 
     print("Checking for UPX...")
-    check_and_download_upx(pkg_dir, upx_ver, upx_url, os.name == 'nt')
+    prepare_upx(pkg_dir, upx_ver, upx_url, os.name == 'nt')
     
+    print("Cleaning build and dist...")
     clean_directory(build_dir)
     clean_directory(dist_dir)
 
@@ -72,7 +119,13 @@ def main(build_type):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python build_script.py <build-type>")
-        sys.exit(1)
+    """
+    Entry point of the script. Checks for command-line arguments and starts the build process.
+    
+    The script expects exactly one argument specifying the build type. If '--help' is provided,
+    it prints the usage information.
+    """
+
+    if len(sys.argv) != 2 or sys.argv[1] == '--help':
+        print_usage()
     main(sys.argv[1])

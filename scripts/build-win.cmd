@@ -32,13 +32,13 @@ set "DIST_DIR=%PWD%\dist"
 set "PKG_DIR=%PWD%\package"
 set "SPEC_FILE=%PKG_DIR%\%BUILD_TYPE%\windows\%BUILD_SPEC%"
 
-set "UPX_VER=upx-4.2.1-win64"
+set "UPX_VER=upx-4.2.4-win64"
 
 :: Check for UPX
 echo Checking for UPX...
 if not exist "%PKG_DIR%\%UPX_VER%" (
     echo Downloading UPX...
-    powershell -Command "Invoke-WebRequest -Uri 'https://github.com/upx/upx/releases/download/v4.2.1/%UPX_VER%.zip' -OutFile '%PKG_DIR%\%UPX_VER%.zip'"
+    powershell -Command "Invoke-WebRequest -Uri 'https://github.com/upx/upx/releases/download/v4.2.4/%UPX_VER%.zip' -OutFile '%PKG_DIR%\%UPX_VER%.zip'"
     powershell -Command "Expand-Archive -Path '%PKG_DIR%\%UPX_VER%.zip' -DestinationPath '%PKG_DIR%'"
     del "%PKG_DIR%\%UPX_VER%.zip"
 ) else (
