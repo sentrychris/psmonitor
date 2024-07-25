@@ -29,7 +29,6 @@ def convert_bytes(x: int, pre: int = 2) -> float:
     return round(x / (1024.0 ** 3), pre)
 
 
-@functools.lru_cache(maxsize=5)
 def get_cpu() -> dict:
     """
     Retrieves CPU usage statistics.
@@ -56,7 +55,6 @@ def get_cpu() -> dict:
     }
 
 
-@functools.lru_cache(maxsize=5)
 def get_disk() -> dict:
     """
     Retrieves disk usage statistics.
@@ -81,7 +79,6 @@ def get_disk() -> dict:
     }
 
 
-@functools.lru_cache(maxsize=5)
 def get_memory() -> dict:
     """
     Retrieves memory usage statistics.
@@ -106,7 +103,6 @@ def get_memory() -> dict:
     }
 
 
-@functools.lru_cache(maxsize=5)
 def get_processes() -> list:
     """
     Retrieves a list of top 10 processes by memory usage.
