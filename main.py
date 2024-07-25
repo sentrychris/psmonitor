@@ -107,25 +107,25 @@ class SystemMonitorApp(tk.Tk):
 
         self.disk_frame = self.create_section_frame(main_frame, "Disk")
         self.disk_labels = {
-            "used": self.add_label(self.disk_frame, "Used:", f"{data['disk']['used']} GB"),
-            "free": self.add_label(self.disk_frame, "Free:", f"{data['disk']['free']} GB"),
-            "percent": self.add_label(self.disk_frame, "Usage:", f"{data['disk']['percent']} %")
+            "used": self.add_label(self.disk_frame, "Used:", f"{data['disk']['used']} GB", "GB"),
+            "free": self.add_label(self.disk_frame, "Free:", f"{data['disk']['free']} GB", "GB"),
+            "percent": self.add_label(self.disk_frame, "Usage:", f"{data['disk']['percent']} %", "%")
         }
         self.disk_frame.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
         self.cpu_frame = self.create_section_frame(main_frame, "CPU")
         self.cpu_labels = {
-            "temp": self.add_label(self.cpu_frame, "Temperature:", f"{data['cpu']['temp']} °C"),
-            "freq": self.add_label(self.cpu_frame, "Frequency:", f"{data['cpu']['freq']} MHz"),
-            "usage": self.add_label(self.cpu_frame, "Usage:", f"{data['cpu']['usage']} %")
+            "temp": self.add_label(self.cpu_frame, "Temperature:", f"{data['cpu']['temp']} °C", "°C"),
+            "freq": self.add_label(self.cpu_frame, "Frequency:", f"{data['cpu']['freq']} MHz", "MHz"),
+            "usage": self.add_label(self.cpu_frame, "Usage:", f"{data['cpu']['usage']} %", "%")
         }
         self.cpu_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
         self.mem_frame = self.create_section_frame(main_frame, "Memory")
         self.mem_labels = {
-            "used": self.add_label(self.mem_frame, "Used:", f"{data['mem']['used']} GB"),
-            "free": self.add_label(self.mem_frame, "Free:", f"{data['mem']['free']} GB"),
-            "percent": self.add_label(self.mem_frame, "Usage:", f"{data['mem']['percent']} %")
+            "used": self.add_label(self.mem_frame, "Used:", f"{data['mem']['used']} GB", "GB"),
+            "free": self.add_label(self.mem_frame, "Free:", f"{data['mem']['free']} GB", "GB"),
+            "percent": self.add_label(self.mem_frame, "Usage:", f"{data['mem']['percent']} %", "%")
         }
         self.mem_frame.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
@@ -178,11 +178,11 @@ class SystemMonitorApp(tk.Tk):
         return section_frame
 
 
-    def add_label(self, frame, text, value):
-        label_text = f"{text} {value}"
+    def add_label(self, frame, text, value, suffix=""):
+        label_text = f"{text} {value} {suffix}".strip()
         label = ttk.Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
-        return label
+        return label, suffix
 
 
     def load_image(self, path, width):
@@ -312,13 +312,15 @@ class SystemMonitorApp(tk.Tk):
 
 
     def update_section(self, labels, data):
-        for key, label in labels.items():
-            new_value = data.get(key, '')
-            if isinstance(label, tuple):
-                label, suffix = label
-                label.config(text=f"{new_value} {suffix}".strip())
-            else:
-                label.config(text=f"{label.cget('text').split(':')[0]}: {new_value}".strip())
+        for key, value in data.items():
+            if key in labels:
+                if isinstance(labels[key], tuple):
+                    label, suffix = labels[key]
+                    label.config(text=f"{label.cget('text').split(':')[0]}: {value} {suffix}".strip())
+                else:
+                    label = labels[key]
+                    label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
+
 
 
     def update_processes(self, processes):
