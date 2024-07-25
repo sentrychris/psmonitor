@@ -1,9 +1,15 @@
-import ctypes
-import getpass
 import os
 import psutil
 import platform
 import sys
+import subprocess
+
+# Platform-specific imports
+if sys.platform == "win32":
+    import ctypes
+    import getpass
+elif sys.platform == 'linux':
+    import pwd
 
 
 def convert_bytes(x: int, pre: int = 2) -> float:
@@ -175,7 +181,6 @@ def get_user() -> str:
     if sys.platform == "win32":
         return getpass.getuser()
     else:
-        import pwd
         return pwd.getpwuid(os.getuid())[0]
 
 
@@ -191,9 +196,12 @@ def get_distro() -> str:
     """
 
     if sys.platform == "win32":
-        import subprocess
-        result = subprocess.run(['wmic', 'os', 'get', 'Caption'], capture_output=True, text=True, check=True)
-        os_name = result.stdout.strip().split('\n')
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        result = subprocess.check_output(['wmic', 'os', 'get', 'Caption'], text=True, startupinfo=startupinfo)
+        os_name = result.strip().split('\n')
+
         return os_name[2].strip() if len(os_name) > 1 else "Unknown OS"
     else:
         return os.popen('cat /etc/*-release | grep "^PRETTY_NAME=" | cut -d= -f2').read().replace('"', '').strip()
