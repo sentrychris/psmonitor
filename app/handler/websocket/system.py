@@ -4,7 +4,7 @@ from ...thread_pool import executor
 from ...service.system_service import get_cpu, get_disk, get_memory, get_processes, get_uptime
 
 
-async def get_system_data():
+async def get_system_data() -> dict:
     """
     Gathers system data including CPU, memory, disk usage, uptime, and processes.
 

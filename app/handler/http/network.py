@@ -2,7 +2,7 @@ from ...service.network_service import get_avg_in_out, get_interfaces, get_stati
 from ...service.wifi_service import get_wifi_data
 
 
-async def get_network_data(avg_in_out=False):
+async def get_network_data(avg_in_out=False) -> dict:
     """
     Gathers network data including interface details and statistics.
 

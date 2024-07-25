@@ -1,9 +1,10 @@
-import uuid
 import json
+import logging
 import os.path
+import requests
 import signal
 import sys
-import requests
+import uuid
 import websocket
 import webbrowser
 import threading
@@ -35,6 +36,19 @@ data = {
     "uptime": "",
     "processes": []
 }
+
+
+logger = logging.getLogger(__name__)
+
+
+def configure_logger(logfile: str):
+    filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
+
+    if not os.path.isdir(filepath):
+        os.mkdir(filepath)
+
+    destination = os.path.join(filepath, logfile)
+    logging.basicConfig(filename=destination, level=logging.INFO)
 
 
 def start_server():
@@ -118,6 +132,7 @@ class SystemMonitorApp(tk.Tk):
         main_frame.rowconfigure(2, weight=1)
         main_frame.rowconfigure(3, weight=1)
 
+
     def create_menu(self):
         menu_bar = tk.Menu(self)
         self.config(menu=menu_bar)
@@ -127,6 +142,7 @@ class SystemMonitorApp(tk.Tk):
         menu_bar.add_cascade(label="File", menu=file_menu)
         menu_bar.add_cascade(label="Help", menu=help_menu)
         help_menu.add_command(label="About", command=self.show_about)
+
 
     def show_about(self):
         about_window = tk.Toplevel(self)
@@ -213,7 +229,7 @@ class SystemMonitorApp(tk.Tk):
             self.update_initial_data(initial_data)
             self.start_websocket_connection()
         except requests.RequestException as e:
-            print(f"Failed to fetch initial system data: {e}")
+            logger.error(f"Error fetching initial system data: {e}")
 
 
     def update_initial_data(self, initial_data):
@@ -228,7 +244,7 @@ class SystemMonitorApp(tk.Tk):
             worker = response.json()
             self.start_websocket(worker['id'])
         except requests.RequestException as e:
-            print(f"Failed to obtain worker ID: {e}")
+            logger.error(f"Error obtaining worker for websocket connection: {e}")
 
 
     def start_websocket(self, worker_id):
@@ -249,8 +265,8 @@ class SystemMonitorApp(tk.Tk):
         try:
             new_data = json.loads(message)
             self.update_live_data(new_data)
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"Error fetching websocket data: {e}")
 
 
     def on_error(self, ws, error):
@@ -323,6 +339,7 @@ if __name__ == "__main__":
         print("MacOS is not supported.")
         exit(0)
 
+    configure_logger(logfile='app.log')
     tornado_thread = threading.Thread(target=start_server)
     tornado_thread.daemon = True
     tornado_thread.start()

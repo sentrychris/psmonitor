@@ -2,7 +2,7 @@ import asyncio
 import psutil
 
 
-async def get_avg_in_out(inet="wlan0", interval=5, sample_rate=0.1):
+async def get_avg_in_out(inet="wlan0", interval=5, sample_rate=0.1) -> dict:
     """
     Asynchronously calculates average network statistics for a given network interface over a specified interval.
 
@@ -46,7 +46,7 @@ async def get_avg_in_out(inet="wlan0", interval=5, sample_rate=0.1):
     }
 
 
-def get_statistics():
+def get_statistics() -> dict:
     """
     Retrieves network statistics for all network interfaces on the system.
 
@@ -80,7 +80,7 @@ def get_statistics():
     return interfaces
 
 
-def get_interfaces():
+def get_interfaces() -> list:
     """
     Retrieves a list of network interface names on the system.
 

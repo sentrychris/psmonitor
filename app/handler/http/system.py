@@ -2,7 +2,7 @@ from ...service.system_service import get_cpu, get_disk, get_distro, get_kernel,
     get_memory, get_processes, get_uptime, get_user
 
 
-def get_system_data():
+def get_system_data() -> dict:
     """
     Gathers system data including CPU, memory, disk usage, uptime, and processes.
 

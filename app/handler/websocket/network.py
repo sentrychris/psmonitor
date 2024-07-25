@@ -4,7 +4,7 @@ from ...thread_pool import executor
 from ...service.network_service import get_avg_in_out, get_interfaces, get_statistics
 
 
-async def get_network_data(avg_in_out=False):
+async def get_network_data(avg_in_out=False) -> dict:
     """
     Gathers network data including interface details and statistics.
 

@@ -93,7 +93,6 @@ class WebsocketHandler(WebSocketHandler):
 
         self.write_message('connected to monitor, transmitting data...')
         self.loop.add_callback(self.monitor_system)
-        # self.loop.add_callback(self.monitor_network)
 
 
     async def monitor_system(self):

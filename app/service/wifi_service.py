@@ -3,7 +3,7 @@ import sys
 import subprocess
 
 
-def get_wifi_data():
+def get_wifi_data() -> dict:
     """
     Parses Wi-Fi information depending on the platform.
 
@@ -20,7 +20,7 @@ def get_wifi_data():
     return output
 
 
-def get_wifi_data_windows():
+def get_wifi_data_windows() -> dict:
     """
     Parses Wi-Fi information by scanning available Wi-Fi networks using the netsh command.
 
@@ -61,7 +61,7 @@ def get_wifi_data_windows():
         print(f"Failed to retrieve Wi-Fi information: {e}")
 
 
-def get_wifi_data_linux():
+def get_wifi_data_linux() -> dict:
     """
     Parses Wi-Fi information by scanning available Wi-Fi networks using the iwlist command.
 
@@ -94,7 +94,7 @@ def get_wifi_data_linux():
     return output
 
 
-def get_wifi_interface():
+def get_wifi_interface() -> str:
     """
     Gets the wi-fi interface using the iw command.
 
@@ -114,7 +114,7 @@ def get_wifi_interface():
     return interface
 
 
-def run_wifi_speedtest():
+def run_wifi_speedtest() -> dict:
     """
     Runs a wi-fi speed test using speedtes-cli and parses the results.
 
@@ -142,7 +142,7 @@ def run_wifi_speedtest():
     return response
 
 
-def get_name(cell):
+def get_name(cell: list) -> str:
     """
     Extracts the ESSID (name) from a cell.
 
@@ -156,7 +156,7 @@ def get_name(cell):
     return matching_line(cell, "ESSID:")[1:-1]
 
 
-def get_quality(cell):
+def get_quality(cell: list) -> str:
     """
     Extracts the quality from a cell and converts it to a percentage.
 
@@ -171,7 +171,7 @@ def get_quality(cell):
     return str(int(round(float(quality[0]) / float(quality[1]) * 100))).rjust(3)
 
 
-def get_channel(cell):
+def get_channel(cell: list) -> str:
     """
     Extracts the channel from a cell.
 
@@ -185,7 +185,7 @@ def get_channel(cell):
     return matching_line(cell, "Channel:")
 
 
-def get_signal_level(cell):
+def get_signal_level(cell: list) -> str:
     """
     Extracts the signal level from a cell.
 
@@ -199,7 +199,7 @@ def get_signal_level(cell):
     return matching_line(cell, "Quality=").split("Signal level=")[1]
 
 
-def get_encryption(cell):
+def get_encryption(cell: list) -> str:
     """
     Extracts the encryption type from a cell.
 
@@ -225,7 +225,7 @@ def get_encryption(cell):
     return enc
 
 
-def get_address(cell):
+def get_address(cell: list) -> str:
     """
     Extracts the address from a cell.
 
@@ -239,7 +239,7 @@ def get_address(cell):
     return matching_line(cell, "Address: ")
 
 
-def matching_line(lines, keyword):
+def matching_line(lines: list, keyword: str) -> str:
     """
     Finds the first line that matches a given keyword.
 
@@ -258,7 +258,7 @@ def matching_line(lines, keyword):
     return None
 
 
-def match(line, keyword):
+def match(line: str, keyword: str) -> str:
     """
     Checks if a line starts with a given keyword.
 
@@ -278,7 +278,7 @@ def match(line, keyword):
         return
 
 
-def parse_cell(cell):
+def parse_cell(cell: list) -> dict:
     """
     Parses a cell's information into a dictionary.
 

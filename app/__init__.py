@@ -2,6 +2,7 @@ import sys
 
 from tornado.ioloop import IOLoop
 from tornado.web import Application
+from typing import Union
 
 from .handler.http.http import HttpHandler, HttpSystemHandler, HttpNetworkHandler
 from .handler.websocket.websocket import WebsocketHandler
@@ -23,7 +24,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def create_app(settings):
+def create_app(settings: dict) -> Union[Application, bool]:
     """
     Creates and returns an application instance with specified settings.
 
@@ -53,9 +54,4 @@ def create_app(settings):
         (r'/connect', WebsocketHandler),
     ]
 
-    if settings is None:
-        return False
-
-    app = Application(handlers, **settings)
-
-    return app
+    return Application(handlers, **settings)

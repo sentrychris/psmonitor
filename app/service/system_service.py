@@ -6,7 +6,22 @@ import platform
 import sys
 
 
-def get_cpu():
+def convert_bytes(x: int, pre: int = 2) -> float:
+    """
+    Converts a size in bytes to gigabytes, rounded to a specified precision.
+
+    Args:
+        x (int): The size in bytes to be converted.
+        pre (int, optional): The number of decimal places to round to. Defaults to 2.
+
+    Returns:
+        float: The size in gigabytes, rounded to the specified precision.
+    """
+
+    return round(x / (1024.0 ** 3), pre)
+
+
+def get_cpu() -> dict:
     """
     Retrieves CPU usage statistics.
 
@@ -32,7 +47,7 @@ def get_cpu():
     }
 
 
-def get_disk():
+def get_disk() -> dict:
     """
     Retrieves disk usage statistics.
 
@@ -49,14 +64,14 @@ def get_disk():
     disk_data = psutil.disk_usage('/')
 
     return {
-        'total': round(disk_data.total / (1024.0 ** 3), 2),
-        'used': round(disk_data.used / (1024.0 ** 3), 2),
-        'free': round(disk_data.free / (1024.0 ** 3), 2),
+        'total': convert_bytes(disk_data.total),
+        'used': convert_bytes(disk_data.used),
+        'free': convert_bytes(disk_data.free),
         'percent': disk_data.percent,
     }
 
 
-def get_memory():
+def get_memory() -> dict:
     """
     Retrieves memory usage statistics.
 
@@ -73,14 +88,14 @@ def get_memory():
     memory_data = psutil.virtual_memory()
 
     return {
-        'total': round(memory_data.total / (1024.0 ** 3), 2),
-        'used': round(memory_data.used / (1024.0 ** 3), 2),
-        'free': round(memory_data.free / (1024.0 ** 3), 2),
+        'total': convert_bytes(memory_data.total),
+        'used': convert_bytes(memory_data.used),
+        'free': convert_bytes(memory_data.free),
         'percent': memory_data.percent,
     }
 
 
-def get_processes():
+def get_processes() -> list:
     """
     Retrieves a list of top 10 processes by memory usage.
 
@@ -107,7 +122,7 @@ def get_processes():
     return sorted(processes, key=lambda p: p['mem'], reverse=True)[:10]
 
 
-def get_uptime():
+def get_uptime() -> str:
     """
     Retrieves system uptime.
 
@@ -121,17 +136,16 @@ def get_uptime():
 
     if sys.platform == "win32":
         try:
-            # Get uptime in milliseconds
             uptime_ms = ctypes.windll.kernel32.GetTickCount64()
             total_seconds = uptime_ms / 1000.0
         except Exception:
-            return 'Cannot retrieve uptime on Windows'
+            return "N/A"
     else:
         try:
             with open('/proc/uptime') as f:
                 total_seconds = float(f.read().split()[0])
         except Exception:
-            return 'Cannot open uptime file: /proc/uptime'
+            return "N/A"
 
     days, remainder = divmod(total_seconds, 86400)
     hours, remainder = divmod(remainder, 3600)
@@ -147,7 +161,17 @@ def get_uptime():
     return ", ".join(part for part in uptime_parts if part)
 
 
-def get_user():
+def get_user() -> str:
+    """
+    Retrieves the username of the current user.
+
+    On Windows, it uses the `getpass.getuser()` function.
+    On Unix-like systems, it uses the `pwd` module to get the username associated with the current process's user ID.
+
+    Returns:
+        str: The username of the current user.
+    """
+
     if sys.platform == "win32":
         return getpass.getuser()
     else:
@@ -155,12 +179,38 @@ def get_user():
         return pwd.getpwuid(os.getuid())[0]
 
 
-def get_distro():
+def get_distro() -> str:
+    """
+    Retrieves the name of the operating system distribution.
+
+    On Windows, it uses the `wmic` command to get the OS caption.
+    On Unix-like systems, it reads the `/etc/*-release` file to get the distribution name.
+
+    Returns:
+        str: The name of the operating system distribution.
+    """
+
     if sys.platform == "win32":
-        return platform.platform()
+        import subprocess
+        result = subprocess.run(['wmic', 'os', 'get', 'Caption'], capture_output=True, text=True, check=True)
+        os_name = result.stdout.strip().split('\n')
+        return os_name[2].strip() if len(os_name) > 1 else "Unknown OS"
     else:
         return os.popen('cat /etc/*-release | grep "^PRETTY_NAME=" | cut -d= -f2').read().replace('"', '').strip()
 
 
-def get_kernel():
-    return platform.release()
+def get_kernel() -> str:
+    """
+    Retrieves the kernel version of the operating system.
+
+    On Windows, it uses `platform.version()` to get the version of the OS.
+    On Unix-like systems, it uses `platform.release()` to get the kernel version.
+
+    Returns:
+        str: The kernel version of the operating system.
+    """
+
+    if sys.platform == "win32":
+        return platform.version()
+    else:
+        return platform.release()
