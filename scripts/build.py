@@ -24,7 +24,7 @@ def print_usage():
     sys.exit(1)
 
 
-def prepare_upx(pkg_dir: str, upx_ver: str, upx_url: str, is_windows: bool):
+def prepare_upx(pkg_dir: str, upx_ver: str, upx_url: str, is_windows: bool) -> str:
     """
     Checks for the presence of UPX, downloads and extracts it if not present.
 
@@ -33,6 +33,9 @@ def prepare_upx(pkg_dir: str, upx_ver: str, upx_url: str, is_windows: bool):
         upx_ver (str): The version of UPX to check/download.
         upx_url (str): The URL from which to download the UPX package.
         is_windows (bool): True if the script is running on Windows, False otherwise.
+
+    Returns:
+        upx_dir (str): The directory where the UPX package is located.
     """
 
     upx_dir = os.path.join(pkg_dir, upx_ver)
@@ -52,6 +55,8 @@ def prepare_upx(pkg_dir: str, upx_ver: str, upx_url: str, is_windows: bool):
         os.remove(upx_path)
     else:
         print("UPX is available")
+
+    return upx_dir
 
 
 def clean_directory(directory: str):
@@ -108,14 +113,16 @@ def main(build_type: str):
         upx_ver = "upx-4.2.4-amd64_linux"
         upx_url = f"https://github.com/upx/upx/releases/download/v4.2.4/{upx_ver}.tar.xz"
 
-    print("Checking for UPX...")
-    prepare_upx(pkg_dir, upx_ver, upx_url, os.name == 'nt')
+    print("Preparing UPX...")
+    upx_dir = prepare_upx(pkg_dir, upx_ver, upx_url, os.name == 'nt')
     
-    print("Cleaning build and dist...")
     clean_directory(build_dir)
     clean_directory(dist_dir)
 
     build_psmonitor(spec_file, os.path.join(pkg_dir, upx_ver))
+
+    print("Cleaning UPX...")
+    clean_directory(upx_dir)
 
 
 if __name__ == "__main__":
