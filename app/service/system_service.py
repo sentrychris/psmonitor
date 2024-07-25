@@ -14,6 +14,16 @@ elif sys.platform == 'linux':
     import pwd
 
 
+# Determine if the script is running in a bundle created by PyInstaller
+if getattr(sys, 'frozen', False):
+    # The script is running in a bundle
+    bundle_dir = sys._MEIPASS
+else:
+    # The script is running in a normal Python environment
+    current_dir = os.getcwd()
+    bundle_dir = os.path.abspath(os.path.join(current_dir, 'bin'))
+
+
 def convert_bytes(x: int, pre: int = 2) -> float:
     """
     Converts a size in bytes to gigabytes, rounded to a specified precision.
@@ -43,7 +53,12 @@ def get_cpu() -> dict:
     """
 
     if sys.platform == "win32":
-        cpu_temp = "N/A" # TODO find an acceptable alternative for temps on windows.
+        executable_path = os.path.join(bundle_dir, 'libwincputemp.exe')
+        proc = subprocess.check_output(
+            executable_path,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
+        cpu_temp = proc.decode('utf-8').rstrip('\r\n') # TODO find an acceptable alternative for temps on windows.
     else:
         cpu_temp = round(psutil.sensors_temperatures()['coretemp'][0].current, 2)
 
