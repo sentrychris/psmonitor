@@ -1,7 +1,27 @@
 @echo off
 setlocal
 
-set "UPX_VER=upx-4.2.1-win64"
+if "%1"=="" (
+    echo Usage: Build windows executables for psmonitor.
+    echo.
+    echo Example:
+    echo   C:\Users\chris\repos\psmonitor^> %0 ^<build-type^>
+    echo.
+    echo Available build types ^(at least one is required^)^:
+    echo   - desktop : Build the desktop application with the server included.
+    echo   - server  : Build the standalone server only.
+    echo.
+    exit /b 1
+)
+
+set "BUILD_FOR=%1"
+
+:: Set conditional spec file based on SUBDIR
+if "%BUILD_FOR%"=="server" (
+    set "BUILD_SPEC=psmonitor_server.spec"
+) else (
+    set "BUILD_SPEC=psmonitor.spec"
+)
 
 :: Get the current directory
 set "PWD=%cd%"
@@ -10,7 +30,9 @@ set "BUILD_DIR=%PWD%\build"
 set "DIST_DIR=%PWD%\dist"
 
 set "PKG_DIR=%PWD%\package"
-set "SPEC_FILE=%PKG_DIR%\windows\psmonitor.spec"
+set "SPEC_FILE=%PKG_DIR%\%BUILD_FOR%\windows\%BUILD_SPEC%"
+
+set "UPX_VER=upx-4.2.1-win64"
 
 :: Check for UPX
 echo Checking for UPX...

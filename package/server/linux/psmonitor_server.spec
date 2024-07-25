@@ -4,19 +4,19 @@ import os
 
 
 project_root = os.getcwd()
-main_script = os.path.join(project_root, 'main.py')
+server_script = os.path.join(project_root, 'server.py')
 
 libwincputemp = os.path.join(project_root, 'bin', 'libwincputemp.exe')
 public_folder = os.path.join(project_root, 'public')
 icon_file = os.path.join(project_root, 'package', 'psmonitor.ico')
-version_file = os.path.join(project_root, 'package', 'windows', 'version.rc')
+version_file = os.path.join(project_root, 'package', 'server', 'windows', 'version.rc')
 
 
 block_cipher = None
 
 
 a = Analysis(
-    [main_script],
+    [server_script],
     pathex=[project_root],
     binaries=[],
     datas=[
@@ -47,7 +47,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='psmonitor',
+    name='psmonitor-server',
     icon=icon_file,
     version=version_file,
     debug=False,
@@ -56,7 +56,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
