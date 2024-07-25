@@ -8,7 +8,7 @@ main_script = os.path.join(project_root, 'main.py')
 
 public_folder = os.path.join(project_root, 'public')
 icon_file = os.path.join(project_root, 'package', 'psmonitor.ico')
-version_file = os.path.join(project_root, 'package', 'version.rc')
+version_file = os.path.join(project_root, 'package', 'windows', 'version.rc')
 
 
 block_cipher = None
