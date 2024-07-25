@@ -7,7 +7,7 @@ This project includes [psutil](https://pypi.org/project/psutil/) scripts for gat
 
 Psmonitor also includes a desktop application.
 
-![app](./public/assets/screenshot2.png)
+![app](./public/assets/app.png)
 
 View an example [web client dashboard here](https://github.com/sentrychris/system-monitor)
 
