@@ -42,6 +42,12 @@ logger = logging.getLogger(__name__)
 
 
 def configure_logger(logfile: str):
+    """
+    Configures the logger to write logs to a specified file.
+    
+    Args:
+        logfile (str): The name of the logfile.
+    """
     filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
 
     if not os.path.isdir(filepath):
@@ -52,6 +58,10 @@ def configure_logger(logfile: str):
 
 
 def start_server():
+    """
+    Starts the server and listens on port 4500.
+    """
+
     app = create_app({
         'template_path': TEMPLATE_PATH,
         'static_path': STATIC_PATH,
@@ -67,8 +77,21 @@ def start_server():
 
 
 class SystemMonitorApp(tk.Tk):
+    """
+    GUI application for system monitoring.
+    
+    Attributes:
+        data (dict): Initial data to populate the UI.
+    """
 
     def __init__(self, data):
+        """
+        Initializes the app with initial data.
+        
+        Args:
+            data (dict): Initial data to populate the UI.
+        """
+    
         super().__init__()
         self.title("PSMonitor - System monitoring utility")
         self.geometry("460x480")
@@ -87,6 +110,13 @@ class SystemMonitorApp(tk.Tk):
 
 
     def set_window_icon(self, icon_path):
+        """
+        Sets the window icon.
+
+        Args:
+            icon_path (str): Path to the icon file.
+        """
+
         icon = Image.open(icon_path)
         icon = icon.resize((32, 32), Image.LANCZOS)
         icon_photo = ImageTk.PhotoImage(icon)
@@ -94,6 +124,13 @@ class SystemMonitorApp(tk.Tk):
 
 
     def create_widgets(self, data):
+        """
+        Creates and arranges the widgets in the application.
+
+        Args:
+            data (dict): Initial data to populate the widgets.
+        """
+
         main_frame = ttk.Frame(self)
         main_frame.pack(expand=True, fill='both', padx=5, pady=5)
 
@@ -142,6 +179,10 @@ class SystemMonitorApp(tk.Tk):
 
 
     def create_menu(self):
+        """
+        Creates the menu bar.
+        """
+
         menu_bar = tk.Menu(self)
         self.config(menu=menu_bar)
 
@@ -153,6 +194,10 @@ class SystemMonitorApp(tk.Tk):
 
 
     def show_about(self):
+        """
+        Displays the 'About' window.
+        """
+
         about_window = tk.Toplevel(self)
         about_window.title("About PSMonitor")
         about_window.geometry("300x150")
@@ -173,12 +218,36 @@ class SystemMonitorApp(tk.Tk):
 
 
     def create_section_frame(self, parent, title):
+        """
+        Creates a section frame within the parent frame.
+
+        Args:
+            parent (tk.Widget): The parent widget.
+            title (str): The title of the section frame.
+        
+        Returns:
+            ttk.LabelFrame: The created section frame.
+        """
+
         section_frame = ttk.LabelFrame(parent, text=title)
         section_frame.grid(sticky="nsew", padx=5, pady=5)
         return section_frame
 
 
     def add_label(self, frame, text, value, suffix=""):
+        """
+        Adds a label to the specified frame.
+
+        Args:
+            frame (tk.Widget): The parent frame.
+            text (str): The label text.
+            value (str): The value to be displayed.
+            suffix (str, optional): The suffix for the label text.
+        
+        Returns:
+            tuple: The created label and suffix.
+        """
+
         label_text = f"{text} {value} {suffix}".strip()
         label = ttk.Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
@@ -186,6 +255,17 @@ class SystemMonitorApp(tk.Tk):
 
 
     def load_image(self, path, width):
+        """
+        Loads an image from the specified path and resizes it.
+
+        Args:
+            path (str): The path to the image file.
+            width (int): The desired width of the image.
+        
+        Returns:
+            ImageTk.PhotoImage: The loaded and resized image.
+        """
+
         if path in self.image_cache:
             return self.image_cache[path]
         image = Image.open(path)
@@ -196,6 +276,18 @@ class SystemMonitorApp(tk.Tk):
 
 
     def add_label_with_icon(self, frame, text, value):
+        """
+        Adds a label with an icon to the specified frame.
+
+        Args:
+            frame (tk.Widget): The parent frame.
+            text (str): The label text.
+            value (str): The value to be displayed.
+        
+        Returns:
+            ttk.Label: The created label.
+        """
+
         container = ttk.Frame(frame)
         container.grid(sticky='w', padx=5, pady=2)
         icon_file = 'windows.png'
@@ -214,6 +306,14 @@ class SystemMonitorApp(tk.Tk):
 
 
     def add_processes_table(self, frame, processes_data):
+        """
+        Adds a table to display process information.
+
+        Args:
+            frame (tk.Widget): The parent frame.
+            processes_data (list): The list of processes data.
+        """
+
         columns = ("pid", "name", "username", "mem")
         self.tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
         self.tree.heading("pid", text="PID", anchor='center')
@@ -234,6 +334,10 @@ class SystemMonitorApp(tk.Tk):
 
 
     def fetch_initial_data(self):
+        """
+        Fetches the initial system data from the server.
+        """
+
         try:
             response = requests.get(f'{HTTP_URL}/system')
             initial_data = response.json()
@@ -244,12 +348,23 @@ class SystemMonitorApp(tk.Tk):
 
 
     def update_initial_data(self, initial_data):
+        """
+        Updates the initial data in the application.
+
+        Args:
+            initial_data (dict): The initial data to update.
+        """
+
         global data
         data.update(initial_data)
         self.update_gui()
 
 
     def start_websocket_connection(self):
+        """
+        Starts the websocket connection for live data updates.
+        """
+
         try:
             response = requests.post(HTTP_URL, json={'connection': 'monitor'})
             worker = response.json()
@@ -259,6 +374,13 @@ class SystemMonitorApp(tk.Tk):
 
 
     def start_websocket(self, worker_id):
+        """
+        Starts the websocket connection with the specified worker ID.
+
+        Args:
+            worker_id (str): The worker ID for the websocket connection.
+        """
+
         self.worker_id = worker_id
         websocket.enableTrace(False)
         self.ws = websocket.WebSocketApp(f"{WS_URL}{worker_id}",
@@ -273,6 +395,14 @@ class SystemMonitorApp(tk.Tk):
 
 
     def on_message(self, ws, message):
+        """
+        Handles incoming websocket messages.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+            message (str): The incoming message.
+        """
+
         try:
             new_data = json.loads(message)
             self.update_live_data(new_data)
@@ -281,18 +411,49 @@ class SystemMonitorApp(tk.Tk):
 
 
     def on_error(self, ws, error):
+        """
+        Handles websocket errors.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+            error (Exception): The error encountered.
+        """
+
         print(f"WebSocket error: {error}")
 
 
     def on_close(self, ws, close_status_code, close_msg):
+        """
+        Handles websocket closure.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+            close_status_code (int): The status code for the closure.
+            close_msg (str): The closure message.
+        """
+
         print("WebSocket closed")
 
 
     def on_open(self, ws):
+        """
+        Handles websocket opening.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+        """
+
         print("WebSocket connection opened")
 
 
     def update_live_data(self, new_data):
+        """
+        Updates the live data in the application.
+
+        Args:
+            new_data (dict): The new data to update.
+        """
+
         global data
         data['cpu'] = new_data.get('cpu', data['cpu'])
         data['mem'] = new_data.get('mem', data['mem'])
@@ -303,6 +464,10 @@ class SystemMonitorApp(tk.Tk):
 
 
     def update_gui(self):
+        """
+        Updates the GUI with the latest data.
+        """
+
         self.update_section(self.platform_labels, data['platform'])
         self.update_section(self.disk_labels, data['disk'])
         self.update_section(self.cpu_labels, data['cpu'])
@@ -312,6 +477,14 @@ class SystemMonitorApp(tk.Tk):
 
 
     def update_section(self, labels, data):
+        """
+        Updates a section of the GUI.
+
+        Args:
+            labels (dict): The labels in the section.
+            data (dict): The data to update.
+        """
+
         for key, value in data.items():
             if key in labels:
                 if isinstance(labels[key], tuple):
@@ -325,8 +498,14 @@ class SystemMonitorApp(tk.Tk):
                         label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
 
 
-
     def update_processes(self, processes):
+        """
+        Updates the processes table with new data.
+
+        Args:
+            processes (list): The list of processes to update.
+        """
+
         for item in self.tree.get_children():
             self.tree.delete(item)
         for i, process in enumerate(processes):
@@ -336,6 +515,10 @@ class SystemMonitorApp(tk.Tk):
 
 
     def on_closing(self):
+        """
+        Handles application closing.
+        """
+
         if self.ws:
             self.ws.close()
         if self.ws_thread:
@@ -345,6 +528,10 @@ class SystemMonitorApp(tk.Tk):
 
 
 if __name__ == "__main__":
+    """
+    Main entry point for the application.
+    """
+
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
