@@ -16,14 +16,21 @@ namespace LibWinCPUTemp
             IsCpuEnabled = true,
         };
 
-        static void GetCPUTemp()
+        static void Main()
         {
-            foreach (var hardware in computer.Hardware)
+            computer.Open();
+            GetCpuTemperature();
+            Environment.Exit(0);
+        }
+
+        private static void GetCpuTemperature()
+        {
+            foreach (IHardware hardware in computer.Hardware)
             {
                 hardware.Update();
             }
 
-            var cpuSensor = GetCpuPackageTemperatureSensor();
+            ISensor cpuSensor = GetCpuPackageTemperatureSensor();
 
             if (cpuSensor != null)
             {
@@ -42,13 +49,6 @@ namespace LibWinCPUTemp
                 .FirstOrDefault(s => {
                     return s.SensorType == SensorType.Temperature && s.Name.Contains("CPU Package");
                 });
-        }
-
-        static void Main()
-        {
-            computer.Open();
-            GetCPUTemp();
-            Environment.Exit(0);
         }
     }
 }
