@@ -8,10 +8,6 @@ A simple system and network monitoring solution with a built-in server for remot
 
 View an example [web client dashboard here](https://github.com/sentrychris/system-monitor)
 
-## Requirements
-
-- Python 3
-
 ## Features
 
 - **Asynchronous Data Collection**: Efficient, non-blocking data collection.
@@ -19,25 +15,6 @@ View an example [web client dashboard here](https://github.com/sentrychris/syste
 - **System Statistics**: Provides CPU, memory, and disk usage, uptime, and top processes.
 - **Network Statistics**: Monitors data sent and received on network interfaces.
 - **Websocket Server**: Includes a [tornado](https://www.tornadoweb.org/en/stable/) server for remote monitoring (built-in and standalone).
-
-## Quick Start
-
-1. Clone this repository:
-    ```sh
-    git clone git@github.com:sentrychris/psmonitor.git
-    ```
-
-2. Install dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-3. Run the server:
-    ```sh
-    python server.py run --port=<port> --address=<address>
-    ```
-
-The websocket server comes with a simple dashboard to test the websocket connection which can be accessed through your web browser.
 
 
 ## Desktop application
@@ -61,12 +38,17 @@ Three standard HTTP endpoints are provided:
 
 Retrieves system monitoring information
 
-- **CPU**: Temperature*, Frequency, Usage
+- **CPU**: Temperature, Frequency, Usage
 - **Disk**: Used, Free, Total, Usage
 - **Mem**: Used, Free, Total, Usage
 - **User**: Logged in user
 - **Platform**: Distribution, Kernel, Uptime
 - **Processes** Top 10 processes by memory usage
+
+
+> A small note on CPU temperature monitoring on Windows: reading temperature sensors requires elevated privileges, in order to display your CPU temperature on Windows, you'll need to run PSMonitor as an administrator.
+> 
+> PSMonitor uses a tiny binary executable called [**libwincputemp**](./lib/libwincputemp/), which is part of this project.
 
 #### **GET `/network`**:
 

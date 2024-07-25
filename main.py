@@ -206,7 +206,7 @@ class SystemMonitorApp(tk.Tk):
         label_version = ttk.Label(about_window, text="PSMonitor - system monitoring utility.", font=("Arial", 12))
         label_version.pack(pady=10)
 
-        label_version = ttk.Label(about_window, text="Version 1.2.1.1167", font=("Arial", 8))
+        label_version = ttk.Label(about_window, text="Version 1.2.2.1551", font=("Arial", 8))
         label_version.pack(pady=5)
 
         label_author = ttk.Label(about_window, text="Made by Chris Rowles", font=("Arial", 10))

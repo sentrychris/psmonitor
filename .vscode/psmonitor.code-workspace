@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "path": ".."
+    },
+    {
+      "path": "../lib/libwincputemp"
+    }
+  ],
+  "settings": {
+    "dotnet.preferCSharpExtension": true
+  }
+}
