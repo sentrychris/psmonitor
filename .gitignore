@@ -1,7 +1,6 @@
 ssl
 .idea
 venv
-.vscode
 
 test.py
 
