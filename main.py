@@ -26,18 +26,7 @@ WS_URL = 'ws://localhost:4500/connect?id='
 HTTP_URL = 'http://localhost:4500'
 
 
-# Data structure
-data = {
-    "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
-    "mem": {"total": 0, "used": 0, "free": 0, "percent": 0},
-    "disk": {"total": 0, "used": 0, "free": 0, "percent": 0},
-    "user": "",
-    "platform": {"distro": "", "kernel": "", "uptime": ""},
-    "uptime": "",
-    "processes": []
-}
-
-
+# Logger
 logger = logging.getLogger(__name__)
 
 
@@ -76,7 +65,7 @@ def start_server():
     IOLoop.current().start()
 
 
-class SystemMonitorApp(tk.Tk):
+class PSMonitorApp(tk.Tk):
     """
     GUI application for system monitoring.
     
@@ -545,8 +534,20 @@ if __name__ == "__main__":
         exit(0)
 
     configure_logger(logfile='app.log')
+    
     tornado_thread = threading.Thread(target=start_server)
     tornado_thread.daemon = True
     tornado_thread.start()
-    app = SystemMonitorApp(data)
+
+    data = {
+        "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
+        "mem": {"total": 0, "used": 0, "free": 0, "percent": 0},
+        "disk": {"total": 0, "used": 0, "free": 0, "percent": 0},
+        "user": "",
+        "platform": {"distro": "", "kernel": "", "uptime": ""},
+        "uptime": "",
+        "processes": []
+    }
+    
+    app = PSMonitorApp(data)
     app.mainloop()
