@@ -18,8 +18,16 @@ namespace LibWinCPUTemp
 
         static void Main()
         {
-            computer.Open();
-            GetCpuTemperature();
+            try
+            {
+                computer.Open();
+                GetCpuTemperature();
+            }
+            finally
+            {
+                computer.Close();
+            }
+
             Environment.Exit(0);
         }
 
