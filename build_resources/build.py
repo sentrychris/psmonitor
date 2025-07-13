@@ -27,33 +27,33 @@ def print_usage():
     sys.exit(1)
 
 
-def prepare_upx(pkg_dir: str, upx_pkg: str, upx_url: str, is_windows: bool) -> str:
+def get_upx_compressor(build_resources: str, upx_archive: str, upx_url: str, is_windows: bool) -> str:
     """
     Checks for the presence of UPX, downloads and extracts it if not present.
 
     Args:
-        pkg_dir (str): The directory where the UPX package should be located.
-        upx_pkg (str): The version of UPX to check/download.
-        upx_url (str): The URL from which to download the UPX package.
+        build_resources (str): The build resources directory where UPX will be located.
+        upx_archive (str): The archive name of the UPX version to download.
+        upx_url (str): The URL from which to download UPX.
         is_windows (bool): True if the script is running on Windows, False otherwise.
 
     Returns:
-        upx_dir (str): The directory where the UPX package is located.
+        upx_dir (str): The directory where UPX is located.
     """
 
-    upx_dir = os.path.join(pkg_dir, upx_pkg)
+    upx_dir = os.path.join(build_resources, upx_archive)
     
     if not os.path.exists(upx_dir):
         print("Downloading UPX...")
-        upx_path = os.path.join(pkg_dir, f"{upx_pkg}.{'zip' if is_windows else 'tar.xz'}")
+        upx_path = os.path.join(build_resources, f"{upx_archive}.{'zip' if is_windows else 'tar.xz'}")
         urllib.request.urlretrieve(upx_url, upx_path)
         
         if is_windows:
             with zipfile.ZipFile(upx_path, 'r') as zip_ref:
-                zip_ref.extractall(pkg_dir)
+                zip_ref.extractall(build_resources)
         else:
             with tarfile.open(upx_path, 'r:xz') as tar_ref:
-                tar_ref.extractall(pkg_dir)
+                tar_ref.extractall(build_resources)
                 
         os.remove(upx_path)
     else:
@@ -62,7 +62,7 @@ def prepare_upx(pkg_dir: str, upx_pkg: str, upx_url: str, is_windows: bool) -> s
     return upx_dir
 
 
-def clean_directory(directory: str):
+def clean_dir(directory: str):
     """
     Deletes the specified directory and all its contents if it exists.
 
@@ -75,7 +75,7 @@ def clean_directory(directory: str):
         shutil.rmtree(directory)
 
 
-def build_psmonitor(spec_file: str, upx_dir: str):
+def build(spec_file: str, upx_dir: str):
     """
     Builds the PSMonitor application using PyInstaller.
 
@@ -102,12 +102,10 @@ def main(build_type: str):
     if build_type not in ["desktop", "server"]:
         print_usage()
 
+    cwd = os.getcwd()
+    build_resources = os.path.join(cwd, "build_resources")
     build_spec = "psmonitor_server.spec" if build_type == "server" else "psmonitor.spec"
-    pwd = os.getcwd()
-    build_dir = os.path.join(pwd, "build")
-    dist_dir = os.path.join(pwd, "dist")
-    pkg_dir = os.path.join(pwd, "package")
-    spec_file = os.path.join(pkg_dir, build_type, "windows" if os.name == 'nt' else "linux", build_spec)
+    spec_file = os.path.join(build_resources, build_type, "windows" if os.name == 'nt' else "linux", build_spec)
 
     if os.name == 'nt':
         upx_pkg = f"upx-{UPX_VER}-win64"
@@ -117,15 +115,15 @@ def main(build_type: str):
         upx_url = f"https://github.com/upx/upx/releases/download/v{UPX_VER}/{upx_pkg}.tar.xz"
 
     print("Preparing UPX...")
-    upx_dir = prepare_upx(pkg_dir, upx_pkg, upx_url, os.name == 'nt')
+    upx_compressor = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
     
-    clean_directory(build_dir)
-    clean_directory(dist_dir)
+    clean_dir(os.path.join(cwd, "build"))
+    clean_dir(os.path.join(cwd, "dist"))
 
-    build_psmonitor(spec_file, os.path.join(pkg_dir, upx_pkg))
+    build(spec_file, upx_compressor)
 
     print("Cleaning UPX...")
-    clean_directory(upx_dir)
+    clean_dir(upx_compressor)
 
 
 if __name__ == "__main__":

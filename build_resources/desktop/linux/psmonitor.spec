@@ -4,28 +4,26 @@ import os
 
 
 project_root = os.getcwd()
-server_script = os.path.join(project_root, 'server.py')
+main_script = os.path.join(project_root, 'main.py')
 
-libwincputemp = os.path.join(project_root, 'bin', 'libwincputemp.exe')
 public_folder = os.path.join(project_root, 'public')
-icon_file = os.path.join(project_root, 'package', 'psmonitor.ico')
-version_file = os.path.join(project_root, 'package', 'server', 'windows', 'version.rc')
+icon_file = os.path.join(project_root, 'build_resources', 'psmonitor.ico')
 
 
 block_cipher = None
 
 
 a = Analysis(
-    [server_script],
+    [main_script],
     pathex=[project_root],
     binaries=[],
     datas=[
-        (libwincputemp, '.'),
         (public_folder, 'public'),
-        (icon_file, 'psmonitor.ico'),
-        (version_file, 'version.rc')
+        (icon_file, 'psmonitor.ico')
     ],
-    hiddenimports=[],
+    hiddenimports=[
+        'PIL._tkinter_finder'
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -47,16 +45,15 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='psmonitor-server',
+    name='psmonitor',
     icon=icon_file,
-    version=version_file,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

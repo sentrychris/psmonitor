@@ -8,8 +8,8 @@ server_script = os.path.join(project_root, 'server.py')
 
 libwincputemp = os.path.join(project_root, 'bin', 'libwincputemp.exe')
 public_folder = os.path.join(project_root, 'public')
-icon_file = os.path.join(project_root, 'package', 'psmonitor.ico')
-version_file = os.path.join(project_root, 'package', 'server', 'windows', 'version.rc')
+icon_file = os.path.join(project_root, 'build_resources', 'psmonitor.ico')
+version_file = os.path.join(project_root, 'build_resources', 'server', 'windows', 'version.rc')
 
 
 block_cipher = None
