@@ -6,7 +6,7 @@ from tornado.httpserver import HTTPServer
 from tornado.options import define, options, parse_command_line
 from tornado.ioloop import IOLoop
 
-from app import create_app, signal_handler
+from core import create_app, signal_handler
 
 
 # Define base directory

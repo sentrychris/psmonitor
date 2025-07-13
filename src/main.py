@@ -16,7 +16,7 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from typing import Optional
 
-from app import create_app, signal_handler
+from core import create_app, signal_handler
 
 
 # Constants
