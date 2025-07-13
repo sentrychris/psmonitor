@@ -3,13 +3,13 @@
 import os
 
 
-project_root = os.getcwd()
+project_root = os.path.join(os.getcwd(), 'src')
 main_script = os.path.join(project_root, 'main.py')
-
-libwincputemp = os.path.join(project_root, 'bin', 'libwincputemp.exe')
 public_folder = os.path.join(project_root, 'public')
-icon_file = os.path.join(project_root, 'build_resources', 'psmonitor.ico')
-version_file = os.path.join(project_root, 'build_resources', 'desktop', 'windows', 'version.rc')
+
+libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe')
+icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
+version_file = os.path.join(os.getcwd(), 'build_resources', 'desktop', 'windows', 'version.rc')
 
 
 block_cipher = None
