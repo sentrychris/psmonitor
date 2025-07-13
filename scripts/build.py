@@ -7,6 +7,9 @@ import zipfile
 import tarfile
 
 
+UPX_VER="5.0.1"
+
+
 def print_usage():
     """
     Prints the usage information for the script and exits.
@@ -24,13 +27,13 @@ def print_usage():
     sys.exit(1)
 
 
-def prepare_upx(pkg_dir: str, upx_ver: str, upx_url: str, is_windows: bool) -> str:
+def prepare_upx(pkg_dir: str, upx_pkg: str, upx_url: str, is_windows: bool) -> str:
     """
     Checks for the presence of UPX, downloads and extracts it if not present.
 
     Args:
         pkg_dir (str): The directory where the UPX package should be located.
-        upx_ver (str): The version of UPX to check/download.
+        upx_pkg (str): The version of UPX to check/download.
         upx_url (str): The URL from which to download the UPX package.
         is_windows (bool): True if the script is running on Windows, False otherwise.
 
@@ -38,11 +41,11 @@ def prepare_upx(pkg_dir: str, upx_ver: str, upx_url: str, is_windows: bool) -> s
         upx_dir (str): The directory where the UPX package is located.
     """
 
-    upx_dir = os.path.join(pkg_dir, upx_ver)
+    upx_dir = os.path.join(pkg_dir, upx_pkg)
     
     if not os.path.exists(upx_dir):
         print("Downloading UPX...")
-        upx_path = os.path.join(pkg_dir, f"{upx_ver}.{'zip' if is_windows else 'tar.xz'}")
+        upx_path = os.path.join(pkg_dir, f"{upx_pkg}.{'zip' if is_windows else 'tar.xz'}")
         urllib.request.urlretrieve(upx_url, upx_path)
         
         if is_windows:
@@ -107,19 +110,19 @@ def main(build_type: str):
     spec_file = os.path.join(pkg_dir, build_type, "windows" if os.name == 'nt' else "linux", build_spec)
 
     if os.name == 'nt':
-        upx_ver = "upx-4.2.4-win64"
-        upx_url = f"https://github.com/upx/upx/releases/download/v4.2.4/{upx_ver}.zip"
+        upx_pkg = f"upx-{UPX_VER}-win64"
+        upx_url = f"https://github.com/upx/upx/releases/download/v{UPX_VER}/{upx_pkg}.zip"
     else:
-        upx_ver = "upx-4.2.4-amd64_linux"
-        upx_url = f"https://github.com/upx/upx/releases/download/v4.2.4/{upx_ver}.tar.xz"
+        upx_pkg = f"upx-{UPX_VER}-amd64_linux.tar"
+        upx_url = f"https://github.com/upx/upx/releases/download/v{UPX_VER}/{upx_pkg}.tar.xz"
 
     print("Preparing UPX...")
-    upx_dir = prepare_upx(pkg_dir, upx_ver, upx_url, os.name == 'nt')
+    upx_dir = prepare_upx(pkg_dir, upx_pkg, upx_url, os.name == 'nt')
     
     clean_directory(build_dir)
     clean_directory(dist_dir)
 
-    build_psmonitor(spec_file, os.path.join(pkg_dir, upx_ver))
+    build_psmonitor(spec_file, os.path.join(pkg_dir, upx_pkg))
 
     print("Cleaning UPX...")
     clean_directory(upx_dir)
