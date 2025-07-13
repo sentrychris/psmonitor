@@ -82,7 +82,7 @@ class PSMonitorApp(tk.Tk):
         """
     
         super().__init__() # run tk.TK constructor
-        self.title("PSMonitor - System monitoring utility")
+        self.title("psmonitor - A system monitor")
         self.geometry("460x480")
         self.resizable(True, True)
         self.image_cache = {}
@@ -192,11 +192,11 @@ class PSMonitorApp(tk.Tk):
         """
 
         about_window = tk.Toplevel(self)
-        about_window.title("About PSMonitor")
+        about_window.title("About psmonitor")
         about_window.geometry("400x400")
         about_window.resizable(False, False)
 
-        label_version = ttk.Label(about_window, text="PSMonitor - A Simple System Monitor", font=("Arial", 10, "bold"))
+        label_version = ttk.Label(about_window, text="psmonitor - A Simple System Monitor", font=("Arial", 10, "bold"))
         label_version.pack(pady=3)
 
         label_version = ttk.Label(about_window, text="Version 1.3.2", font=("Arial", 8, "bold"))

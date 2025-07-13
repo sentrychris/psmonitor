@@ -15,12 +15,12 @@ VSVersionInfo(
       StringTable(
         u'040904B0',
         [StringStruct(u'CompanyName', u'Chris Rowles'),
-        StringStruct(u'FileDescription', u'PSMonitor Server - for remote system monitoring'),
+        StringStruct(u'FileDescription', u'psmonitor Server - for remote system monitoring'),
         StringStruct(u'FileVersion', u'1.3.2'),
         StringStruct(u'InternalName', u'psmonitor-server'),
         StringStruct(u'LegalCopyright', u'\xa9 Chris Rowles. All rights reserved'),
         StringStruct(u'OriginalFilename', u'psmonitor-server.exe'),
-        StringStruct(u'ProductName', u'PSMonitor Server'),
+        StringStruct(u'ProductName', u'psmonitor Server'),
         StringStruct(u'ProductVersion', u'1.3.2')])
       ]), 
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])

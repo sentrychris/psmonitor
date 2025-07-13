@@ -50,9 +50,9 @@ Retrieves system monitoring information
 - **Processes** Top 10 processes by memory usage
 
 
-> A small note on CPU temperature monitoring on Windows: reading temperature sensors requires elevated privileges, in order to display your CPU temperature on Windows, you'll need to run PSMonitor as an administrator.
+> A small note on CPU temperature monitoring on Windows: reading temperature sensors requires elevated privileges, in order to display your CPU temperature on Windows, you'll need to run psmonitor as an administrator.
 > 
-> PSMonitor uses a tiny binary executable called [**libwincputemp**](./lib/libwincputemp/), which is part of this project.
+> psmonitor uses a tiny binary executable called [**libwincputemp**](./lib/libwincputemp/), which is part of this project.
 
 #### **GET `/network`**:
 

@@ -6,7 +6,7 @@ namespace LibWinCPUTemp
 {
     /**
      * A tiny CLI program for obtaining CPU temperature readings using LibreOpenHardwareMonitor's
-     * LibreOpenHardwareMonitorLib.dll. PSMonitor depends on this executable to provide a CPU temp
+     * LibreOpenHardwareMonitorLib.dll. psmonitor depends on this executable to provide a CPU temp
      * value on Windows.
      */
     class Program

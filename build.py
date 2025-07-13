@@ -15,15 +15,15 @@ def print_usage():
     Prints the usage information for the script and exits.
 
     This function provides instructions on how to use the script, including
-    the available build types and an example of how to run the script.
+    the available build targets and an example of how to run the script.
     """
 
-    print("Usage: Build binary executables for PSMonitor.\n")
+    print("Usage: Build psmonitor executables\n")
     print("Example:")
-    print("  python build.py <build-type>\n")
-    print("Available build types (at least one is required):")
+    print("  python build.py <build-target>\n")
+    print("Available build targets (at least one is required):")
     print("  - desktop : Build the desktop application with the server included.")
-    print("  - server  : Build the standalone server only.\n")
+    print("  - server  : Build the standalone websocket server only.\n")
     sys.exit(1)
 
 
@@ -77,7 +77,7 @@ def clean_dir(directory: str):
 
 def build(spec_file: str, upx_dir: str):
     """
-    Builds the PSMonitor application using PyInstaller.
+    Builds the psmonitor application using PyInstaller.
 
     Args:
         spec_file (str): The path to the PyInstaller spec file.
@@ -88,24 +88,24 @@ def build(spec_file: str, upx_dir: str):
     subprocess.run(["pyinstaller", spec_file, "--upx-dir", upx_dir], check=True)
 
 
-def main(build_type: str):
+def main(build_target: str):
     """
-    Main function that orchestrates the build process for PSMonitor.
+    Main function that orchestrates the build process for psmonitor.
 
     Args:
-        build_type (str): The type of build to perform ('desktop' or 'server').
+        build_target (str): The target to build for e.g. 'desktop' or 'server'.
 
     This function sets up the build environment, downloads UPX if necessary,
     cleans the build and dist directories, and then builds the application.
     """
 
-    if build_type not in ["desktop", "server"]:
+    if build_target not in ["desktop", "server"]:
         print_usage()
 
     cwd = os.getcwd()
     build_resources = os.path.join(cwd, "build_resources")
-    build_spec = "psmonitor_server.spec" if build_type == "server" else "psmonitor.spec"
-    spec_file = os.path.join(build_resources, build_type, "windows" if os.name == 'nt' else "linux", build_spec)
+    build_spec = "psmonitor_server.spec" if build_target == "server" else "psmonitor.spec"
+    spec_file = os.path.join(build_resources, build_target, "windows" if os.name == 'nt' else "linux", build_spec)
 
     if os.name == 'nt':
         upx_pkg = f"upx-{UPX_VER}-win64"
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     """
     Entry point of the script. Checks for command-line arguments and starts the build process.
     
-    The script expects exactly one argument specifying the build type. If '--help' is provided,
+    The script expects exactly one argument specifying the build target. If '--help' is provided,
     it prints the usage information.
     """
 
