@@ -4,15 +4,16 @@ import os.path
 import requests
 import signal
 import sys
+import threading
+import tkinter as tk
 import uuid
 import websocket
 import webbrowser
-import threading
-import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from typing import Optional
 
 from app import create_app, signal_handler
 
@@ -73,7 +74,7 @@ class PSMonitorApp(tk.Tk):
         data (dict): Initial data to populate the UI.
     """
 
-    def __init__(self, data):
+    def __init__(self, data: dict):
         """
         Initializes the app with initial data.
         
@@ -99,7 +100,7 @@ class PSMonitorApp(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
 
-    def set_window_icon(self, icon_path):
+    def set_window_icon(self, icon_path: str):
         """
         Sets the window icon.
 
@@ -113,7 +114,7 @@ class PSMonitorApp(tk.Tk):
         self.iconphoto(True, icon_photo)
 
 
-    def create_gui_widgets(self, data):
+    def create_gui_widgets(self, data: dict):
         """
         Creates and arranges the widgets in the application.
 
@@ -257,12 +258,12 @@ class PSMonitorApp(tk.Tk):
         webbrowser.open_new("http://127.0.0.1:4500")
 
 
-    def create_section_frame(self, parent, title):
+    def create_section_frame(self, parent: ttk.Frame, title: str):
         """
         Creates a section frame within the parent frame.
 
         Args:
-            parent (tk.Widget): The parent widget.
+            parent (tk.Frame): The parent frame.
             title (str): The title of the section frame.
         
         Returns:
@@ -275,7 +276,7 @@ class PSMonitorApp(tk.Tk):
         return section_frame
 
 
-    def add_label(self, frame, text, value, suffix=""):
+    def add_label(self, frame: ttk.Frame, text: str, value: str, suffix: Optional[str] = ""):
         """
         Adds a label to the specified frame.
 
@@ -296,7 +297,7 @@ class PSMonitorApp(tk.Tk):
         return label, suffix
 
 
-    def add_label_with_icon(self, frame, text, value):
+    def add_label_with_icon(self, frame: ttk.Frame, text: str, value: str):
         """
         Adds a label with an icon to the specified frame.
 
@@ -327,7 +328,7 @@ class PSMonitorApp(tk.Tk):
         return text_label
     
 
-    def load_image(self, path, width):
+    def load_image(self, path: str, width: int):
         """
         Loads an image from the specified path and resizes it.
 
@@ -349,7 +350,7 @@ class PSMonitorApp(tk.Tk):
         return photo
 
 
-    def add_processes_table(self, frame, processes_data):
+    def add_processes_table(self, frame: ttk.Frame, processes_data: list):
         """
         Adds a table to display process information.
 
@@ -391,7 +392,7 @@ class PSMonitorApp(tk.Tk):
             logger.error(f"Error connecting to local server: {e}")
 
 
-    def update_initial_data(self, initial_data):
+    def update_initial_data(self, initial_data: dict):
         """
         Updates the initial data in the application.
 
@@ -404,7 +405,7 @@ class PSMonitorApp(tk.Tk):
         self.update_gui_sections()
 
 
-    def update_live_data(self, new_data):
+    def update_live_data(self, new_data: dict):
         """
         Updates the live data in the application.
 
@@ -421,7 +422,7 @@ class PSMonitorApp(tk.Tk):
         data['processes'] = new_data.get('processes', data['processes'])
 
 
-    def update_gui_section(self, labels, data):
+    def update_gui_section(self, labels: dict, data: dict):
         """
         Updates a section of the GUI.
 
@@ -443,7 +444,7 @@ class PSMonitorApp(tk.Tk):
                         label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
 
 
-    def update_processes_table(self, processes):
+    def update_processes_table(self, processes: list):
         """
         Updates the processes table with new data.
 
@@ -472,7 +473,7 @@ class PSMonitorApp(tk.Tk):
             logger.error(f"Error obtaining worker for websocket connection: {e}")
 
 
-    def connect_websocket(self, worker_id):
+    def connect_websocket(self, worker_id: str):
         """
         Starts the websocket connection with the specified worker ID.
 
@@ -494,7 +495,7 @@ class PSMonitorApp(tk.Tk):
         self.after(1000, self.update_gui_sections)
 
 
-    def on_message(self, ws, message):
+    def on_message(self, ws: websocket.WebSocketApp, message: str):
         """
         Handles incoming websocket messages.
 
@@ -510,7 +511,7 @@ class PSMonitorApp(tk.Tk):
             logger.error(f"Error fetching websocket data: {e}")
 
 
-    def on_error(self, ws, error):
+    def on_error(self, ws: websocket.WebSocketApp, error):
         """
         Handles websocket errors.
 
@@ -522,7 +523,7 @@ class PSMonitorApp(tk.Tk):
         print(f"WebSocket error: {error}")
 
 
-    def on_close(self, ws, close_status_code, close_msg):
+    def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str):
         """
         Handles websocket closure.
 
@@ -535,7 +536,7 @@ class PSMonitorApp(tk.Tk):
         print("WebSocket closed")
 
 
-    def on_open(self, ws):
+    def on_open(self, ws: websocket.WebSocketApp):
         """
         Handles websocket opening.
 
