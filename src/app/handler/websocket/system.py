@@ -1,4 +1,3 @@
-import asyncio
 from tornado.ioloop import IOLoop
 from ...thread_pool import executor
 from ...service.system_service import get_cpu, get_disk, get_memory, get_processes, get_uptime
@@ -21,16 +20,17 @@ async def get_system_data() -> dict:
 
     loop = IOLoop.current()
 
-    futures = {
-        "cpu": loop.run_in_executor(executor, get_cpu),
-        "mem": loop.run_in_executor(executor, get_memory),
-        "disk": loop.run_in_executor(executor, get_disk),
-        "uptime": loop.run_in_executor(executor, get_uptime),
-        "processes": loop.run_in_executor(executor, get_processes),
+    tasks = {
+        key: loop.run_in_executor(executor, fn)
+        for key, fn in {
+            "cpu": get_cpu,
+            "mem": get_memory,
+            "disk": get_disk,
+            "uptime": get_uptime,
+            "processes": get_processes,
+        }.items()
     }
 
-    await asyncio.sleep(1)
-
-    results = {key: await future for key, future in futures.items()}
+    results = {key: await task for key, task in tasks.items()}
 
     return results
