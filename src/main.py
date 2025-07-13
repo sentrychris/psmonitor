@@ -81,20 +81,21 @@ class PSMonitorApp(tk.Tk):
             data (dict): Initial data to populate the UI.
         """
     
-        super().__init__() # run tk.TK constructor
+        super().__init__()
+
         self.title("psmonitor - A system monitor")
         self.geometry("460x480")
         self.resizable(True, True)
         self.image_cache = {}
 
-        app_icon = os.path.join(BASE_DIR, 'public', 'assets', 'icons', 'psmonitor.png')
-        self.set_window_icon(app_icon)
-        self.create_widgets(data)
-        self.create_menu()
+        self.set_window_icon(os.path.join(BASE_DIR, 'public', 'assets', 'icons', 'psmonitor.png'))
+        self.create_gui_menu()
+        self.create_gui_widgets(data)
+        
         self.ws = None
         self.ws_thread = None
+        self.setup_connection()
 
-        self.init_server_connection()
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
 
@@ -112,7 +113,7 @@ class PSMonitorApp(tk.Tk):
         self.iconphoto(True, icon_photo)
 
 
-    def create_widgets(self, data):
+    def create_gui_widgets(self, data):
         """
         Creates and arranges the widgets in the application.
 
@@ -167,7 +168,7 @@ class PSMonitorApp(tk.Tk):
         main_frame.rowconfigure(3, weight=1)
 
 
-    def create_menu(self):
+    def create_gui_menu(self):
         """
         Creates the menu bar.
         """
@@ -178,7 +179,7 @@ class PSMonitorApp(tk.Tk):
         file_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu = tk.Menu(menu_bar, tearoff=0)
         
-        help_menu.add_command(label="About", command=self.show_about)
+        help_menu.add_command(label="About", command=self.open_about_window)
         file_menu.add_command(label="Open Websocket Test Page..", command=self.open_websocket_page)
         file_menu.add_command(label="Close & Exit", command=self.on_closing)
 
@@ -186,7 +187,21 @@ class PSMonitorApp(tk.Tk):
         menu_bar.add_cascade(label="Help", menu=help_menu)
 
 
-    def show_about(self):
+    def update_gui_sections(self):
+        """
+        Updates the GUI with the latest data.
+        """
+
+        self.update_section(self.platform_labels, data['platform'])
+        self.update_section(self.disk_labels, data['disk'])
+        self.update_section(self.cpu_labels, data['cpu'])
+        self.update_section(self.mem_labels, data['mem'])
+        self.update_processes(data['processes'])
+
+        self.after(1000, self.update_gui_sections)
+
+
+    def open_about_window(self):
         """
         Displays the 'About' window.
         """
@@ -356,7 +371,7 @@ class PSMonitorApp(tk.Tk):
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
 
-    def init_server_connection(self):
+    def setup_connection(self):
         """
         Initialize the connection to the local tornado server.
         """
@@ -380,7 +395,7 @@ class PSMonitorApp(tk.Tk):
 
         global data
         data.update(initial_data)
-        self.update_gui()
+        self.update_gui_sections()
 
 
     def start_websocket_connection(self):
@@ -391,12 +406,12 @@ class PSMonitorApp(tk.Tk):
         try:
             response = requests.post(HTTP_URL, json={'connection': 'monitor'})
             worker = response.json()
-            self.start_websocket(worker['id'])
+            self.connect_websocket(worker['id'])
         except requests.RequestException as e:
             logger.error(f"Error obtaining worker for websocket connection: {e}")
 
 
-    def start_websocket(self, worker_id):
+    def connect_websocket(self, worker_id):
         """
         Starts the websocket connection with the specified worker ID.
 
@@ -414,7 +429,8 @@ class PSMonitorApp(tk.Tk):
         self.ws_thread = threading.Thread(target=self.ws.run_forever)
         self.ws_thread.daemon = True
         self.ws_thread.start()
-        self.after(1000, self.update_gui)
+
+        self.after(1000, self.update_gui_sections)
 
 
     def on_message(self, ws, message):
@@ -484,19 +500,6 @@ class PSMonitorApp(tk.Tk):
         data['user'] = new_data.get('user', data['user'])
         data['platform']['uptime'] = new_data.get('uptime', data['uptime'])
         data['processes'] = new_data.get('processes', data['processes'])
-
-
-    def update_gui(self):
-        """
-        Updates the GUI with the latest data.
-        """
-
-        self.update_section(self.platform_labels, data['platform'])
-        self.update_section(self.disk_labels, data['disk'])
-        self.update_section(self.cpu_labels, data['cpu'])
-        self.update_section(self.mem_labels, data['mem'])
-        self.update_processes(data['processes'])
-        self.after(1000, self.update_gui)
 
 
     def update_section(self, labels, data):
