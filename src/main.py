@@ -94,7 +94,7 @@ class PSMonitorApp(tk.Tk):
         self.ws = None
         self.ws_thread = None
 
-        self.fetch_initial_data()
+        self.init_server_connection()
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
 
@@ -356,7 +356,7 @@ class PSMonitorApp(tk.Tk):
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
 
-    def fetch_initial_data(self):
+    def init_server_connection(self):
         """
         Fetches the initial system data from the server.
         """
