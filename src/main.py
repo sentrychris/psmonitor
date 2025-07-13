@@ -124,48 +124,46 @@ class PSMonitorApp(tk.Tk):
         main_frame = ttk.Frame(self)
         main_frame.pack(expand=True, fill='both', padx=5, pady=5)
 
-        self.platform_frame = self.create_section_frame(main_frame, "Platform")
-        self.platform_labels = {
-            "distro": self.add_label_with_icon(self.platform_frame, "", data['platform']['distro']),
-            "kernel": self.add_label(self.platform_frame, "Kernel:", data['platform']['kernel']),
-            "uptime": self.add_label(self.platform_frame, "Up:", data['platform']['uptime'])
-        }
-        self.platform_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        def make_labels(frame, defs):
+            return {k: v(frame) for k, v in defs.items()}
 
-        self.disk_frame = self.create_section_frame(main_frame, "Disk")
-        self.disk_labels = {
-            "used": self.add_label(self.disk_frame, "Used:", f"{data['disk']['used']} GB", "GB"),
-            "free": self.add_label(self.disk_frame, "Free:", f"{data['disk']['free']} GB", "GB"),
-            "percent": self.add_label(self.disk_frame, "Usage:", f"{data['disk']['percent']} %", "%")
-        }
-        self.disk_frame.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        sections = [
+            ("platform", 0, 0, {
+                "distro": lambda f: self.add_label_with_icon(f, "", data["platform"]["distro"]),
+                "kernel": lambda f: self.add_label(f, "Kernel:", data["platform"]["kernel"]),
+                "uptime": lambda f: self.add_label(f, "Up:", data["platform"]["uptime"]),
+            }),
+            ("disk", 0, 1, {
+                "used": lambda f: self.add_label(f, "Used:", f"{data['disk']['used']} GB", "GB"),
+                "free": lambda f: self.add_label(f, "Free:", f"{data['disk']['free']} GB", "GB"),
+                "percent": lambda f: self.add_label(f, "Usage:", f"{data['disk']['percent']} %", "%"),
+            }),
+            ("cpu", 1, 0, {
+                "temp": lambda f: self.add_label(f, "Temperature:", f"{data['cpu']['temp']} °C", "°C"),
+                "freq": lambda f: self.add_label(f, "Frequency:", f"{data['cpu']['freq']} MHz", "MHz"),
+                "usage": lambda f: self.add_label(f, "Usage:", f"{data['cpu']['usage']} %", "%"),
+            }),
+            ("mem", 1, 1, {
+                "used": lambda f: self.add_label(f, "Used:", f"{data['mem']['used']} GB", "GB"),
+                "free": lambda f: self.add_label(f, "Free:", f"{data['mem']['free']} GB", "GB"),
+                "percent": lambda f: self.add_label(f, "Usage:", f"{data['mem']['percent']} %", "%"),
+            }),
+        ]
 
-        self.cpu_frame = self.create_section_frame(main_frame, "CPU")
-        self.cpu_labels = {
-            "temp": self.add_label(self.cpu_frame, "Temperature:", f"{data['cpu']['temp']} °C", "°C"),
-            "freq": self.add_label(self.cpu_frame, "Frequency:", f"{data['cpu']['freq']} MHz", "MHz"),
-            "usage": self.add_label(self.cpu_frame, "Usage:", f"{data['cpu']['usage']} %", "%")
-        }
-        self.cpu_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-
-        self.mem_frame = self.create_section_frame(main_frame, "Memory")
-        self.mem_labels = {
-            "used": self.add_label(self.mem_frame, "Used:", f"{data['mem']['used']} GB", "GB"),
-            "free": self.add_label(self.mem_frame, "Free:", f"{data['mem']['free']} GB", "GB"),
-            "percent": self.add_label(self.mem_frame, "Usage:", f"{data['mem']['percent']} %", "%")
-        }
-        self.mem_frame.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+        for name, r, c, defs in sections:
+            frame = self.create_section_frame(main_frame, name.capitalize())
+            frame.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
+            setattr(self, f"{name}_frame", frame)
+            setattr(self, f"{name}_labels", make_labels(frame, defs))
 
         self.processes_frame = self.create_section_frame(main_frame, "Top Processes")
-        self.add_processes_table(self.processes_frame, data['processes'])
         self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.add_processes_table(self.processes_frame, data['processes'])
 
-        main_frame.columnconfigure(0, weight=1)
-        main_frame.columnconfigure(1, weight=1)
-        main_frame.rowconfigure(0, weight=1)
-        main_frame.rowconfigure(1, weight=1)
-        main_frame.rowconfigure(2, weight=1)
-        main_frame.rowconfigure(3, weight=1)
+        for i in range(4):
+            main_frame.rowconfigure(i, weight=1)
+        for i in range(2):
+            main_frame.columnconfigure(i, weight=1)
 
 
     def create_gui_menu(self):
