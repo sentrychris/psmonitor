@@ -76,6 +76,7 @@ class WebsocketHandler(WebSocketHandler):
         
         active_connections.add(self)
 
+        # Check worker ID exists in registry, if so then remove from shared pool
         worker = workers.pop(self.get_argument('id'), None)
 
         if not worker:
@@ -84,7 +85,9 @@ class WebsocketHandler(WebSocketHandler):
 
         self.set_nodelay(True)
 
+        # Bind the worker to this websocket session
         worker.set_handler(self)
+
         # allow the handler to refer to the worker without preventing it from being garbage
         # collected when it is no longer needed.
         self.worker_ref = weakref.ref(worker)

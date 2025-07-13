@@ -12,13 +12,15 @@ class HttpHandler(BaseHandler):
     """
 
 
-    def connect(self):
+    def create_worker(self):
         """
-        Create a connection and obtain a worker
+        Creates a worker to pair a HTTP connection to a Websocket session.
         """
 
         worker = Worker()
+        # If no websocket claims the worker within 3 seconds, then remove it
         IOLoop.current().call_later(3, recycle, worker)
+
         return worker
 
 
@@ -43,10 +45,12 @@ class HttpHandler(BaseHandler):
         status = None
 
         try:
-            worker = self.connect()
+            # Create a new worker to pair HTTP connection with websocket session
+            worker = self.create_worker()
         except Exception as e:
             status = str(e)
         else:
+            # Add the worker to the worker registry
             id = worker.id
             workers[id] = worker
 
