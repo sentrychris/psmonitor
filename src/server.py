@@ -15,8 +15,8 @@ base_dir = os.path.dirname(__file__)
 
 # Create application with specified settings
 app = create_app({
-    'template_path': os.path.join(base_dir, 'public'),
-    'static_path': os.path.join(base_dir, 'public'),
+    'template_path': os.path.join(base_dir, 'ui'),
+    'static_path': os.path.join(base_dir, 'ui'),
     'cookie_secret': uuid.uuid1().hex,
     'xsrf_cookies': False,
     'debug': True

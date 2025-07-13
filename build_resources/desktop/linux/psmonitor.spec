@@ -5,7 +5,7 @@ import os
 
 project_root = os.path.join(os.getcwd(), 'src')
 main_script = os.path.join(project_root, 'main.py')
-public_folder = os.path.join(project_root, 'public')
+ui_folder = os.path.join(project_root, 'ui')
 
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
 
@@ -18,7 +18,7 @@ a = Analysis(
     pathex=[project_root],
     binaries=[],
     datas=[
-        (public_folder, 'public'),
+        (ui_folder, 'ui'),
         (icon_file, 'psmonitor.ico')
     ],
     hiddenimports=[

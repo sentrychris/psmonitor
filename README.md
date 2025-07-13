@@ -6,7 +6,7 @@
 A simple system and network monitoring solution with a built-in server for remote monitoring capabilities.
 
 
-![app](./public/assets/app.png)
+![app](./src/ui/assets/app.png)
 
 View an example [web client dashboard here](https://github.com/sentrychris/system-monitor)
 
@@ -150,7 +150,7 @@ You can also use WebSocket clients in other programming languages, such as Pytho
     asyncio.run(connect())
     ```
 
-You can use the quick dashboard located at `public/web.html`  for further testing and exploration.
+You can use the quick dashboard located at `src/ui/web.html`  for further testing and exploration.
 
 I hope you like it!
 

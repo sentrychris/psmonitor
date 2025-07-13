@@ -21,8 +21,8 @@ from core import create_app, signal_handler
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'public')
-STATIC_PATH = os.path.join(BASE_DIR, 'public')
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'ui')
+STATIC_PATH = os.path.join(BASE_DIR, 'ui')
 COOKIE_SECRET = uuid.uuid1().hex
 WS_URL = 'ws://localhost:4500/connect?id='
 HTTP_URL = 'http://localhost:4500'
@@ -90,7 +90,7 @@ class PSMonitorApp(Tk):
         self.resizable(True, True)
         self.image_cache = {}
 
-        self.set_window_icon(os.path.join(BASE_DIR, 'public', 'assets', 'icons', 'psmonitor.png'))
+        self.set_window_icon(os.path.join(BASE_DIR, 'ui', 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
         self.create_gui_widgets(data)
         
@@ -319,7 +319,7 @@ class PSMonitorApp(Tk):
         if sys.platform == 'linux':
             icon_width = 18
             icon_file = 'linux.png'
-        png_path = os.path.join(BASE_DIR, 'public', 'assets', 'icons', icon_file)
+        png_path = os.path.join(BASE_DIR, 'ui', 'assets', 'icons', icon_file)
         photo = self.load_image(png_path, icon_width)
 
         icon_label = Label(container, image=photo)
