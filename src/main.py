@@ -5,12 +5,13 @@ import requests
 import signal
 import sys
 import threading
-import tkinter as tk
 import uuid
 import websocket
 import webbrowser
-from tkinter import ttk
+
 from PIL import Image, ImageTk
+from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
+from tkinter.ttk import Treeview
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from typing import Optional
@@ -66,7 +67,7 @@ def start_server():
     IOLoop.current().start()
 
 
-class PSMonitorApp(tk.Tk):
+class PSMonitorApp(Tk):
     """
     GUI application for system monitoring.
     
@@ -122,7 +123,7 @@ class PSMonitorApp(tk.Tk):
             data (dict): Initial data to populate the widgets.
         """
 
-        main_frame = ttk.Frame(self)
+        main_frame = Frame(self)
         main_frame.pack(expand=True, fill='both', padx=5, pady=5)
 
         def make_labels(frame, defs):
@@ -172,13 +173,13 @@ class PSMonitorApp(tk.Tk):
         Creates the menu bar.
         """
 
-        menu_bar = tk.Menu(self)
+        menu_bar = Menu(self)
         self.config(menu=menu_bar)
 
-        help_menu = tk.Menu(menu_bar, tearoff=0)
+        help_menu = Menu(menu_bar, tearoff=0)
         help_menu.add_command(label="About", command=self.open_about_window)
 
-        file_menu = tk.Menu(menu_bar, tearoff=0)
+        file_menu = Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="Open Web UI...", command=self.open_psmonitor_web)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_closing)
@@ -206,23 +207,23 @@ class PSMonitorApp(tk.Tk):
         Displays the 'About' window.
         """
 
-        about_window = tk.Toplevel(self)
+        about_window = Toplevel(self)
         about_window.title("About psmonitor")
         about_window.geometry("400x400")
         about_window.resizable(False, False)
 
-        label_version = ttk.Label(about_window, text="psmonitor - A Simple System Monitor", font=("Arial", 10, "bold"))
+        label_version = Label(about_window, text="psmonitor - A Simple System Monitor", font=("Arial", 10, "bold"))
         label_version.pack(pady=3)
 
-        label_version = ttk.Label(about_window, text="Version 1.3.2", font=("Arial", 8, "bold"))
+        label_version = Label(about_window, text="Version 1.3.2", font=("Arial", 8, "bold"))
         label_version.pack(pady=1)
 
-        label_github = ttk.Label(about_window, text="View the source code on Github", font=("Arial", 8), foreground="blue", cursor="hand2")
+        label_github = Label(about_window, text="View the source code on Github", font=("Arial", 8), foreground="blue", cursor="hand2")
         label_github.pack(pady=1)
         label_github.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/sentrychris/psmonitor"))
 
         # White indented license frame
-        license_frame = tk.Frame(about_window, bg="white", bd=2, relief="sunken")
+        license_frame = Frame(about_window, bg="white", bd=2, relief="sunken")
         license_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         license_text = (
@@ -245,7 +246,7 @@ class PSMonitorApp(tk.Tk):
             "SOFTWARE."
         )
 
-        text_widget = tk.Text(license_frame, bg="white", relief="flat", wrap="word", font=("Courier", 8))
+        text_widget = Text(license_frame, bg="white", relief="flat", wrap="word", font=("Courier", 8))
         text_widget.insert("1.0", license_text)
         text_widget.config(state="disabled")  # Make read-only
         text_widget.pack(fill="both", expand=True, padx=5, pady=5)
@@ -258,30 +259,30 @@ class PSMonitorApp(tk.Tk):
         webbrowser.open_new("http://127.0.0.1:4500")
 
 
-    def create_section_frame(self, parent: ttk.Frame, title: str):
+    def create_section_frame(self, parent: Frame, title: str):
         """
         Creates a section frame within the parent frame.
 
         Args:
-            parent (tk.Frame): The parent frame.
+            parent (tkinter.Frame): The parent frame.
             title (str): The title of the section frame.
         
         Returns:
-            ttk.LabelFrame: The created section frame.
+            tkinter.LabelFrame: The created section frame.
         """
 
-        section_frame = ttk.LabelFrame(parent, text=title)
+        section_frame = LabelFrame(parent, text=title)
         section_frame.grid(sticky="nsew", padx=5, pady=5)
 
         return section_frame
 
 
-    def add_label(self, frame: ttk.Frame, text: str, value: str, suffix: Optional[str] = ""):
+    def add_label(self, frame: Frame, text: str, value: str, suffix: Optional[str] = ""):
         """
         Adds a label to the specified frame.
 
         Args:
-            frame (tk.Widget): The parent frame.
+            frame (Frame): The parent frame.
             text (str): The label text.
             value (str): The value to be displayed.
             suffix (str, optional): The suffix for the label text.
@@ -291,27 +292,28 @@ class PSMonitorApp(tk.Tk):
         """
 
         label_text = f"{text} {value} {suffix}".strip()
-        label = ttk.Label(frame, text=label_text)
+        label = Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
 
         return label, suffix
 
 
-    def add_label_with_icon(self, frame: ttk.Frame, text: str, value: str):
+    def add_label_with_icon(self, frame: Frame, text: str, value: str):
         """
         Adds a label with an icon to the specified frame.
 
         Args:
-            frame (tk.Widget): The parent frame.
+            frame (Frame): The parent frame.
             text (str): The label text.
             value (str): The value to be displayed.
         
         Returns:
-            ttk.Label: The created label.
+            Label: The created label.
         """
 
-        container = ttk.Frame(frame)
+        container = Frame(frame)
         container.grid(sticky='w', padx=5, pady=2)
+
         icon_file = 'windows.png'
         icon_width = 14
         if sys.platform == 'linux':
@@ -319,11 +321,13 @@ class PSMonitorApp(tk.Tk):
             icon_file = 'linux.png'
         png_path = os.path.join(BASE_DIR, 'public', 'assets', 'icons', icon_file)
         photo = self.load_image(png_path, icon_width)
-        icon_label = ttk.Label(container, image=photo)
+
+        icon_label = Label(container, image=photo)
         icon_label.image = photo
-        icon_label.pack(side=tk.LEFT)
-        text_label = ttk.Label(container, text=f"{value}")
-        text_label.pack(side=tk.LEFT)
+        icon_label.pack(side='left')
+
+        text_label = Label(container, text=f"{value}")
+        text_label.pack(side='left')
 
         return text_label
     
@@ -350,17 +354,17 @@ class PSMonitorApp(tk.Tk):
         return photo
 
 
-    def add_processes_table(self, frame: ttk.Frame, processes_data: list):
+    def add_processes_table(self, frame: Frame, processes_data: list):
         """
         Adds a table to display process information.
 
         Args:
-            frame (tk.Widget): The parent frame.
+            frame (Frame): The parent frame.
             processes_data (list): The list of processes data.
         """
 
         columns = ("pid", "name", "username", "mem")
-        self.tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
+        self.tree = Treeview(frame, columns=columns, show="headings", height=8)
         self.tree.heading("pid", text="PID", anchor='center')
         self.tree.column("pid", anchor='center', width=60, minwidth=50)
         self.tree.heading("name", text="Name", anchor='center')
