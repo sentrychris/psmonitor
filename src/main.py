@@ -358,7 +358,7 @@ class PSMonitorApp(tk.Tk):
 
     def init_server_connection(self):
         """
-        Fetches the initial system data from the server.
+        Initialize the connection to the local tornado server.
         """
 
         try:
@@ -367,7 +367,7 @@ class PSMonitorApp(tk.Tk):
             self.update_initial_data(initial_data)
             self.start_websocket_connection()
         except requests.RequestException as e:
-            logger.error(f"Error fetching initial system data: {e}")
+            logger.error(f"Error connecting to local server: {e}")
 
 
     def update_initial_data(self, initial_data):
