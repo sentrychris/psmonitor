@@ -176,12 +176,13 @@ class PSMonitorApp(tk.Tk):
         menu_bar = tk.Menu(self)
         self.config(menu=menu_bar)
 
-        file_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu = tk.Menu(menu_bar, tearoff=0)
-        
         help_menu.add_command(label="About", command=self.open_about_window)
-        file_menu.add_command(label="Open Websocket Test Page..", command=self.open_websocket_page)
-        file_menu.add_command(label="Close & Exit", command=self.on_closing)
+
+        file_menu = tk.Menu(menu_bar, tearoff=0)
+        file_menu.add_command(label="Open Web UI...", command=self.open_psmonitor_web)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.on_closing)
 
         menu_bar.add_cascade(label="File", menu=file_menu)
         menu_bar.add_cascade(label="Help", menu=help_menu)
@@ -192,11 +193,11 @@ class PSMonitorApp(tk.Tk):
         Updates the GUI with the latest data.
         """
 
-        self.update_section(self.platform_labels, data['platform'])
-        self.update_section(self.disk_labels, data['disk'])
-        self.update_section(self.cpu_labels, data['cpu'])
-        self.update_section(self.mem_labels, data['mem'])
-        self.update_processes(data['processes'])
+        self.update_gui_section(self.platform_labels, data['platform'])
+        self.update_gui_section(self.disk_labels, data['disk'])
+        self.update_gui_section(self.cpu_labels, data['cpu'])
+        self.update_gui_section(self.mem_labels, data['mem'])
+        self.update_processes_table(data['processes'])
 
         self.after(1000, self.update_gui_sections)
 
@@ -251,6 +252,13 @@ class PSMonitorApp(tk.Tk):
         text_widget.pack(fill="both", expand=True, padx=5, pady=5)
 
 
+    def open_psmonitor_web(self):
+        """
+        Opens the web UI for testing the websocket connection.
+        """
+        webbrowser.open_new("http://127.0.0.1:4500")
+
+
     def create_section_frame(self, parent, title):
         """
         Creates a section frame within the parent frame.
@@ -290,28 +298,6 @@ class PSMonitorApp(tk.Tk):
         return label, suffix
 
 
-    def load_image(self, path, width):
-        """
-        Loads an image from the specified path and resizes it.
-
-        Args:
-            path (str): The path to the image file.
-            width (int): The desired width of the image.
-        
-        Returns:
-            ImageTk.PhotoImage: The loaded and resized image.
-        """
-
-        if path in self.image_cache:
-            return self.image_cache[path]
-        image = Image.open(path)
-        image = image.resize((width, int(image.height * width / image.width)), Image.LANCZOS)
-        photo = ImageTk.PhotoImage(image)
-        self.image_cache[path] = photo
-
-        return photo
-
-
     def add_label_with_icon(self, frame, text, value):
         """
         Adds a label with an icon to the specified frame.
@@ -341,6 +327,28 @@ class PSMonitorApp(tk.Tk):
         text_label.pack(side=tk.LEFT)
 
         return text_label
+    
+
+    def load_image(self, path, width):
+        """
+        Loads an image from the specified path and resizes it.
+
+        Args:
+            path (str): The path to the image file.
+            width (int): The desired width of the image.
+        
+        Returns:
+            ImageTk.PhotoImage: The loaded and resized image.
+        """
+
+        if path in self.image_cache:
+            return self.image_cache[path]
+        image = Image.open(path)
+        image = image.resize((width, int(image.height * width / image.width)), Image.LANCZOS)
+        photo = ImageTk.PhotoImage(image)
+        self.image_cache[path] = photo
+
+        return photo
 
 
     def add_processes_table(self, frame, processes_data):
@@ -396,6 +404,61 @@ class PSMonitorApp(tk.Tk):
         global data
         data.update(initial_data)
         self.update_gui_sections()
+
+
+    def update_live_data(self, new_data):
+        """
+        Updates the live data in the application.
+
+        Args:
+            new_data (dict): The new data to update.
+        """
+
+        global data
+        data['cpu'] = new_data.get('cpu', data['cpu'])
+        data['mem'] = new_data.get('mem', data['mem'])
+        data['disk'] = new_data.get('disk', data['disk'])
+        data['user'] = new_data.get('user', data['user'])
+        data['platform']['uptime'] = new_data.get('uptime', data['uptime'])
+        data['processes'] = new_data.get('processes', data['processes'])
+
+
+    def update_gui_section(self, labels, data):
+        """
+        Updates a section of the GUI.
+
+        Args:
+            labels (dict): The labels in the section.
+            data (dict): The data to update.
+        """
+
+        for key, value in data.items():
+            if key in labels:
+                if isinstance(labels[key], tuple):
+                    label, suffix = labels[key]
+                    label.config(text=f"{label.cget('text').split(':')[0]}: {value} {suffix}".strip())
+                else:
+                    label = labels[key]
+                    if key == 'distro':
+                        label.config(text=f"{value}".strip())
+                    else:
+                        label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
+
+
+    def update_processes_table(self, processes):
+        """
+        Updates the processes table with new data.
+
+        Args:
+            processes (list): The list of processes to update.
+        """
+
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        for i, process in enumerate(processes):
+            values = (process['pid'], process['name'], process['username'], process['mem'])
+            tag = "odd" if i % 2 == 0 else "even"
+            self.tree.insert("", "end", values=values, tags=(tag,))
 
 
     def start_websocket_connection(self):
@@ -483,68 +546,6 @@ class PSMonitorApp(tk.Tk):
         """
 
         print("WebSocket connection opened")
-
-
-    def update_live_data(self, new_data):
-        """
-        Updates the live data in the application.
-
-        Args:
-            new_data (dict): The new data to update.
-        """
-
-        global data
-        data['cpu'] = new_data.get('cpu', data['cpu'])
-        data['mem'] = new_data.get('mem', data['mem'])
-        data['disk'] = new_data.get('disk', data['disk'])
-        data['user'] = new_data.get('user', data['user'])
-        data['platform']['uptime'] = new_data.get('uptime', data['uptime'])
-        data['processes'] = new_data.get('processes', data['processes'])
-
-
-    def update_section(self, labels, data):
-        """
-        Updates a section of the GUI.
-
-        Args:
-            labels (dict): The labels in the section.
-            data (dict): The data to update.
-        """
-
-        for key, value in data.items():
-            if key in labels:
-                if isinstance(labels[key], tuple):
-                    label, suffix = labels[key]
-                    label.config(text=f"{label.cget('text').split(':')[0]}: {value} {suffix}".strip())
-                else:
-                    label = labels[key]
-                    if key == 'distro':
-                        label.config(text=f"{value}".strip())
-                    else:
-                        label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
-
-
-    def update_processes(self, processes):
-        """
-        Updates the processes table with new data.
-
-        Args:
-            processes (list): The list of processes to update.
-        """
-
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-        for i, process in enumerate(processes):
-            values = (process['pid'], process['name'], process['username'], process['mem'])
-            tag = "odd" if i % 2 == 0 else "even"
-            self.tree.insert("", "end", values=values, tags=(tag,))
-
-
-    def open_websocket_page(self):
-        """
-        Opens the websocket monitoring webpage in the default browser.
-        """
-        webbrowser.open_new("http://127.0.0.1:4500")
 
 
     def on_closing(self):
