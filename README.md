@@ -32,7 +32,7 @@ The server manages the execution of the monitoring scripts, using multiple threa
 
 The server is built with [tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections. It's non-blocking nature makes it ideal for building real-time services.
 
-While the server is included in the desktop application, a [standalone version](https://github.com/sentrychris/psmonitor/releases/download/v1.2.2.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own clients, or for people who want to port-forward and setup remote monitoring.
+While the server is included in the desktop application, a [standalone version](https://github.com/sentrychris/psmonitor/releases/download/v1.3.2/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own clients, or for people who want to port-forward and setup remote monitoring.
 
 ### HTTP
 
@@ -78,7 +78,7 @@ A single websocket endpoint is provided.
 
 ### Running the server as a managed process
 
-If you would like to run the [standalone server](https://github.com/sentrychris/psmonitor/releases/download/v1.2.2.1551/psmonitor-standalone-server-no-gui.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
+If you would like to run the [standalone server](https://github.com/sentrychris/psmonitor/releases/download/v1.3.2/psmonitor-standalone-server-no-gui.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
 
 1. Copy the service file and make any necessary changes:
     ```sh

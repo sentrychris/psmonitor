@@ -81,7 +81,7 @@ class PSMonitorApp(tk.Tk):
             data (dict): Initial data to populate the UI.
         """
     
-        super().__init__()
+        super().__init__() # run tk.TK constructor
         self.title("PSMonitor - System monitoring utility")
         self.geometry("460x480")
         self.resizable(True, True)
@@ -177,9 +177,13 @@ class PSMonitorApp(tk.Tk):
 
         file_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu = tk.Menu(menu_bar, tearoff=0)
+        
+        help_menu.add_command(label="About", command=self.show_about)
+        file_menu.add_command(label="Open Websocket Test Page..", command=self.open_websocket_page)
+        file_menu.add_command(label="Close & Exit", command=self.on_closing)
+
         menu_bar.add_cascade(label="File", menu=file_menu)
         menu_bar.add_cascade(label="Help", menu=help_menu)
-        help_menu.add_command(label="About", command=self.show_about)
 
 
     def show_about(self):
@@ -189,21 +193,47 @@ class PSMonitorApp(tk.Tk):
 
         about_window = tk.Toplevel(self)
         about_window.title("About PSMonitor")
-        about_window.geometry("300x150")
+        about_window.geometry("400x400")
         about_window.resizable(False, False)
 
-        label_version = ttk.Label(about_window, text="PSMonitor - system monitoring utility.", font=("Arial", 12))
-        label_version.pack(pady=10)
+        label_version = ttk.Label(about_window, text="PSMonitor - A Simple System Monitor", font=("Arial", 10, "bold"))
+        label_version.pack(pady=3)
 
-        label_version = ttk.Label(about_window, text="Version 1.2.2.1551", font=("Arial", 8))
-        label_version.pack(pady=5)
+        label_version = ttk.Label(about_window, text="Version 1.3.2", font=("Arial", 8, "bold"))
+        label_version.pack(pady=1)
 
-        label_author = ttk.Label(about_window, text="Made by Chris Rowles", font=("Arial", 10))
-        label_author.pack(pady=2)
-
-        label_github = ttk.Label(about_window, text="View on Github", font=("Arial", 10), foreground="blue", cursor="hand2")
-        label_github.pack(pady=2)
+        label_github = ttk.Label(about_window, text="View the source code on Github", font=("Arial", 8), foreground="blue", cursor="hand2")
+        label_github.pack(pady=1)
         label_github.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/sentrychris/psmonitor"))
+
+        # White indented license frame
+        license_frame = tk.Frame(about_window, bg="white", bd=2, relief="sunken")
+        license_frame.pack(padx=10, pady=10, fill="both", expand=True)
+
+        license_text = (
+            "MIT License\n\n"
+            "Copyright (c) 2025 Chris Rowles\n\n"
+            "Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+            "of this software and associated documentation files (the \"Software\"), to deal\n"
+            "in the Software without restriction, including without limitation the rights\n"
+            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+            "copies of the Software, and to permit persons to whom the Software is\n"
+            "furnished to do so, subject to the following conditions:\n\n"
+            "The above copyright notice and this permission notice shall be included in all\n"
+            "copies or substantial portions of the Software.\n\n"
+            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"
+            "SOFTWARE."
+        )
+
+        text_widget = tk.Text(license_frame, bg="white", relief="flat", wrap="word", font=("Courier", 8))
+        text_widget.insert("1.0", license_text)
+        text_widget.config(state="disabled")  # Make read-only
+        text_widget.pack(fill="both", expand=True, padx=5, pady=5)
 
 
     def create_section_frame(self, parent, title):
@@ -505,6 +535,13 @@ class PSMonitorApp(tk.Tk):
             values = (process['pid'], process['name'], process['username'], process['mem'])
             tag = "odd" if i % 2 == 0 else "even"
             self.tree.insert("", "end", values=values, tags=(tag,))
+
+
+    def open_websocket_page(self):
+        """
+        Opens the websocket monitoring webpage in the default browser.
+        """
+        webbrowser.open_new("http://127.0.0.1:4500")
 
 
     def on_closing(self):
