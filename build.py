@@ -10,7 +10,7 @@ import tarfile
 UPX_VER="5.0.1"
 
 
-def print_usage():
+def print_usage() -> None:
     """
     Prints the usage information for the script and exits.
 
@@ -62,7 +62,7 @@ def get_upx_compressor(build_resources: str, upx_archive: str, upx_url: str, is_
     return upx_dir
 
 
-def clean_dir(directory: str):
+def clean_dir(directory: str) -> None:
     """
     Deletes the specified directory and all its contents if it exists.
 
@@ -75,7 +75,7 @@ def clean_dir(directory: str):
         shutil.rmtree(directory)
 
 
-def build(spec_file: str, upx_dir: str):
+def build(spec_file: str, upx_dir: str) -> None:
     """
     Builds the psmonitor application using PyInstaller.
 
@@ -88,7 +88,7 @@ def build(spec_file: str, upx_dir: str):
     subprocess.run(["pyinstaller", spec_file, "--upx-dir", upx_dir], check=True)
 
 
-def main(build_target: str):
+def main(build_target: str) -> None:
     """
     Main function that orchestrates the build process for psmonitor.
 
@@ -114,16 +114,14 @@ def main(build_target: str):
         upx_pkg = f"upx-{UPX_VER}-amd64_linux.tar"
         upx_url = f"https://github.com/upx/upx/releases/download/v{UPX_VER}/{upx_pkg}.tar.xz"
 
-    print("Preparing UPX...")
-    upx_compressor = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
+    upx = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
     
     clean_dir(os.path.join(cwd, "build"))
     clean_dir(os.path.join(cwd, "dist"))
 
-    build(spec_file, upx_compressor)
+    build(spec_file, upx)
 
-    print("Cleaning UPX...")
-    clean_dir(upx_compressor)
+    clean_dir(upx)
 
 
 if __name__ == "__main__":
@@ -136,4 +134,5 @@ if __name__ == "__main__":
 
     if len(sys.argv) != 2 or sys.argv[1] == '--help':
         print_usage()
+
     main(sys.argv[1])
