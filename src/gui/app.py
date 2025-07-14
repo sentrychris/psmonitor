@@ -44,6 +44,17 @@ class PSMonitorApp(Tk):
         self.resizable(True, True)
         self.image_cache = {}
 
+        self.platform_icons = {}
+
+        platform_icon_defs = {
+            "linux":   ("linux.png", 18),
+            "windows": ("windows.png", 14),
+        }
+
+        for platform, (filename, width) in platform_icon_defs.items():
+            path = os.path.join(BASE_DIR, 'assets', 'icons', filename)
+            self.platform_icons[platform] = self.load_image(path, width)
+
         self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
         self.create_gui_widgets(data)
@@ -271,16 +282,11 @@ class PSMonitorApp(Tk):
         container = Frame(frame)
         container.grid(sticky='w', padx=5, pady=2)
 
-        icon_file = 'windows.png'
-        icon_width = 14
-        if sys.platform == 'linux':
-            icon_width = 18
-            icon_file = 'linux.png'
-        png_path = os.path.join(BASE_DIR, 'assets', 'icons', icon_file)
-        photo = self.load_image(png_path, icon_width)
+        platform_key = 'linux' if sys.platform == 'linux' else 'windows'
+        icon = self.platform_icons[platform_key]
 
-        icon_label = Label(container, image=photo)
-        icon_label.image = photo
+        icon_label = Label(container, image=icon)
+        icon_label.image = icon
         icon_label.pack(side='left')
 
         text_label = Label(container, text=f"{value}")
