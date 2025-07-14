@@ -192,7 +192,7 @@ Pass `--clean` if you want to clean the previous build directories. Pass `--upx=
 
 ## How it works
 
-1. The frontend calls `start_server()` which starts the Tornado app in a background thread.
+1. The GUI app calls `start_server()` which starts the Tornado app in a background thread.
 2. Tornado starts listening on port 4500 for both HTTP and Websocket connections.
 3. The GUI app makes an HTTP request to the `/system` endpoint to fetch initial data to display.
 4. The GUI app then makes an HTTP post request to `/` to setup a new websocket connection.
