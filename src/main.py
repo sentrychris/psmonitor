@@ -39,21 +39,20 @@ def configure_logger(logfile: str) -> None:
     logging.basicConfig(filename=destination, level=logging.INFO)
 
 
-def start_server() -> None:
+def start_server(port: int = 4500) -> None:
     """
     Starts the server and listens on port 4500.
     """
 
-    app = create_app({
+    http = HTTPServer(create_app({
         'template_path': TEMPLATE_PATH,
         'static_path': STATIC_PATH,
         'cookie_secret': COOKIE_SECRET,
         'xsrf_cookies': False,
         'debug': True
-    })
+    }))
+    http.listen(port, address='localhost')
 
-    http = HTTPServer(app)
-    http.listen(port=4500, address='localhost')
     print("Listening on http://localhost:4500")
     IOLoop.current().start()
 
@@ -72,8 +71,7 @@ if __name__ == "__main__":
 
     configure_logger(logfile='app.log')
     
-    tornado_thread = threading.Thread(target=start_server)
-    tornado_thread.daemon = True
+    tornado_thread = threading.Thread(target=start_server, daemon=True)
     tornado_thread.start()
 
     data = {

@@ -9,18 +9,11 @@ from tornado.ioloop import IOLoop
 from core import create_app, signal_handler
 
 
-# Define base directory
-base_dir = os.path.dirname(__file__)
-
-
-# Create application with specified settings
-app = create_app({
-    'template_path': os.path.join(base_dir, 'gui'),
-    'static_path': os.path.join(base_dir, 'gui'),
-    'cookie_secret': uuid.uuid1().hex,
-    'xsrf_cookies': False,
-    'debug': True
-})
+# Constants
+BASE_DIR = os.path.dirname(__file__)
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui')
+STATIC_PATH = os.path.join(BASE_DIR, 'gui')
+COOKIE_SECRET = uuid.uuid1().hex
 
 
 # Define command-line options
@@ -28,23 +21,24 @@ define('address', default='localhost', help='Listen address for the application'
 define('port', default=4500, help='Listen port for the application', type=int)
 
 
-def run():
-    """
-    Starts the tornado application server and listens on the specified address and port.
-    """
-
-    # Parse command line arguments
-    parse_command_line()
-
-    # Create the server and listen on the specified port and address
-    http = HTTPServer(app)
-    http.listen(port=options.port, address=options.address)
-    print("Listening on http://{}:{}".format(options.address, options.port))
-    IOLoop.current().start()
-
-
 if __name__ == '__main__':
+    """
+    Main entry point for the application.
+    """
+
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    run()
+    parse_command_line()
+
+    http = HTTPServer(create_app({
+        'template_path': TEMPLATE_PATH,
+        'static_path': STATIC_PATH,
+        'cookie_secret': COOKIE_SECRET,
+        'xsrf_cookies': False,
+        'debug': True
+    }))
+    http.listen(port=options.port, address=options.address)
+
+    print("Listening on http://{}:{}".format(options.address, options.port))
+    IOLoop.current().start()
