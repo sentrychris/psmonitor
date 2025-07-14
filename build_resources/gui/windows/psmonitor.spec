@@ -5,7 +5,7 @@ import os
 
 project_root = os.path.join(os.getcwd(), 'src')
 main_script = os.path.join(project_root, 'main.py')
-ui_folder = os.path.join(project_root, 'ui')
+gui_folder = os.path.join(project_root, 'gui')
 
 libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe')
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
@@ -21,7 +21,7 @@ a = Analysis(
     binaries=[],
     datas=[
         (libwincputemp, '.'),
-        (ui_folder, 'ui'),
+        (gui_folder, 'gui'),
         (icon_file, 'psmonitor.ico'),
         (version_file, 'version.rc')
     ],

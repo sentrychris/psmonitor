@@ -6,7 +6,7 @@
 A simple system and network monitoring app with a headless server for remote monitoring capabilities.
 
 
-![app](./src/ui/assets/app.png)
+![app](./src/gui/assets/app.png)
 
 View an example [web client dashboard here](https://github.com/sentrychris/system-monitor)
 
@@ -152,7 +152,7 @@ To connect to the server, you can use any client or language.
     asyncio.run(connect())
     ```
 
-You can use the quick dashboard located at `src/ui/web.html`  for further testing and exploration.
+You can use the quick dashboard located at `src/gui/web.html`  for further testing and exploration.
 
 I hope you like it!
 
