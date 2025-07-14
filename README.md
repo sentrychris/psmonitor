@@ -177,14 +177,14 @@ pip install -r requirements.txt
 
 Step 4: Run the `build.py` script to generate a single-file executable:
 
-- Desktop (builds the GUI monitoring app with embedded monitoring server):
+- GUI: (builds the GUI monitoring app with embedded monitoring server):
     ```sh
-    python build.py desktop --clean --upx=<upx-ver>
+    python build.py gui --clean --upx=<upx-ver>
     ```
 
-- server (builds only the headless monitoring server without the GUI app);
+- Headless: (builds only the headless monitoring server without the GUI app);
     ```sh
-    python build.py server --clean --upx=<upx-ver>
+    python build.py headless --clean --upx=<upx-ver>
     ```
 
 Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use UPX to compress when packing the executable.

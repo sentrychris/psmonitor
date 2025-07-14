@@ -9,7 +9,7 @@ ui_folder = os.path.join(project_root, 'ui')
 
 libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe')
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
-version_file = os.path.join(os.getcwd(), 'build_resources', 'desktop', 'windows', 'version.rc')
+version_file = os.path.join(os.getcwd(), 'build_resources', 'gui', 'windows', 'version.rc')
 
 
 block_cipher = None

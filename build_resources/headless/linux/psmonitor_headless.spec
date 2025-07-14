@@ -4,19 +4,19 @@ import os
 
 
 project_root = os.path.join(os.getcwd(), 'src')
-server_script = os.path.join(project_root, 'headless.py')
+headless_script = os.path.join(project_root, 'headless.py')
 ui_folder = os.path.join(project_root, 'ui')
 
 libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe')
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
-version_file = os.path.join(os.getcwd(), 'build_resources', 'server', 'windows', 'version.rc')
+version_file = os.path.join(os.getcwd(), 'build_resources', 'headless', 'windows', 'version.rc')
 
 
 block_cipher = None
 
 
 a = Analysis(
-    [server_script],
+    [headless_script],
     pathex=[project_root],
     binaries=[],
     datas=[
@@ -47,7 +47,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='psmonitor-server',
+    name='psmonitor-headless',
     icon=icon_file,
     version=version_file,
     debug=False,
