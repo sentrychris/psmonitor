@@ -250,6 +250,7 @@ class PSMonitorApp(Tk):
         label_text = f"{text} {value} {suffix}".strip()
         label = Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
+        label.label_prefix = text
 
         return label, suffix
 
@@ -321,6 +322,7 @@ class PSMonitorApp(Tk):
 
         columns = ("pid", "name", "username", "mem")
         self.tree = Treeview(frame, columns=columns, show="headings", height=8)
+
         self.tree.heading("pid", text="PID", anchor='center')
         self.tree.column("pid", anchor='center', width=60, minwidth=50)
         self.tree.heading("name", text="Name", anchor='center')
@@ -329,10 +331,13 @@ class PSMonitorApp(Tk):
         self.tree.column("username", anchor='center', width=120, minwidth=100)
         self.tree.heading("mem", text="Memory (MB)", anchor='center')
         self.tree.column("mem", anchor='center', width=80, minwidth=60)
-        for i, process in enumerate(processes_data):
-            values = (process['pid'], process['name'], process['username'], process['mem'])
+
+        # create empty fixed rows
+        self.max_process_rows = 10
+        for i in range(self.max_process_rows):
             tag = "odd" if i % 2 == 0 else "even"
-            self.tree.insert("", "end", values=values, tags=(tag,))
+            self.tree.insert("", "end", iid=f"proc{i}", values=("", "", "", ""), tags=(tag,))
+
         self.tree.tag_configure("odd", background="lightgrey")
         self.tree.tag_configure("even", background="white")
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
@@ -393,13 +398,13 @@ class PSMonitorApp(Tk):
             if key in labels:
                 if isinstance(labels[key], tuple):
                     label, suffix = labels[key]
-                    label.config(text=f"{label.cget('text').split(':')[0]}: {value} {suffix}".strip())
+                    label.config(text=f"{label.label_prefix} {value} {suffix}".strip())
                 else:
                     label = labels[key]
                     if key == 'distro':
                         label.config(text=f"{value}".strip())
                     else:
-                        label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
+                        label.config(text=f"{label.label_prefix} {value}".strip())
 
 
     def update_processes_table(self, processes: list) -> None:
@@ -410,12 +415,19 @@ class PSMonitorApp(Tk):
             processes (list): The list of processes to update.
         """
 
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-        for i, process in enumerate(processes):
-            values = (process['pid'], process['name'], process['username'], process['mem'])
-            tag = "odd" if i % 2 == 0 else "even"
-            self.tree.insert("", "end", values=values, tags=(tag,))
+        for i in range(self.max_process_rows):
+            if i < len(processes):
+                process = processes[i]
+                values = (
+                    process['pid'],
+                    process['name'],
+                    process['username'],
+                    process['mem']
+                )
+            else:
+                values = ("", "", "", "")
+
+            self.tree.item(f"proc{i}", values=values)
 
 
     def start_websocket_connection(self) -> None:
