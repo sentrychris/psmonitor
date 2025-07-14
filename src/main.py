@@ -14,7 +14,6 @@ from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
 from tkinter.ttk import Treeview
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
-from typing import Optional
 
 from core import create_app, signal_handler
 
@@ -32,7 +31,7 @@ HTTP_URL = 'http://localhost:4500'
 logger = logging.getLogger(__name__)
 
 
-def configure_logger(logfile: str):
+def configure_logger(logfile: str) -> None:
     """
     Configures the logger to write logs to a specified file.
     
@@ -48,7 +47,7 @@ def configure_logger(logfile: str):
     logging.basicConfig(filename=destination, level=logging.INFO)
 
 
-def start_server():
+def start_server() -> None:
     """
     Starts the server and listens on port 4500.
     """
@@ -75,7 +74,7 @@ class PSMonitorApp(Tk):
         data (dict): Initial data to populate the UI.
     """
 
-    def __init__(self, data: dict):
+    def __init__(self, data: dict) -> None:
         """
         Initializes the app with initial data.
         
@@ -101,7 +100,7 @@ class PSMonitorApp(Tk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
 
-    def set_window_icon(self, icon_path: str):
+    def set_window_icon(self, icon_path: str) -> str:
         """
         Sets the window icon.
 
@@ -115,7 +114,7 @@ class PSMonitorApp(Tk):
         self.iconphoto(True, icon_photo)
 
 
-    def create_gui_widgets(self, data: dict):
+    def create_gui_widgets(self, data: dict) -> None:
         """
         Creates and arranges the widgets in the application.
 
@@ -168,7 +167,7 @@ class PSMonitorApp(Tk):
             main_frame.columnconfigure(i, weight=1)
 
 
-    def create_gui_menu(self):
+    def create_gui_menu(self) -> None:
         """
         Creates the menu bar.
         """
@@ -177,7 +176,7 @@ class PSMonitorApp(Tk):
         self.config(menu=menu_bar)
 
         help_menu = Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="About", command=self.open_about_window)
+        help_menu.add_command(label="About...", command=self.open_about_window)
 
         file_menu = Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="Open Web UI...", command=self.open_psmonitor_web)
@@ -188,7 +187,7 @@ class PSMonitorApp(Tk):
         menu_bar.add_cascade(label="Help", menu=help_menu)
 
 
-    def update_gui_sections(self):
+    def update_gui_sections(self) -> None:
         """
         Updates the GUI with the latest data.
         """
@@ -202,7 +201,7 @@ class PSMonitorApp(Tk):
         self.after(1000, self.update_gui_sections)
 
 
-    def open_about_window(self):
+    def open_about_window(self) -> None:
         """
         Displays the 'About' window.
         """
@@ -252,23 +251,23 @@ class PSMonitorApp(Tk):
         text_widget.pack(fill="both", expand=True, padx=5, pady=5)
 
 
-    def open_psmonitor_web(self):
+    def open_psmonitor_web(self) -> None:
         """
         Opens the web UI for testing the websocket connection.
         """
         webbrowser.open_new("http://127.0.0.1:4500")
 
 
-    def create_section_frame(self, parent: Frame, title: str):
+    def create_section_frame(self, parent: Frame, title: str) -> LabelFrame:
         """
         Creates a section frame within the parent frame.
 
         Args:
-            parent (tkinter.Frame): The parent frame.
+            parent (Frame): The parent frame.
             title (str): The title of the section frame.
         
         Returns:
-            tkinter.LabelFrame: The created section frame.
+            LabelFrame: The created section frame.
         """
 
         section_frame = LabelFrame(parent, text=title)
@@ -277,7 +276,7 @@ class PSMonitorApp(Tk):
         return section_frame
 
 
-    def add_label(self, frame: Frame, text: str, value: str, suffix: Optional[str] = ""):
+    def add_label(self, frame: Frame, text: str, value: str, suffix: str = "") -> tuple[Label, str]:
         """
         Adds a label to the specified frame.
 
@@ -298,7 +297,7 @@ class PSMonitorApp(Tk):
         return label, suffix
 
 
-    def add_label_with_icon(self, frame: Frame, text: str, value: str):
+    def add_label_with_icon(self, frame: Frame, text: str, value: str) -> Label:
         """
         Adds a label with an icon to the specified frame.
 
@@ -332,7 +331,7 @@ class PSMonitorApp(Tk):
         return text_label
     
 
-    def load_image(self, path: str, width: int):
+    def load_image(self, path: str, width: int) -> ImageTk.PhotoImage:
         """
         Loads an image from the specified path and resizes it.
 
@@ -354,7 +353,7 @@ class PSMonitorApp(Tk):
         return photo
 
 
-    def add_processes_table(self, frame: Frame, processes_data: list):
+    def add_processes_table(self, frame: Frame, processes_data: list) -> None:
         """
         Adds a table to display process information.
 
@@ -382,7 +381,7 @@ class PSMonitorApp(Tk):
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
 
-    def setup_connection(self):
+    def setup_connection(self) -> None:
         """
         Initialize the connection to the local tornado server.
         """
@@ -396,7 +395,7 @@ class PSMonitorApp(Tk):
             logger.error(f"Error connecting to local server: {e}")
 
 
-    def update_initial_data(self, initial_data: dict):
+    def update_initial_data(self, initial_data: dict) -> None:
         """
         Updates the initial data in the application.
 
@@ -409,7 +408,7 @@ class PSMonitorApp(Tk):
         self.update_gui_sections()
 
 
-    def update_live_data(self, new_data: dict):
+    def update_live_data(self, new_data: dict) -> None:
         """
         Updates the live data in the application.
 
@@ -426,7 +425,7 @@ class PSMonitorApp(Tk):
         data['processes'] = new_data.get('processes', data['processes'])
 
 
-    def update_gui_section(self, labels: dict, data: dict):
+    def update_gui_section(self, labels: dict, data: dict) -> None:
         """
         Updates a section of the GUI.
 
@@ -448,7 +447,7 @@ class PSMonitorApp(Tk):
                         label.config(text=f"{label.cget('text').split(':')[0]}: {value}".strip())
 
 
-    def update_processes_table(self, processes: list):
+    def update_processes_table(self, processes: list) -> None:
         """
         Updates the processes table with new data.
 
@@ -464,7 +463,7 @@ class PSMonitorApp(Tk):
             self.tree.insert("", "end", values=values, tags=(tag,))
 
 
-    def start_websocket_connection(self):
+    def start_websocket_connection(self) -> None:
         """
         Starts the websocket connection for live data updates.
         """
@@ -477,7 +476,7 @@ class PSMonitorApp(Tk):
             logger.error(f"Error obtaining worker for websocket connection: {e}")
 
 
-    def connect_websocket(self, worker_id: str):
+    def connect_websocket(self, worker_id: str) -> None:
         """
         Starts the websocket connection with the specified worker ID.
 
@@ -499,7 +498,7 @@ class PSMonitorApp(Tk):
         self.after(1000, self.update_gui_sections)
 
 
-    def on_message(self, ws: websocket.WebSocketApp, message: str):
+    def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
         """
         Handles incoming websocket messages.
 
@@ -515,7 +514,7 @@ class PSMonitorApp(Tk):
             logger.error(f"Error fetching websocket data: {e}")
 
 
-    def on_error(self, ws: websocket.WebSocketApp, error):
+    def on_error(self, ws: websocket.WebSocketApp, error) -> None:
         """
         Handles websocket errors.
 
@@ -527,7 +526,7 @@ class PSMonitorApp(Tk):
         print(f"WebSocket error: {error}")
 
 
-    def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str):
+    def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str) -> None:
         """
         Handles websocket closure.
 
@@ -540,7 +539,7 @@ class PSMonitorApp(Tk):
         print("WebSocket closed")
 
 
-    def on_open(self, ws: websocket.WebSocketApp):
+    def on_open(self, ws: websocket.WebSocketApp) -> None:
         """
         Handles websocket opening.
 
@@ -551,7 +550,7 @@ class PSMonitorApp(Tk):
         print("WebSocket connection opened")
 
 
-    def on_closing(self):
+    def on_closing(self) -> None:
         """
         Handles application closing.
         """
