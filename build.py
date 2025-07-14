@@ -22,8 +22,8 @@ def print_usage():
     print("Example:")
     print("  python build.py <build-target>\n")
     print("Available build targets (at least one is required):")
-    print("  - desktop : Build the desktop application with the server included.")
-    print("  - server  : Build the standalone websocket server only.\n")
+    print("  - desktop : Build the GUI monitoring app with embedded monitoring server.")
+    print("  - server  : Build only the headless monitoring server without the GUI app.\n")
     sys.exit(1)
 
 

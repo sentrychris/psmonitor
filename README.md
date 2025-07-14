@@ -16,23 +16,23 @@ View an example [web client dashboard here](https://github.com/sentrychris/syste
 - **Real-Time Monitoring**: Transmits live system and network statistics.
 - **System Statistics**: Provides CPU, memory, and disk usage, uptime, and top processes.
 - **Network Statistics**: Monitors data sent and received on network interfaces.
-- **Websocket Server**: Includes a [tornado](https://www.tornadoweb.org/en/stable/) server for remote monitoring (built-in and standalone).
+- **Websocket Server**: For remote monitoring on your local network or through port forwarding.
 
 
-## Desktop application
+## GUI Application
 
 The desktop application is built with [Tkinter](https://docs.python.org/3/library/tkinter.html), Python's binding to the Tk GUI toolkit, it consists of:
 
 - **Core logic**: The collection of modules, scripts and binaries that are used to provide the functionality.
-- **The server**: Used by the app to receive data to display, but can also be run as its own standalone service.
+- **The server**: Used by the app to receive data to display, but can also be run as its own headless service.
 
-## Server
+## Headless Server
 
 The server manages the execution of the monitoring scripts, using multiple threads managed through an executor to retrieve data asynchronously and mitigate blocking operations from calls to read system data.
 
 The server is built with [tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections. It's non-blocking nature makes it ideal for building real-time services.
 
-While the server is included in the desktop application, a [standalone version](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own clients, or for people who want to port-forward and setup remote monitoring.
+While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own clients, or for people who want to port-forward and setup remote monitoring.
 
 ### HTTP
 
@@ -65,7 +65,7 @@ Retrieves network monitoring information:
 Renders a simple dashboard to check or test the server.
 
 #### **POST `/`**:
-Creates a worker to manage the execution of monitoring scripts. Responds with a worker ID which is then used in the websocket connection endpoint URL (below).
+Creates a worker to pair HTTP connections to websocket sessions and manage execution of monitoring scripts. This endpoint responds with a worker ID which is then used in the websocket connection (below).
 
 
 ### Websocket
@@ -74,11 +74,11 @@ A single websocket endpoint is provided.
 
 #### WS `/connect?id={<worker_id>}`
 
-- Creates the websocket connection, data immediately begins being sent through the connection.
+- Creates and connects to the websocket connection, data immediately begins being sent through the connection.
 
-### Running the server as a managed process
+### Running the headless server as a managed process
 
-If you would like to run the [standalone server](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
+If you would like to run the [headless server](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
 
 1. Copy the service file and make any necessary changes:
     ```sh
@@ -98,9 +98,11 @@ If you would like to run the [standalone server](https://github.com/sentrychris/
 Alternatively, you could use [supervisor](http://supervisord.org/) or something similar.
 
 
-### Connecting to the server from your own app
+### Connecting to the headless server from your own app
 
-To connect to the WebSocket server, you can use any WebSocket client. Here is an example of how to connect using JavaScript:
+To connect to the server, you can use any client or language.
+
+#### JavaScript Example
 
 1. Retrieve the assigned worker:
 
@@ -125,7 +127,7 @@ To connect to the WebSocket server, you can use any WebSocket client. Here is an
     }
     ```
 
-You can also use WebSocket clients in other programming languages, such as Python:
+#### Python Example
 
 1. Retrieve an assigned worker:
 
@@ -153,6 +155,38 @@ You can also use WebSocket clients in other programming languages, such as Pytho
 You can use the quick dashboard located at `src/ui/web.html`  for further testing and exploration.
 
 I hope you like it!
+
+## Building from Source
+
+To build psmonitor from source.
+
+Step 1: Clone the repository
+```sh
+git clone --recurse-submodules https://github.com/sentrychris/psmonitor.git
+```
+
+Step 2: Install submodules (all located in `src/lib/`)
+```sh
+git submodule update --init --recursive
+```
+
+Step 3: Install dependencies
+```sh
+pip install -r requirements.txt
+```
+
+Step 4: Run the `build.py` script to generate a single-file executable:
+
+- Desktop (builds the GUI monitoring app with embedded monitoring server):
+    ```sh
+    python build.py desktop
+    ```
+
+- server (builds only the monitoring server without the GUI app);
+    ```sh
+    python build.py server
+    ```
+
 
 ## License
 This software is open-sourced software licensed under the MIT license.

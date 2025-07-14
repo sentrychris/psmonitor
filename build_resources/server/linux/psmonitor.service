@@ -1,5 +1,5 @@
 [Unit]
-Description=psmonitor system monitoring - standalone server
+Description=psmonitor system monitoring - headless server
 After=network.target
 
 [Service]
