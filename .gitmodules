@@ -1,3 +1,0 @@
-[submodule "src/lib"]
-	path = src/lib
-	url = git@github.com:sentrychris/libwincputemp.git
