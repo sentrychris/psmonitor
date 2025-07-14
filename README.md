@@ -179,14 +179,15 @@ Step 4: Run the `build.py` script to generate a single-file executable:
 
 - Desktop (builds the GUI monitoring app with embedded monitoring server):
     ```sh
-    python build.py desktop
+    python build.py desktop --clean --upx=<upx-ver>
     ```
 
-- server (builds only the monitoring server without the GUI app);
+- server (builds only the headless monitoring server without the GUI app);
     ```sh
-    python build.py server
+    python build.py server --clean --upx=<upx-ver>
     ```
 
+Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use UPX to compress when packing the executable.
 
 ## License
 This software is open-sourced software licensed under the MIT license.

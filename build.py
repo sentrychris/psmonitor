@@ -5,26 +5,9 @@ import subprocess
 import urllib.request
 import zipfile
 import tarfile
+import argparse
 
-
-UPX_VER="5.0.1"
-
-
-def print_usage() -> None:
-    """
-    Prints the usage information for the script and exits.
-
-    This function provides instructions on how to use the script, including
-    the available build targets and an example of how to run the script.
-    """
-
-    print("Usage: Build psmonitor executables\n")
-    print("Example:")
-    print("  python build.py <build-target>\n")
-    print("Available build targets (at least one is required):")
-    print("  - desktop : Build the GUI monitoring app with embedded monitoring server.")
-    print("  - server  : Build only the headless monitoring server without the GUI app.\n")
-    sys.exit(1)
+DEFAULT_UPX_VER="5.0.1"
 
 
 def get_upx_compressor(build_resources: str, upx_archive: str, upx_url: str, is_windows: bool) -> str:
@@ -88,19 +71,18 @@ def build(spec_file: str, upx_dir: str) -> None:
     subprocess.run(["pyinstaller", spec_file, "--upx-dir", upx_dir], check=True)
 
 
-def main(build_target: str) -> None:
+def main(build_target: str, clean_build: bool, upx_ver: str) -> None:
     """
     Main function that orchestrates the build process for psmonitor.
 
     Args:
         build_target (str): The target to build for e.g. 'desktop' or 'server'.
+        clean_build (str): Clean `build` and `dist directories before build.
+        upx_ver (str): The version of UPX to use to compress the executable.
 
     This function sets up the build environment, downloads UPX if necessary,
     cleans the build and dist directories, and then builds the application.
     """
-
-    if build_target not in ["desktop", "server"]:
-        print_usage()
 
     cwd = os.getcwd()
     build_resources = os.path.join(cwd, "build_resources")
@@ -108,16 +90,18 @@ def main(build_target: str) -> None:
     spec_file = os.path.join(build_resources, build_target, "windows" if os.name == 'nt' else "linux", build_spec)
 
     if os.name == 'nt':
-        upx_pkg = f"upx-{UPX_VER}-win64"
-        upx_url = f"https://github.com/upx/upx/releases/download/v{UPX_VER}/{upx_pkg}.zip"
+        upx_pkg = f"upx-{upx_ver}-win64"
+        upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.zip"
     else:
-        upx_pkg = f"upx-{UPX_VER}-amd64_linux.tar"
-        upx_url = f"https://github.com/upx/upx/releases/download/v{UPX_VER}/{upx_pkg}.tar.xz"
+        upx_pkg = f"upx-{upx_ver}-amd64_linux.tar"
+        upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.tar.xz"
+    
+    if clean_build:
+        print("Cleaning previous build directories...")
+        clean_dir(os.path.join(cwd, "build"))
+        clean_dir(os.path.join(cwd, "dist"))
 
     upx = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
-    
-    clean_dir(os.path.join(cwd, "build"))
-    clean_dir(os.path.join(cwd, "dist"))
 
     build(spec_file, upx)
 
@@ -132,7 +116,10 @@ if __name__ == "__main__":
     it prints the usage information.
     """
 
-    if len(sys.argv) != 2 or sys.argv[1] == '--help':
-        print_usage()
+    parser = argparse.ArgumentParser(description="Build psmonitor executables.")
+    parser.add_argument("build_target", choices=["desktop", "server"], help="Build target: desktop or server")
+    parser.add_argument("--clean", action="store_true", help="Clean build and dist directories before building")
+    parser.add_argument("--upx", metavar="VERSION", type=str, default=DEFAULT_UPX_VER, help="Specify UPX version (default: 5.0.1)")
+    args = parser.parse_args()
 
-    main(sys.argv[1])
+    main(args.build_target, clean_build=args.clean, upx_ver=args.upx)
