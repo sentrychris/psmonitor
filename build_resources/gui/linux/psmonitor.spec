@@ -4,7 +4,7 @@ import os
 
 
 project_root = os.path.join(os.getcwd(), 'src')
-main_script = os.path.join(project_root, 'main.py')
+main_script = os.path.join(project_root, 'gui.py')
 gui_folder = os.path.join(project_root, 'gui')
 
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
