@@ -214,7 +214,7 @@ class PSMonitorApp(Tk):
         label_version = Label(about_window, text="psmonitor - A Simple System Monitor", font=("Arial", 10, "bold"))
         label_version.pack(pady=3)
 
-        label_version = Label(about_window, text="Version 1.3.2", font=("Arial", 8, "bold"))
+        label_version = Label(about_window, text="Version 1.4.0.1551", font=("Arial", 8, "bold"))
         label_version.pack(pady=1)
 
         label_github = Label(about_window, text="View the source code on Github", font=("Arial", 8), foreground="blue", cursor="hand2")
