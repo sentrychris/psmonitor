@@ -3,7 +3,7 @@
 
 [![CodeQL](https://github.com/sentrychris/psmonitor/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/sentrychris/psmonitor/actions/workflows/github-code-scanning/codeql)
 
-A simple system and network monitoring solution with a built-in server for remote monitoring capabilities.
+A simple system and network monitoring app with a headless server for remote monitoring capabilities.
 
 
 ![app](./src/ui/assets/app.png)
@@ -30,9 +30,9 @@ The desktop application is built with [Tkinter](https://docs.python.org/3/librar
 
 The server manages the execution of the monitoring scripts, using multiple threads managed through an executor to retrieve data asynchronously and mitigate blocking operations from calls to read system data.
 
-The server is built with [tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections. It's non-blocking nature makes it ideal for building real-time services.
+The server is built with [tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections.
 
-While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own clients, or for people who want to port-forward and setup remote monitoring.
+While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on the local network or through port forwarding.
 
 ### HTTP
 
