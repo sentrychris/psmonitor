@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=[user]
 Group=[group]
-ExecStart=/usr/bin/psmonitor-server
+ExecStart=/usr/bin/psmonitor-headless
 Restart=always
 
 [Install]

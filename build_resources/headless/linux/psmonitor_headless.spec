@@ -4,7 +4,7 @@ import os
 
 
 project_root = os.path.join(os.getcwd(), 'src')
-server_script = os.path.join(project_root, 'server.py')
+server_script = os.path.join(project_root, 'headless.py')
 ui_folder = os.path.join(project_root, 'ui')
 
 libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe')
