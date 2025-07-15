@@ -12,7 +12,7 @@ from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
 from tkinter.ttk import Treeview
 from tornado.ioloop import IOLoop
 
-from .graphs.cpu_temp import CPUTempGraph
+from .graph_handler import PSMonitorGraph
 
 
 # Constants
@@ -29,15 +29,25 @@ class PSMonitorApp(Tk):
     def __init__(self, data: dict, logger) -> None:
         """
         Initializes the app with initial data.
-        
-        Args:
-            data (dict): Initial data to populate the UI.
         """
 
-        self.data = data
-        self.cpu_temp_graph = CPUTempGraph(UPDATE_INTERVAL, lambda: self.data)
-
         self.logger = logger
+
+        self.data = data
+
+        self.cpu_temp_graph = self.graph_factory(
+            key="cpu",
+            metric="temp",
+            y_label="CPU Temp. (C°)",
+            title="CPU Temperature Graph"
+        )
+
+        self.cpu_usage_graph = self.graph_factory(
+            key="cpu",
+            metric="usage",
+            y_label="CPU Usage (%)",
+            title="CPU Usage Graph"
+        )
     
         super().__init__()
 
@@ -80,6 +90,14 @@ class PSMonitorApp(Tk):
         icon = icon.resize((32, 32), Image.LANCZOS)
         icon_photo = ImageTk.PhotoImage(icon)
         self.iconphoto(True, icon_photo)
+
+
+    def graph_factory(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
+            """
+            Creates a new graph instance.
+            """
+
+            return PSMonitorGraph(UPDATE_INTERVAL, key, metric, lambda: self.data, y_label, title)
 
 
     def create_gui_widgets(self, data: dict) -> None:
@@ -156,6 +174,10 @@ class PSMonitorApp(Tk):
         cpu_graphs_submenu.add_command(
             label="Temperature Graph",
             command=lambda: self.cpu_temp_graph.open_window(self)
+        )
+        cpu_graphs_submenu.add_command(
+            label="Usage Graph",
+            command=lambda: self.cpu_usage_graph.open_window(self)
         )
         cpu_menu.add_cascade(label="Graphs", menu=cpu_graphs_submenu)
 
