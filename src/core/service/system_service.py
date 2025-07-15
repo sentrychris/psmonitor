@@ -16,12 +16,11 @@ elif sys.platform == 'linux':
 
 # Determine if the script is running in a bundle created by PyInstaller
 if getattr(sys, 'frozen', False):
-    # The script is running in a bundle
+    # The script is running in a bundled executable
     bundle_dir = sys._MEIPASS
 else:
     # The script is running in a normal Python environment
-    current_dir = os.getcwd()
-    bundle_dir = os.path.abspath(os.path.join(current_dir, 'bin'))
+    bundle_dir = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
 
 
 def convert_bytes(x: int, pre: int = 2) -> float:
