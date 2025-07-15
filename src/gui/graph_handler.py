@@ -84,13 +84,8 @@ class PSMonitorGraph:
         # Register self to manager when window opens
         if self.manager:
             self.manager.register_graph(self)
-        
-        def on_close():
-            if self.manager:
-                self.manager.unregister_graph(self)
-            self.g_window.withdraw()
 
-        self.g_window.protocol("WM_DELETE_WINDOW", on_close)
+        self.g_window.protocol("WM_DELETE_WINDOW", self.on_close)
 
 
     def close_window(self) -> None:
@@ -99,7 +94,30 @@ class PSMonitorGraph:
         """
 
         if hasattr(self, 'g_window') and self.g_window.winfo_exists():
-            self.g_window.destroy()
+            self.on_close()
+
+
+    def on_close(self):
+        """
+        On close handler
+        """
+        # Destroy the window to free Tk resources
+        self.g_window.destroy()
+
+        # Explicitly clear matplotlib objects to free memory
+        if hasattr(self, 'g_fig'):
+            self.g_fig.clf()
+            del self.g_fig
+        if hasattr(self, 'g_ax'):
+            del self.g_ax
+        if hasattr(self, 'g_canvas'):
+            self.g_canvas.get_tk_widget().destroy()
+            del self.g_canvas
+        if hasattr(self, 'g_line'):
+            del self.g_line
+
+        # Optionally delete the g_window reference
+        del self.g_window
 
 
     def insert_buffer(self, temp) -> None:
