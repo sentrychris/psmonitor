@@ -17,7 +17,7 @@ from tornado.ioloop import IOLoop
 BASE_DIR = os.path.dirname(__file__)
 WS_URL = 'ws://localhost:4500/connect?id='
 HTTP_URL = 'http://localhost:4500'
-
+UPDATE_INTERVAL = 1000
 
 class PSMonitorApp(Tk):
     """
@@ -166,7 +166,7 @@ class PSMonitorApp(Tk):
         self.update_gui_section(self.mem_labels, self.data['mem'])
         self.update_processes_table(self.data['processes'])
 
-        self.after(1000, self.update_gui_sections)
+        self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
 
     def open_about_window(self) -> None:
@@ -261,7 +261,7 @@ class PSMonitorApp(Tk):
         label_text = f"{text} {value} {suffix}".strip()
         label = Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
-        label.label_prefix = text
+        label.prefix = text
 
         return label, suffix
 
@@ -404,13 +404,13 @@ class PSMonitorApp(Tk):
             if key in labels:
                 if isinstance(labels[key], tuple):
                     label, suffix = labels[key]
-                    label.config(text=f"{label.label_prefix} {value} {suffix}".strip())
+                    label.config(text=f"{label.prefix} {value} {suffix}".strip())
                 else:
                     label = labels[key]
                     if key == 'distro':
                         label.config(text=f"{value}".strip())
                     else:
-                        label.config(text=f"{label.label_prefix} {value}".strip())
+                        label.config(text=f"{label.prefix} {value}".strip())
 
 
     def update_processes_table(self, processes: list) -> None:
@@ -467,7 +467,7 @@ class PSMonitorApp(Tk):
         self.ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
         self.ws_thread.start()
 
-        self.after(1000, self.update_gui_sections)
+        self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
 
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
