@@ -4,6 +4,7 @@ import os.path
 import requests
 import sys
 import threading
+import tracemalloc
 import websocket
 import webbrowser
 
@@ -13,6 +14,8 @@ from tkinter.ttk import Treeview
 from tornado.ioloop import IOLoop
 
 from .graph_handler import PSMonitorGraph
+
+tracemalloc.start()
 
 
 # Constants
@@ -80,12 +83,26 @@ class PSMonitorApp(Tk):
         self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
         self.create_gui_widgets(data)
+
+        status_frame = Frame(self)
+        status_frame.pack(fill="x", side="bottom", padx=10, pady=(0, 5))
+
+        self.memory_label = Label(status_frame, text="Mem: 0 KB", anchor="e")
+        self.memory_label.pack(side="right")
+        self.monitor_memory_usage()
         
         self.ws = None
         self.ws_thread = None
         self.setup_connection()
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+
+    def monitor_memory_usage(self) -> None:
+        current, peak = tracemalloc.get_traced_memory()
+        mb = current / (1024 * 1024)
+        self.memory_label.config(text=f"Mem: {mb:.1f} MB", font=("", 8))
+        self.after(10000, self.monitor_memory_usage)
 
 
     def set_window_icon(self, icon_path: str) -> str:
@@ -154,7 +171,7 @@ class PSMonitorApp(Tk):
             setattr(self, f"{name}_labels", make_labels(frame, defs))
 
         self.processes_frame = self.create_section_frame(main_frame, "Top Processes")
-        self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=(5, 0), sticky="nsew")
         self.add_processes_table(self.processes_frame, data['processes'])
 
         for i in range(4):
