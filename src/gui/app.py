@@ -84,7 +84,7 @@ class PSMonitorApp(Tk):
 
         self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
-        self.create_gui_widgets(data)
+        self.create_gui_sections(data)
 
         status_frame = Frame(self)
         status_frame.pack(fill="x", side="bottom", padx=10, pady=(0, 5))
@@ -171,9 +171,41 @@ class PSMonitorApp(Tk):
                 self.unregister_graph(graph)  # Remove graphs whose windows are closed
 
 
-    def create_gui_widgets(self, data: dict) -> None:
+    def create_gui_menu(self) -> None:
         """
-        Creates and arranges the widgets in the application.
+        Creates the menu bar.
+        """
+
+        menu_bar = Menu(self)
+        self.config(menu=menu_bar)
+
+        help_menu = Menu(menu_bar, tearoff=0)
+        help_menu.add_command(label="About...", command=self.open_about_window)
+
+        file_menu = Menu(menu_bar, tearoff=0)
+        file_menu.add_command(label="Open Web UI...", command=self.open_psmonitor_web)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.on_closing)
+
+        graphs_menu = Menu(menu_bar, tearoff=0)
+        graphs_cpu_submenu = Menu(graphs_menu, tearoff=0)
+        graphs_mem_submenu = Menu(graphs_menu, tearoff=0)
+    
+        graphs_cpu_submenu.add_command(label="Temperature Graph", command=self.cpu_temp_graph.open_window)
+        graphs_cpu_submenu.add_command(label="Usage Graph", command=self.cpu_usage_graph.open_window)
+        graphs_menu.add_cascade(label="CPU", menu=graphs_cpu_submenu)
+
+        graphs_mem_submenu.add_command(label="Usage Graph", command=self.mem_usage_graph.open_window)
+        graphs_menu.add_cascade(label="Memory", menu=graphs_mem_submenu)
+
+        menu_bar.add_cascade(label="File", menu=file_menu)
+        menu_bar.add_cascade(label="Graphs ", menu=graphs_menu)
+        menu_bar.add_cascade(label="Help", menu=help_menu)
+
+
+    def create_gui_sections(self, data: dict) -> None:
+        """
+        Creates and arranges the sections in the application.
 
         Args:
             data (dict): Initial data to populate the widgets.
@@ -209,12 +241,12 @@ class PSMonitorApp(Tk):
         ]
 
         for name, r, c, defs in sections:
-            frame = self.create_section_frame(main_frame, name.upper() if name == "cpu" else name.capitalize())
+            frame = self.create_gui_section(main_frame, name.upper() if name == "cpu" else name.capitalize())
             frame.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
             setattr(self, f"{name}_frame", frame)
             setattr(self, f"{name}_labels", make_labels(frame, defs))
 
-        self.processes_frame = self.create_section_frame(main_frame, "Top Processes")
+        self.processes_frame = self.create_gui_section(main_frame, "Top Processes")
         self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=(5, 0), sticky="nsew")
         self.create_processes_table(self.processes_frame, data['processes'])
 
@@ -222,38 +254,6 @@ class PSMonitorApp(Tk):
             main_frame.rowconfigure(i, weight=1)
         for i in range(2):
             main_frame.columnconfigure(i, weight=1)
-
-
-    def create_gui_menu(self) -> None:
-        """
-        Creates the menu bar.
-        """
-
-        menu_bar = Menu(self)
-        self.config(menu=menu_bar)
-
-        help_menu = Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="About...", command=self.open_about_window)
-
-        file_menu = Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="Open Web UI...", command=self.open_psmonitor_web)
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.on_closing)
-
-        graphs_menu = Menu(menu_bar, tearoff=0)
-        graphs_cpu_submenu = Menu(graphs_menu, tearoff=0)
-        graphs_mem_submenu = Menu(graphs_menu, tearoff=0)
-    
-        graphs_cpu_submenu.add_command(label="Temperature Graph", command=self.cpu_temp_graph.open_window)
-        graphs_cpu_submenu.add_command(label="Usage Graph", command=self.cpu_usage_graph.open_window)
-        graphs_menu.add_cascade(label="CPU", menu=graphs_cpu_submenu)
-
-        graphs_mem_submenu.add_command(label="Usage Graph", command=self.mem_usage_graph.open_window)
-        graphs_menu.add_cascade(label="Memory", menu=graphs_mem_submenu)
-
-        menu_bar.add_cascade(label="File", menu=file_menu)
-        menu_bar.add_cascade(label="Graphs ", menu=graphs_menu)
-        menu_bar.add_cascade(label="Help", menu=help_menu)
 
 
     def update_gui_sections(self) -> None:
@@ -356,7 +356,7 @@ class PSMonitorApp(Tk):
         webbrowser.open_new("http://127.0.0.1:4500")
 
 
-    def create_section_frame(self, parent: Frame, title: str) -> LabelFrame:
+    def create_gui_section(self, parent: Frame, title: str) -> LabelFrame:
         """
         Creates a section frame within the parent frame.
 
