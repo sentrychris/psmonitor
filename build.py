@@ -9,7 +9,7 @@ import argparse
 DEFAULT_UPX_VER="5.0.1"
 
 
-def get_upx_compressor(build_resources: str, upx_pkg: str, upx_url: str, is_windows: bool) -> str:
+def get_upx(build_resources: str, upx_pkg: str, upx_url: str, is_windows: bool) -> str:
     """
     Checks for the presence of UPX, downloads and extracts it if not present.
 
@@ -109,7 +109,7 @@ def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
         clean_dir(dist_dir)
         clean_dir(build_dir)
 
-    upx_dir = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
+    upx_dir = get_upx(build_resources, upx_pkg, upx_url, os.name == 'nt')
 
     build_exe(build_spec, upx_dir, dist_dir, build_dir)
 
