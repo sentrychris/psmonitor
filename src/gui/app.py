@@ -55,6 +55,9 @@ class PSMonitorApp(Tk):
             y_label="Mem. Usage (%)",
             title="Memory Usage Graph"
         )
+
+        self.max_process_rows = 10
+        self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
     
         super().__init__()
 
@@ -376,7 +379,6 @@ class PSMonitorApp(Tk):
         self.tree.column("mem", anchor='center', width=80, minwidth=60)
 
         # create empty fixed rows
-        self.max_process_rows = 10
         for i in range(self.max_process_rows):
             tag = "odd" if i % 2 == 0 else "even"
             self.tree.insert("", "end", iid=f"proc{i}", values=("", "", "", ""), tags=(tag,))
@@ -462,15 +464,17 @@ class PSMonitorApp(Tk):
             if i < len(processes):
                 process = processes[i]
                 values = (
-                    process['pid'],
-                    process['name'],
-                    process['username'],
-                    process['mem']
+                    process.get("pid", ""),
+                    process.get("name", ""),
+                    process.get("username", ""),
+                    process.get("mem", "")
                 )
             else:
                 values = ("", "", "", "")
 
-            self.tree.item(f"proc{i}", values=values)
+            if values != self.cached_processes[i]:
+                self.tree.item(f"proc{i}", values=values)
+                self.cached_processes[i] = values
 
 
     def start_websocket_connection(self) -> None:
