@@ -440,16 +440,21 @@ class PSMonitorApp(Tk):
         """
 
         for key, value in data.items():
-            if key in labels:
-                if isinstance(labels[key], tuple):
-                    label, suffix = labels[key]
-                    label.config(text=f"{label.prefix} {value} {suffix}".strip())
+            if key not in labels:
+                continue
+
+            if isinstance(labels[key], tuple):
+                label, suffix = labels[key]
+                new_text = f"{label.prefix} {value} {suffix}".strip()
+            else:
+                label = labels[key]
+                if key == 'distro':
+                    new_text = f"{value}".strip()
                 else:
-                    label = labels[key]
-                    if key == 'distro':
-                        label.config(text=f"{value}".strip())
-                    else:
-                        label.config(text=f"{label.prefix} {value}".strip())
+                    new_text = f"{label.prefix} {value}".strip()
+
+            if label["text"] != new_text:
+                label.config(text=new_text)
 
 
     def update_processes_table(self, processes: list) -> None:
