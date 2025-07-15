@@ -1,5 +1,4 @@
 import os
-import sys
 import shutil
 import subprocess
 import urllib.request
@@ -10,13 +9,13 @@ import argparse
 DEFAULT_UPX_VER="5.0.1"
 
 
-def get_upx_compressor(build_resources: str, upx_archive: str, upx_url: str, is_windows: bool) -> str:
+def get_upx_compressor(build_resources: str, upx_pkg: str, upx_url: str, is_windows: bool) -> str:
     """
     Checks for the presence of UPX, downloads and extracts it if not present.
 
     Args:
         build_resources (str): The build resources directory where UPX will be located.
-        upx_archive (str): The archive name of the UPX version to download.
+        upx_pkg (str): The archive name of the UPX version to download.
         upx_url (str): The URL from which to download UPX.
         is_windows (bool): True if the script is running on Windows, False otherwise.
 
@@ -24,11 +23,11 @@ def get_upx_compressor(build_resources: str, upx_archive: str, upx_url: str, is_
         upx_dir (str): The directory where UPX is located.
     """
 
-    upx_dir = os.path.join(build_resources, upx_archive)
+    upx_dir = os.path.join(build_resources, upx_pkg)
     
     if not os.path.exists(upx_dir):
         print("Downloading UPX...")
-        upx_path = os.path.join(build_resources, f"{upx_archive}.{'zip' if is_windows else 'tar.xz'}")
+        upx_path = os.path.join(build_resources, f"{upx_pkg}.{'zip' if is_windows else 'tar.xz'}")
         urllib.request.urlretrieve(upx_url, upx_path)
         
         if is_windows:
@@ -58,17 +57,25 @@ def clean_dir(directory: str) -> None:
         shutil.rmtree(directory)
 
 
-def build_exe(spec_file: str, upx_dir: str) -> None:
+def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> None:
     """
     Builds the psmonitor application using PyInstaller.
 
     Args:
         spec_file (str): The path to the PyInstaller spec file.
         upx_dir (str): The directory where UPX is located.
+        dist_dir (str): Output directory for final executable.
+        build_dir (str): Directory for PyInstaller's build artifacts.
     """
 
     print("Building psmonitor...")
-    subprocess.run(["pyinstaller", spec_file, "--upx-dir", upx_dir], check=True)
+    subprocess.run([
+        "pyinstaller",
+        spec_file,
+        "--upx-dir", upx_dir,
+        "--distpath", dist_dir,
+        "--workpath", build_dir
+    ], check=True)
 
 
 def main(build: str, clean_build: bool, upx_ver: str) -> None:
@@ -85,7 +92,10 @@ def main(build: str, clean_build: bool, upx_ver: str) -> None:
     """
 
     cwd = os.getcwd()
+    dist_dir = os.path.join(cwd, "output", "dist", build)
+    build_dir = os.path.join(cwd, "output", "build", build)
     build_resources = os.path.join(cwd, "build_resources")
+    build_spec = os.path.join(build_resources, build, "psmonitor.spec")
 
     if os.name == 'nt':
         upx_pkg = f"upx-{upx_ver}-win64"
@@ -96,14 +106,14 @@ def main(build: str, clean_build: bool, upx_ver: str) -> None:
     
     if clean_build:
         print("Cleaning previous build directories...")
-        clean_dir(os.path.join(cwd, "build"))
-        clean_dir(os.path.join(cwd, "dist"))
+        clean_dir(dist_dir)
+        clean_dir(build_dir)
 
-    upx = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
+    upx_dir = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
 
-    build_exe(os.path.join(build_resources, build, "psmonitor.spec"), upx)
+    build_exe(build_spec, upx_dir, dist_dir, build_dir)
 
-    clean_dir(upx)
+    clean_dir(upx_dir)
 
 
 if __name__ == "__main__":
