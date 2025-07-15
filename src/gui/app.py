@@ -287,6 +287,7 @@ class PSMonitorApp(Tk):
         self.update_processes_table()
         self.update_active_graphs()
 
+        # schedule function to call itself again
         self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
 
