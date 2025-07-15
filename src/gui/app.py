@@ -24,9 +24,6 @@ UPDATE_INTERVAL = 1000
 class PSMonitorApp(Tk):
     """
     GUI application for system monitoring.
-    
-    Attributes:
-        data (dict): Initial data to populate the UI.
     """
 
     def __init__(self, data: dict, logger) -> None:
@@ -38,8 +35,7 @@ class PSMonitorApp(Tk):
         """
 
         self.data = data
-        self.cpu_temp_graph = CPUTempGraph()
-        self.cpu_temp_graph.get_latest_data = lambda: self.data
+        self.cpu_temp_graph = CPUTempGraph(UPDATE_INTERVAL, lambda: self.data)
 
         self.logger = logger
     
@@ -178,14 +174,6 @@ class PSMonitorApp(Tk):
         self.update_gui_section(self.cpu_labels, self.data['cpu'])
         self.update_gui_section(self.mem_labels, self.data['mem'])
         self.update_processes_table(self.data['processes'])
-
-        # Update live CPU temp graph only if initialized
-        if hasattr(self, 'cpu_graph_start_time'):
-            try:
-                cpu_temp = float(self.data['cpu']['temp'])
-                self.cpu_temp_graph.update_graph(cpu_temp)
-            except (ValueError, TypeError):
-                pass
 
         self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
