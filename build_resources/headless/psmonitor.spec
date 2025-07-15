@@ -2,13 +2,14 @@
 import os
 import sys
 
+cwd = os.getcwd()
 
-project_root = os.path.join(os.getcwd(), 'src')
+project_root = os.path.join(cwd, 'src')
 headless_script = os.path.join(project_root, 'headless.py')
 gui_folder = os.path.join(project_root, 'gui')
-icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
-libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe') if sys.platform == 'win32' else None
-version_file = os.path.join(os.getcwd(), 'build_resources', 'shared', 'windows', 'version.rc') if sys.platform == 'win32' else None
+icon_file = os.path.join(cwd, 'build_resources', 'psmonitor.ico')
+libwincputemp = os.path.join(cwd, 'bin', 'libwincputemp.exe') if sys.platform == 'win32' else None
+version_file = os.path.join(cwd, 'build_resources', 'shared', 'windows', 'version.rc') if sys.platform == 'win32' else None
 
 datas = [(gui_folder, 'gui'), (icon_file, 'psmonitor.ico')]
 if sys.platform == 'win32':
