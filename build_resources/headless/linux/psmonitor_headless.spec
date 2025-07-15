@@ -5,7 +5,7 @@ import os
 
 project_root = os.path.join(os.getcwd(), 'src')
 headless_script = os.path.join(project_root, 'headless.py')
-gui_folder = os.path.join(project_root, 'gui')
+web_folder = os.path.join(project_root, 'gui' ,'web')
 
 libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe')
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
@@ -21,7 +21,7 @@ a = Analysis(
     binaries=[],
     datas=[
         (libwincputemp, '.'),
-        (gui_folder, 'gui'),
+        (web_folder, 'web'),
         (icon_file, 'psmonitor.ico'),
         (version_file, 'version.rc')
     ],

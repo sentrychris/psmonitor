@@ -14,8 +14,8 @@ from core import create_app, signal_handler
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui')
-STATIC_PATH = os.path.join(BASE_DIR, 'gui')
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui', 'web')
+STATIC_PATH = os.path.join(BASE_DIR, 'gui', 'web')
 COOKIE_SECRET = uuid.uuid1().hex
 
 
