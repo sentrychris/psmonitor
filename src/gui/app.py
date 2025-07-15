@@ -187,24 +187,24 @@ class PSMonitorApp(Tk):
 
         sections = [
             ("platform", 0, 0, {
-                "distro": lambda f: self.add_label_with_icon(f, "", data["platform"]["distro"]),
-                "kernel": lambda f: self.add_label(f, "Kernel:", data["platform"]["kernel"]),
-                "uptime": lambda f: self.add_label(f, "Up:", data["platform"]["uptime"]),
+                "distro": lambda f: self.create_label_with_icon(f, "", data["platform"]["distro"]),
+                "kernel": lambda f: self.create_label(f, "Kernel:", data["platform"]["kernel"]),
+                "uptime": lambda f: self.create_label(f, "Up:", data["platform"]["uptime"]),
             }),
             ("disk", 0, 1, {
-                "used": lambda f: self.add_label(f, "Used:", f"{data['disk']['used']} GB", "GB"),
-                "free": lambda f: self.add_label(f, "Free:", f"{data['disk']['free']} GB", "GB"),
-                "percent": lambda f: self.add_label(f, "Usage:", f"{data['disk']['percent']} %", "%"),
+                "used": lambda f: self.create_label(f, "Used:", f"{data['disk']['used']} GB", "GB"),
+                "free": lambda f: self.create_label(f, "Free:", f"{data['disk']['free']} GB", "GB"),
+                "percent": lambda f: self.create_label(f, "Usage:", f"{data['disk']['percent']} %", "%"),
             }),
             ("cpu", 1, 0, {
-                "temp": lambda f: self.add_label(f, "Temperature:", f"{data['cpu']['temp']} °C", "°C"),
-                "freq": lambda f: self.add_label(f, "Frequency:", f"{data['cpu']['freq']} MHz", "MHz"),
-                "usage": lambda f: self.add_label(f, "Usage:", f"{data['cpu']['usage']} %", "%"),
+                "temp": lambda f: self.create_label(f, "Temperature:", f"{data['cpu']['temp']} °C", "°C"),
+                "freq": lambda f: self.create_label(f, "Frequency:", f"{data['cpu']['freq']} MHz", "MHz"),
+                "usage": lambda f: self.create_label(f, "Usage:", f"{data['cpu']['usage']} %", "%"),
             }),
             ("mem", 1, 1, {
-                "used": lambda f: self.add_label(f, "Used:", f"{data['mem']['used']} GB", "GB"),
-                "free": lambda f: self.add_label(f, "Free:", f"{data['mem']['free']} GB", "GB"),
-                "percent": lambda f: self.add_label(f, "Usage:", f"{data['mem']['percent']} %", "%"),
+                "used": lambda f: self.create_label(f, "Used:", f"{data['mem']['used']} GB", "GB"),
+                "free": lambda f: self.create_label(f, "Free:", f"{data['mem']['free']} GB", "GB"),
+                "percent": lambda f: self.create_label(f, "Usage:", f"{data['mem']['percent']} %", "%"),
             }),
         ]
 
@@ -216,7 +216,7 @@ class PSMonitorApp(Tk):
 
         self.processes_frame = self.create_section_frame(main_frame, "Top Processes")
         self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=(5, 0), sticky="nsew")
-        self.add_processes_table(self.processes_frame, data['processes'])
+        self.create_processes_table(self.processes_frame, data['processes'])
 
         for i in range(4):
             main_frame.rowconfigure(i, weight=1)
@@ -346,8 +346,38 @@ class PSMonitorApp(Tk):
 
         return section_frame
 
+    def create_processes_table(self, frame: Frame, processes_data: list) -> None:
+        """
+        Adds a table to display process information.
 
-    def add_label(self, frame: Frame, text: str, value: str, suffix: str = "") -> tuple[Label, str]:
+        Args:
+            frame (Frame): The parent frame.
+            processes_data (list): The list of processes data.
+        """
+
+        columns = ("pid", "name", "username", "mem")
+        self.tree = Treeview(frame, columns=columns, show="headings", height=8)
+
+        self.tree.heading("pid", text="PID", anchor='center')
+        self.tree.column("pid", anchor='center', width=60, minwidth=50)
+        self.tree.heading("name", text="Name", anchor='center')
+        self.tree.column("name", anchor='center', width=100, minwidth=80)
+        self.tree.heading("username", text="Username", anchor='center')
+        self.tree.column("username", anchor='center', width=120, minwidth=100)
+        self.tree.heading("mem", text="Memory (MB)", anchor='center')
+        self.tree.column("mem", anchor='center', width=80, minwidth=60)
+
+        # create empty fixed rows
+        for i in range(self.max_process_rows):
+            tag = "odd" if i % 2 == 0 else "even"
+            self.tree.insert("", "end", iid=f"proc{i}", values=("", "", "", ""), tags=(tag,))
+
+        self.tree.tag_configure("odd", background="lightgrey")
+        self.tree.tag_configure("even", background="white")
+        self.tree.pack(expand=True, fill="both", padx=10, pady=10)
+
+
+    def create_label(self, frame: Frame, text: str, value: str, suffix: str = "") -> tuple[Label, str]:
         """
         Adds a label to the specified frame.
 
@@ -369,7 +399,7 @@ class PSMonitorApp(Tk):
         return label, suffix
 
 
-    def add_label_with_icon(self, frame: Frame, text: str, value: str) -> Label:
+    def create_label_with_icon(self, frame: Frame, text: str, value: str) -> Label:
         """
         Adds a label with an icon to the specified frame.
 
@@ -418,37 +448,6 @@ class PSMonitorApp(Tk):
         self.image_cache[path] = photo
 
         return photo
-
-
-    def add_processes_table(self, frame: Frame, processes_data: list) -> None:
-        """
-        Adds a table to display process information.
-
-        Args:
-            frame (Frame): The parent frame.
-            processes_data (list): The list of processes data.
-        """
-
-        columns = ("pid", "name", "username", "mem")
-        self.tree = Treeview(frame, columns=columns, show="headings", height=8)
-
-        self.tree.heading("pid", text="PID", anchor='center')
-        self.tree.column("pid", anchor='center', width=60, minwidth=50)
-        self.tree.heading("name", text="Name", anchor='center')
-        self.tree.column("name", anchor='center', width=100, minwidth=80)
-        self.tree.heading("username", text="Username", anchor='center')
-        self.tree.column("username", anchor='center', width=120, minwidth=100)
-        self.tree.heading("mem", text="Memory (MB)", anchor='center')
-        self.tree.column("mem", anchor='center', width=80, minwidth=60)
-
-        # create empty fixed rows
-        for i in range(self.max_process_rows):
-            tag = "odd" if i % 2 == 0 else "even"
-            self.tree.insert("", "end", iid=f"proc{i}", values=("", "", "", ""), tags=(tag,))
-
-        self.tree.tag_configure("odd", background="lightgrey")
-        self.tree.tag_configure("even", background="white")
-        self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
 
     def setup_connection(self) -> None:
