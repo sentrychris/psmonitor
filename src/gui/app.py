@@ -266,7 +266,7 @@ class PSMonitorApp(Tk):
         self.update_gui_section(self.cpu_labels, self.data['cpu'])
         self.update_gui_section(self.mem_labels, self.data['mem'])
 
-        self.update_processes_table(self.data['processes'])
+        self.update_processes_table()
         self.update_active_graphs()
 
         self.after(UPDATE_INTERVAL, self.update_gui_sections)
@@ -520,7 +520,7 @@ class PSMonitorApp(Tk):
                 label.config(text=new_text)
 
 
-    def update_processes_table(self, processes: list) -> None:
+    def update_processes_table(self) -> None:
         """
         Updates the processes table with new data.
 
@@ -529,8 +529,8 @@ class PSMonitorApp(Tk):
         """
 
         for i in range(self.max_process_rows):
-            if i < len(processes):
-                process = processes[i]
+            if i < len(self.data['processes']):
+                process = self.data['processes'][i]
                 values = (
                     process.get("pid", ""),
                     process.get("name", ""),
