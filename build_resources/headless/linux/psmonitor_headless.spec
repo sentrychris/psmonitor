@@ -9,8 +9,6 @@ web_folder = os.path.join(project_root, 'gui' ,'web')
 
 libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe')
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
-version_file = os.path.join(os.getcwd(), 'build_resources', 'headless', 'windows', 'version.rc')
-
 
 block_cipher = None
 
@@ -22,8 +20,7 @@ a = Analysis(
     datas=[
         (libwincputemp, '.'),
         (web_folder, 'web'),
-        (icon_file, 'psmonitor.ico'),
-        (version_file, 'version.rc')
+        (icon_file, 'psmonitor.ico')
     ],
     hiddenimports=[],
     hookspath=[],
@@ -49,7 +46,6 @@ exe = EXE(
     [],
     name='psmonitor-headless',
     icon=icon_file,
-    version=version_file,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

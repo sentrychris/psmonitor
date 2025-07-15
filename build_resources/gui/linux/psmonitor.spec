@@ -9,7 +9,6 @@ gui_folder = os.path.join(project_root, 'gui')
 
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
 
-
 block_cipher = None
 
 
