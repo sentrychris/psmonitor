@@ -48,6 +48,13 @@ class PSMonitorApp(Tk):
             y_label="CPU Usage (%)",
             title="CPU Usage Graph"
         )
+
+        self.mem_usage_graph = self.graph_factory(
+            key="mem",
+            metric="percent",
+            y_label="Mem. Usage (%)",
+            title="Memory Usage Graph"
+        )
     
         super().__init__()
 
@@ -138,7 +145,7 @@ class PSMonitorApp(Tk):
         ]
 
         for name, r, c, defs in sections:
-            frame = self.create_section_frame(main_frame, name.capitalize())
+            frame = self.create_section_frame(main_frame, name.upper() if name == "cpu" else name.capitalize())
             frame.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
             setattr(self, f"{name}_frame", frame)
             setattr(self, f"{name}_labels", make_labels(frame, defs))
@@ -169,20 +176,19 @@ class PSMonitorApp(Tk):
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_closing)
 
-        cpu_menu = Menu(menu_bar, tearoff=0)
-        cpu_graphs_submenu = Menu(cpu_menu, tearoff=0)
-        cpu_graphs_submenu.add_command(
-            label="Temperature Graph",
-            command=lambda: self.cpu_temp_graph.open_window(self)
-        )
-        cpu_graphs_submenu.add_command(
-            label="Usage Graph",
-            command=lambda: self.cpu_usage_graph.open_window(self)
-        )
-        cpu_menu.add_cascade(label="Graphs", menu=cpu_graphs_submenu)
+        graphs_menu = Menu(menu_bar, tearoff=0)
+        graphs_cpu_submenu = Menu(graphs_menu, tearoff=0)
+        graphs_mem_submenu = Menu(graphs_menu, tearoff=0)
+    
+        graphs_cpu_submenu.add_command(label="Temperature Graph", command=lambda: self.cpu_temp_graph.open_window(self))
+        graphs_cpu_submenu.add_command(label="Usage Graph", command=lambda: self.cpu_usage_graph.open_window(self))
+        graphs_menu.add_cascade(label="CPU", menu=graphs_cpu_submenu)
+
+        graphs_mem_submenu.add_command(label="Usage Graph", command=lambda: self.mem_usage_graph.open_window(self))
+        graphs_menu.add_cascade(label="Memory", menu=graphs_mem_submenu)
 
         menu_bar.add_cascade(label="File", menu=file_menu)
-        menu_bar.add_cascade(label="CPU", menu=cpu_menu)
+        menu_bar.add_cascade(label="Graphs ", menu=graphs_menu)
         menu_bar.add_cascade(label="Help", menu=help_menu)
 
 
