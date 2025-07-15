@@ -117,13 +117,6 @@ def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
 
 
 if __name__ == "__main__":
-    """
-    Entry point of the script. Checks for command-line arguments and starts the build process.
-    
-    The script expects exactly one argument specifying the build target. If '--help' is provided,
-    it prints the usage information.
-    """
-
     parser = argparse.ArgumentParser(description="Build psmonitor executables.")
     parser.add_argument("build", choices=["gui", "headless"], help="Build e.g. gui or headless")
     parser.add_argument("--clean", action="store_true", help="Clean build and dist directories before building")
