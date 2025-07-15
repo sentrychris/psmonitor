@@ -256,6 +256,24 @@ class PSMonitorApp(Tk):
             main_frame.columnconfigure(i, weight=1)
 
 
+    def create_gui_section(self, parent: Frame, title: str) -> LabelFrame:
+        """
+        Creates a section frame within the parent frame.
+
+        Args:
+            parent (Frame): The parent frame.
+            title (str): The title of the section frame.
+        
+        Returns:
+            LabelFrame: The created section frame.
+        """
+
+        section_frame = LabelFrame(parent, text=title)
+        section_frame.grid(sticky="nsew", padx=5, pady=5)
+
+        return section_frame
+
+
     def update_gui_sections(self) -> None:
         """
         Updates the GUI with the latest data.
@@ -354,24 +372,6 @@ class PSMonitorApp(Tk):
         Opens the web UI for testing the websocket connection.
         """
         webbrowser.open_new("http://127.0.0.1:4500")
-
-
-    def create_gui_section(self, parent: Frame, title: str) -> LabelFrame:
-        """
-        Creates a section frame within the parent frame.
-
-        Args:
-            parent (Frame): The parent frame.
-            title (str): The title of the section frame.
-        
-        Returns:
-            LabelFrame: The created section frame.
-        """
-
-        section_frame = LabelFrame(parent, text=title)
-        section_frame.grid(sticky="nsew", padx=5, pady=5)
-
-        return section_frame
 
     def create_processes_table(self, frame: Frame, processes_data: list) -> None:
         """
