@@ -4,6 +4,7 @@ import platform
 import sys
 import subprocess
 import functools
+from collections import defaultdict
 
 
 # Platform-specific imports
@@ -132,16 +133,30 @@ def get_processes() -> list:
             - "mem": Memory usage of the process in MB.
     """
     
-    processes = []
+    aggregated = defaultdict(lambda: {'mem': 0.0, 'pids': [], 'usernames': set()})
+
     for proc in psutil.process_iter(['pid', 'name', 'username', 'memory_info']):
         try:
-            process_info = proc.info
-            process_info['mem'] = round(process_info['memory_info'].rss / (1024 * 1024), 2)
-            processes.append(process_info)
+            info = proc.info
+            mem_mb = info['memory_info'].rss / (1024 * 1024)
+            name = info['name'] or 'unknown'
+            aggregated[name]['mem'] += mem_mb
+            aggregated[name]['pids'].append(info['pid'])
+            if info['username']:
+                aggregated[name]['usernames'].add(info['username'])
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
 
-    return sorted(processes, key=lambda p: p['mem'], reverse=True)[:10]
+    combined_list = []
+    for name, data in aggregated.items():
+        combined_list.append({
+            'pid': data['pids'][0] if data['pids'] else '',
+            'name': name,
+            'username': ', '.join(data['usernames']) if data['usernames'] else '',
+            'mem': round(data['mem'], 2)
+        })
+
+    return sorted(combined_list, key=lambda x: x['mem'], reverse=True)[:10]
 
 
 def get_uptime() -> str:
