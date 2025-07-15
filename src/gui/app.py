@@ -272,6 +272,33 @@ class PSMonitorApp(Tk):
         self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
 
+    def update_gui_section(self, labels: dict, data: dict) -> None:
+        """
+        Updates a section of the GUI.
+
+        Args:
+            labels (dict): The labels in the section.
+            data (dict): The data to update.
+        """
+
+        for key, value in data.items():
+            if key not in labels:
+                continue
+
+            if isinstance(labels[key], tuple):
+                label, suffix = labels[key]
+                new_text = f"{label.prefix} {value} {suffix}".strip()
+            else:
+                label = labels[key]
+                if key == 'distro':
+                    new_text = f"{value}".strip()
+                else:
+                    new_text = f"{label.prefix} {value}".strip()
+
+            if label["text"] != new_text:
+                label.config(text=new_text)
+
+
     def open_about_window(self) -> None:
         """
         Displays the 'About' window.
@@ -377,6 +404,31 @@ class PSMonitorApp(Tk):
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
 
+    def update_processes_table(self) -> None:
+        """
+        Updates the processes table with new data.
+
+        Args:
+            processes (list): The list of processes to update.
+        """
+
+        for i in range(self.max_process_rows):
+            if i < len(self.data['processes']):
+                process = self.data['processes'][i]
+                values = (
+                    process.get("pid", ""),
+                    process.get("name", ""),
+                    process.get("username", ""),
+                    process.get("mem", "")
+                )
+            else:
+                values = ("", "", "", "")
+
+            if values != self.cached_processes[i]:
+                self.tree.item(f"proc{i}", values=values)
+                self.cached_processes[i] = values
+
+
     def create_label(self, frame: Frame, text: str, value: str, suffix: str = "") -> tuple[Label, str]:
         """
         Adds a label to the specified frame.
@@ -458,90 +510,11 @@ class PSMonitorApp(Tk):
         try:
             response = requests.get(f'{HTTP_URL}/system')
             initial_data = response.json()
-            self.update_initial_data(initial_data)
+            self.data.update(initial_data)
+            self.update_gui_sections()
             self.start_websocket_connection()
         except requests.RequestException as e:
             self.logger.error(f"Error connecting to local server: {e}")
-
-
-    def update_initial_data(self, initial_data: dict) -> None:
-        """
-        Updates the initial data in the application.
-
-        Args:
-            initial_data (dict): The initial data to update.
-        """
-
-        self.data.update(initial_data)
-        self.update_gui_sections()
-
-
-    def update_live_data(self, new_data: dict) -> None:
-        """
-        Updates the live data in the application.
-
-        Args:
-            new_data (dict): The new data to update.
-        """
-
-        self.data['cpu'] = new_data.get('cpu', self.data['cpu'])
-        self.data['mem'] = new_data.get('mem', self.data['mem'])
-        self.data['disk'] = new_data.get('disk', self.data['disk'])
-        self.data['user'] = new_data.get('user', self.data['user'])
-        self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
-        self.data['processes'] = new_data.get('processes', self.data['processes'])
-
-
-    def update_gui_section(self, labels: dict, data: dict) -> None:
-        """
-        Updates a section of the GUI.
-
-        Args:
-            labels (dict): The labels in the section.
-            data (dict): The data to update.
-        """
-
-        for key, value in data.items():
-            if key not in labels:
-                continue
-
-            if isinstance(labels[key], tuple):
-                label, suffix = labels[key]
-                new_text = f"{label.prefix} {value} {suffix}".strip()
-            else:
-                label = labels[key]
-                if key == 'distro':
-                    new_text = f"{value}".strip()
-                else:
-                    new_text = f"{label.prefix} {value}".strip()
-
-            if label["text"] != new_text:
-                label.config(text=new_text)
-
-
-    def update_processes_table(self) -> None:
-        """
-        Updates the processes table with new data.
-
-        Args:
-            processes (list): The list of processes to update.
-        """
-
-        for i in range(self.max_process_rows):
-            if i < len(self.data['processes']):
-                process = self.data['processes'][i]
-                values = (
-                    process.get("pid", ""),
-                    process.get("name", ""),
-                    process.get("username", ""),
-                    process.get("mem", "")
-                )
-            else:
-                values = ("", "", "", "")
-
-            if values != self.cached_processes[i]:
-                self.tree.item(f"proc{i}", values=values)
-                self.cached_processes[i] = values
 
 
     def start_websocket_connection(self) -> None:
@@ -576,6 +549,22 @@ class PSMonitorApp(Tk):
         self.ws_thread.start()
 
 
+    def refresh_data(self, new_data: dict) -> None:
+            """
+            Updates the data in the application.
+
+            Args:
+                new_data (dict): The new data to update.
+            """
+
+            self.data['cpu'] = new_data.get('cpu', self.data['cpu'])
+            self.data['mem'] = new_data.get('mem', self.data['mem'])
+            self.data['disk'] = new_data.get('disk', self.data['disk'])
+            self.data['user'] = new_data.get('user', self.data['user'])
+            self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
+            self.data['processes'] = new_data.get('processes', self.data['processes'])
+
+
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
         """
         Handles incoming websocket messages.
@@ -587,7 +576,7 @@ class PSMonitorApp(Tk):
 
         try:
             new_data = json.loads(message)
-            self.update_live_data(new_data)
+            self.refresh_data(new_data)
         except Exception as e:
             self.logger.error(f"Error fetching websocket data: {e}")
 
