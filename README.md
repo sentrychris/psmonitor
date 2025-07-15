@@ -96,8 +96,51 @@ If you would like to run the [headless server](https://github.com/sentrychris/ps
 
 Alternatively, you could use [supervisor](http://supervisord.org/) or something similar.
 
+## Building from Source
 
-### Connecting to the headless server from your own app
+To build psmonitor from source.
+
+Step 1: Clone the repository
+```sh
+git clone --recurse-submodules https://github.com/sentrychris/psmonitor.git
+```
+
+Step 2: Install submodules (all located in `src/lib/`)
+```sh
+git submodule update --init --recursive
+```
+
+Step 3: Install dependencies
+```sh
+pip install -r requirements.txt
+```
+
+Step 4: Run the `build.py` script to generate a single-file executable:
+
+- GUI: (builds the GUI monitoring app with embedded monitoring server):
+    ```sh
+    python build.py gui --clean --upx=<upx-ver>
+    ```
+
+- Headless: (builds only the headless monitoring server without the GUI app);
+    ```sh
+    python build.py headless --clean --upx=<upx-ver>
+    ```
+
+Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use UPX to compress when packing the executable, if you don't pass a UPX version then it will use the latest available release.
+
+
+### Key points
+
+- Workers act as per-client session handlers that are created whenever a websocket connection is requested. The `WebSocketHandler` binds to a specific `worker` instance associated with that client, enabling individual data streams and cleanup.
+
+- Workers that are unclaimed within 3 seconds are removed from the executor thread pool and destroyed.
+
+- Separate threads are used to achieve non-blocking behaviour for blocking calls (e.g. `get_cpu()`, `get_memory()`) by offloading them to the executor thread pool.
+
+- During the packing process, [UPX](https://github.com/upx/upx) is used to compress the executable, resulting in about a file size that is ~10MB smaller.
+
+## Connecting to the headless server from your own app
 
 To connect to the server, you can use any client or language.
 
@@ -154,62 +197,6 @@ To connect to the server, you can use any client or language.
 You can use the quick dashboard located at `src/gui/web/web.html`  for further testing and exploration.
 
 I hope you like it!
-
-## Building from Source
-
-To build psmonitor from source.
-
-Step 1: Clone the repository
-```sh
-git clone --recurse-submodules https://github.com/sentrychris/psmonitor.git
-```
-
-Step 2: Install submodules (all located in `src/lib/`)
-```sh
-git submodule update --init --recursive
-```
-
-Step 3: Install dependencies
-```sh
-pip install -r requirements.txt
-```
-
-Step 4: Run the `build.py` script to generate a single-file executable:
-
-- GUI: (builds the GUI monitoring app with embedded monitoring server):
-    ```sh
-    python build.py gui --clean --upx=<upx-ver>
-    ```
-
-- Headless: (builds only the headless monitoring server without the GUI app);
-    ```sh
-    python build.py headless --clean --upx=<upx-ver>
-    ```
-
-Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use UPX to compress when packing the executable, if you don't pass a UPX version then it will use the latest available release.
-
-
-## How it works
-
-1. The GUI app calls `start_server()` which starts the Tornado app in a background thread.
-2. Tornado starts listening on port 4500 for both HTTP and Websocket connections.
-3. The GUI app makes an HTTP request to the `/system` endpoint to fetch initial data to display.
-4. The GUI app then makes an HTTP post request to `/` to setup a new websocket connection.
-5. The Tornado app creates a new session worker for the websocket session and passes the worker ID back to the GUI app.
-6. The GUI app opens the new websocket connection to the server, using the worker ID to identify and manage the session.
-7. The websocket connection immediately begins streaming data back to the connected client.
-
-
-### Key points
-
-- Workers act as per-client session handlers that are created whenever a websocket connection is requested. The `WebSocketHandler` binds to a specific `worker` instance associated with that client, enabling individual data streams and cleanup.
-
-- Workers that are unclaimed within 3 seconds are removed from the executor thread pool and destroyed.
-
-- Separate threads are used to achieve non-blocking behaviour for blocking calls (e.g. `get_cpu()`, `get_memory()`) by offloading them to the executor thread pool.
-
-- During the packing process, [UPX](https://github.com/upx/upx) is used to compress the executable, resulting in about a file size that is ~10MB smaller.
-
 
 ## License
 This software is open-sourced software licensed under the MIT license.
