@@ -12,15 +12,9 @@ class PSMonitorGraph:
     Data graph handler.
     """
 
-    def __init__(
-            self,
-            update_interval: int,
-            data_key: str,
-            data_metric: str,
-            data_callback: Callable[[], dict],
-            y_label: str,
-            window_title: str
-        ) -> None:
+    def __init__(self, update_interval: int, data_key: str, data_metric: str,
+            data_callback: Callable[[], dict], y_label: str, window_title: str,
+            manager = None) -> None:
         """
         Initializes the handler with initial data.
         """
@@ -33,28 +27,31 @@ class PSMonitorGraph:
         self.data_metric = data_metric
         self.y_label = y_label
 
+        self.manager = manager
+
         self.window_title = window_title
         self.get_latest_data = data_callback
         self.update_interval = update_interval
 
 
-    def open_window(self, parent) -> None:
+    def open_window(self) -> None:
         """
         Open graph window.
         """
 
         if hasattr(self, 'g_window') and self.g_window.winfo_exists():
-            # If window exists but is withdrawn (hidden), deiconify to show it again
             if not self.g_window.winfo_viewable():
                 self.g_window.deiconify()
+                # Re-register the graph if needed
+                if self.manager and self not in self.manager.active_graphs:
+                    self.manager.register_graph(self)
             self.g_window.lift()
             return
 
-        self.g_window = Toplevel(parent)
+        self.g_window = Toplevel(self.manager)
         self.g_window.title(self.window_title)
         self.g_window.geometry("600x200")
         self.g_window.resizable(False, False)
-        self.g_window.protocol("WM_DELETE_WINDOW", self.g_window.withdraw)  # Hide on close
 
         # Create border frame
         border_frame = Frame(self.g_window, borderwidth=2, relief="sunken")
@@ -84,7 +81,18 @@ class PSMonitorGraph:
         self.g_canvas.get_tk_widget().pack(expand=True, fill='both', padx=0, pady=0)
         self.g_canvas.draw()
 
-        self.update_graph()
+        # Register self to manager when window opens
+        if self.manager:
+            self.manager.register_graph(self)
+        
+        def on_close():
+            if self.manager:
+                self.manager.unregister_graph(self)
+            self.g_window.withdraw()
+
+        self.g_window.protocol("WM_DELETE_WINDOW", on_close)
+
+        self.refresh_graph()
 
 
     def close_window(self) -> None:
@@ -147,7 +155,7 @@ class PSMonitorGraph:
             self.g_canvas.draw_idle()
 
 
-    def update_graph(self) -> None:
+    def refresh_graph(self) -> None:
         """
         Loop the graph update using interval from the parent handler.
         """
@@ -157,5 +165,3 @@ class PSMonitorGraph:
 
         self.sample_data()
         self.update_plot()
-
-        self.g_window.after(self.update_interval, self.update_graph)

@@ -61,6 +61,8 @@ class PSMonitorApp(Tk):
             title="Memory Usage Graph"
         )
 
+        self.active_graphs = []
+
         self.max_process_rows = 10
         self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
 
@@ -128,7 +130,45 @@ class PSMonitorApp(Tk):
         Creates a new graph instance.
         """
 
-        return PSMonitorGraph(UPDATE_INTERVAL, key, metric, lambda: self.data, y_label, title)
+        return PSMonitorGraph(
+            UPDATE_INTERVAL,
+            data_key=key,
+            data_metric=metric,
+            data_callback=lambda: self.data,
+            y_label=y_label,
+            window_title=title,
+            manager=self
+        )
+
+
+    def register_graph(self, graph: PSMonitorGraph) -> None:
+        """
+        Register a new graph instance.
+        """
+
+        if graph not in self.active_graphs:
+            self.active_graphs.append(graph)
+
+
+    def unregister_graph(self, graph: PSMonitorGraph) -> None:
+        """
+        Unregister an existing graph instance.
+        """
+
+        if graph in self.active_graphs:
+            self.active_graphs.remove(graph)
+
+
+    def update_active_graphs(self) -> None:
+        """
+        Update all active graphs.
+        """
+
+        for graph in self.active_graphs[:]:  # Iterate over a copy in case of removal
+            if hasattr(graph, 'g_window') and graph.g_window.winfo_exists():
+                graph.refresh_graph()
+            else:
+                self.unregister_graph(graph)  # Remove graphs whose windows are closed
 
 
     def create_gui_widgets(self, data: dict) -> None:
@@ -204,11 +244,11 @@ class PSMonitorApp(Tk):
         graphs_cpu_submenu = Menu(graphs_menu, tearoff=0)
         graphs_mem_submenu = Menu(graphs_menu, tearoff=0)
     
-        graphs_cpu_submenu.add_command(label="Temperature Graph", command=lambda: self.cpu_temp_graph.open_window(self))
-        graphs_cpu_submenu.add_command(label="Usage Graph", command=lambda: self.cpu_usage_graph.open_window(self))
+        graphs_cpu_submenu.add_command(label="Temperature Graph", command=self.cpu_temp_graph.open_window)
+        graphs_cpu_submenu.add_command(label="Usage Graph", command=self.cpu_usage_graph.open_window)
         graphs_menu.add_cascade(label="CPU", menu=graphs_cpu_submenu)
 
-        graphs_mem_submenu.add_command(label="Usage Graph", command=lambda: self.mem_usage_graph.open_window(self))
+        graphs_mem_submenu.add_command(label="Usage Graph", command=self.mem_usage_graph.open_window)
         graphs_menu.add_cascade(label="Memory", menu=graphs_mem_submenu)
 
         menu_bar.add_cascade(label="File", menu=file_menu)
@@ -225,7 +265,9 @@ class PSMonitorApp(Tk):
         self.update_gui_section(self.disk_labels, self.data['disk'])
         self.update_gui_section(self.cpu_labels, self.data['cpu'])
         self.update_gui_section(self.mem_labels, self.data['mem'])
+
         self.update_processes_table(self.data['processes'])
+        self.update_active_graphs()
 
         self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
@@ -533,8 +575,6 @@ class PSMonitorApp(Tk):
         self.ws.on_open = self.on_open
         self.ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
         self.ws_thread.start()
-
-        self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
 
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
