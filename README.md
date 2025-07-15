@@ -186,7 +186,7 @@ Step 4: Run the `build.py` script to generate a single-file executable:
     python build.py headless --clean --upx=<upx-ver>
     ```
 
-Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use UPX to compress when packing the executable.
+Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use UPX to compress when packing the executable, if you don't pass a UPX version then it will use the latest available release.
 
 
 ## How it works
@@ -207,6 +207,8 @@ Pass `--clean` if you want to clean the previous build directories. Pass `--upx=
 - Workers that are unclaimed within 3 seconds are removed from the executor thread pool and destroyed.
 
 - Separate threads are used to achieve non-blocking behaviour for blocking calls (e.g. `get_cpu()`, `get_memory()`) by offloading them to the executor thread pool.
+
+- During the packing process, [UPX](https://github.com/upx/upx) is used to compress the executable, resulting in about a file size that is ~10MB smaller.
 
 
 ## License
