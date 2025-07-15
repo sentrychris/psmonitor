@@ -1,41 +1,35 @@
 # -*- mode: python ; coding: utf-8 -*-
-
 import os
+import sys
 
 
 project_root = os.path.join(os.getcwd(), 'src')
 main_script = os.path.join(project_root, 'gui.py')
 gui_folder = os.path.join(project_root, 'gui')
-
 icon_file = os.path.join(os.getcwd(), 'build_resources', 'psmonitor.ico')
+libwincputemp = os.path.join(os.getcwd(), 'bin', 'libwincputemp.exe') if sys.platform == 'win32' else None
+version_file = os.path.join(os.getcwd(), 'build_resources', 'shared', 'windows', 'version.rc') if sys.platform == 'win32' else None
+
+datas = [(gui_folder, 'gui'), (icon_file, 'psmonitor.ico')]
+if sys.platform == 'win32':
+    datas += [(libwincputemp, '.'), (version_file, 'version.rc')]
 
 block_cipher = None
-
 
 a = Analysis(
     [main_script],
     pathex=[project_root],
     binaries=[],
-    datas=[
-        (gui_folder, 'gui'),
-        (icon_file, 'psmonitor.ico')
-    ],
-    hiddenimports=[
-        'PIL._tkinter_finder'
-    ],
+    datas=datas,
+    hiddenimports=[],
     hookspath=[],
-    hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
 )
 
-
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
 
 exe = EXE(
     pyz,
@@ -45,17 +39,9 @@ exe = EXE(
     a.datas,
     [],
     name='psmonitor',
-    icon=icon_file,
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
+    icon=icon_file if sys.platform == 'win32' else None,
+    version=version_file if sys.platform == 'win32' else None,
     console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
+    debug=False,
+    upx=True,
 )

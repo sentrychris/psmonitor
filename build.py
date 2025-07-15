@@ -86,8 +86,6 @@ def main(build: str, clean_build: bool, upx_ver: str) -> None:
 
     cwd = os.getcwd()
     build_resources = os.path.join(cwd, "build_resources")
-    build_spec = "psmonitor_headless.spec" if build == "headless" else "psmonitor.spec"
-    spec_file = os.path.join(build_resources, build, "windows" if os.name == 'nt' else "linux", build_spec)
 
     if os.name == 'nt':
         upx_pkg = f"upx-{upx_ver}-win64"
@@ -103,7 +101,7 @@ def main(build: str, clean_build: bool, upx_ver: str) -> None:
 
     upx = get_upx_compressor(build_resources, upx_pkg, upx_url, os.name == 'nt')
 
-    build_exe(spec_file, upx)
+    build_exe(os.path.join(build_resources, build, "psmonitor.spec"), upx)
 
     clean_dir(upx)
 
