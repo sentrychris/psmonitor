@@ -78,7 +78,7 @@ def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> No
     ], check=True)
 
 
-def main(build: str, clean_build: bool, upx_ver: str) -> None:
+def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
     """
     Main function that orchestrates the build process for psmonitor.
 
@@ -92,10 +92,10 @@ def main(build: str, clean_build: bool, upx_ver: str) -> None:
     """
 
     cwd = os.getcwd()
-    dist_dir = os.path.join(cwd, "output", "dist", build)
-    build_dir = os.path.join(cwd, "output", "build", build)
+    dist_dir = os.path.join(cwd, "output", "dist", build_type)
+    build_dir = os.path.join(cwd, "output", "build", build_type)
     build_resources = os.path.join(cwd, "build_resources")
-    build_spec = os.path.join(build_resources, build, "psmonitor.spec")
+    build_spec = os.path.join(build_resources, build_type, "psmonitor.spec")
 
     if os.name == 'nt':
         upx_pkg = f"upx-{upx_ver}-win64"
@@ -130,4 +130,4 @@ if __name__ == "__main__":
     parser.add_argument("--upx", metavar="VERSION", type=str, default=DEFAULT_UPX_VER, help="Specify UPX version (default: 5.0.1)")
     args = parser.parse_args()
 
-    main(args.build, clean_build=args.clean, upx_ver=args.upx)
+    main(build_type=args.build, clean_build=args.clean, upx_ver=args.upx)

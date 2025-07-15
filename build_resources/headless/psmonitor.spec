@@ -3,7 +3,6 @@ import os
 import sys
 
 cwd = os.getcwd()
-
 project_root = os.path.join(cwd, 'src')
 headless_script = os.path.join(project_root, 'headless.py')
 gui_folder = os.path.join(project_root, 'gui')
