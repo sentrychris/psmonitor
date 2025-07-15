@@ -92,8 +92,6 @@ class PSMonitorGraph:
 
         self.g_window.protocol("WM_DELETE_WINDOW", on_close)
 
-        self.refresh_graph()
-
 
     def close_window(self) -> None:
         """
