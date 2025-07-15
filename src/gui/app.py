@@ -4,7 +4,6 @@ import os.path
 import requests
 import sys
 import threading
-import tracemalloc
 import websocket
 import webbrowser
 
@@ -15,8 +14,6 @@ from tornado.ioloop import IOLoop
 
 from .graph_handler import PSMonitorGraph
 
-
-tracemalloc.start()
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
@@ -85,30 +82,12 @@ class PSMonitorApp(Tk):
         self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
         self.create_gui_sections(data)
-
-        status_frame = Frame(self)
-        status_frame.pack(fill="x", side="bottom", padx=10, pady=(0, 5))
-
-        self.memory_label = Label(status_frame, text="Mem: 0 KB", anchor="e")
-        self.memory_label.pack(side="right")
-        self.monitor_memory_usage()
         
         self.ws = None
         self.ws_thread = None
         self.setup_connection()
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
-
-
-    def monitor_memory_usage(self) -> None:
-        """
-        Monitor the app's own memory usage
-        """
-
-        current, peak = tracemalloc.get_traced_memory()
-        mb = current / (1024 * 1024)
-        self.memory_label.config(text=f"Mem: {mb:.1f} MB", font=("", 8))
-        self.after(10000, self.monitor_memory_usage)
 
 
     def set_window_icon(self, icon_path: str) -> str:
