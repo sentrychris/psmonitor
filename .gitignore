@@ -25,6 +25,8 @@ var/
 .installed.cfg
 *.egg
 
+build_resources/upx-*
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
