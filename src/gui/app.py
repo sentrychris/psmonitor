@@ -124,11 +124,11 @@ class PSMonitorApp(Tk):
 
 
     def graph_factory(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
-            """
-            Creates a new graph instance.
-            """
+        """
+        Creates a new graph instance.
+        """
 
-            return PSMonitorGraph(UPDATE_INTERVAL, key, metric, lambda: self.data, y_label, title)
+        return PSMonitorGraph(UPDATE_INTERVAL, key, metric, lambda: self.data, y_label, title)
 
 
     def create_gui_widgets(self, data: dict) -> None:
