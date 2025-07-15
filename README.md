@@ -127,7 +127,7 @@ Step 4: Run the `build.py` script to generate a single-file executable:
     python build.py headless --clean --upx=<upx-ver>
     ```
 
-Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use [UPX]([UPX](https://github.com/upx/upx)) to compress when packing the executable, if you don't pass a UPX version then it will use the latest available release.
+Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use [UPX](https://github.com/upx/upx) to compress when packing the executable, if you don't pass a UPX version then it will use the latest available release.
 
 
 ### Key points
