@@ -15,8 +15,8 @@ from tornado.ioloop import IOLoop
 
 from .graph_handler import PSMonitorGraph
 
-tracemalloc.start()
 
+tracemalloc.start()
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
@@ -33,6 +33,8 @@ class PSMonitorApp(Tk):
         """
         Initializes the app with initial data.
         """
+
+        super().__init__()
 
         self.logger = logger
 
@@ -61,8 +63,6 @@ class PSMonitorApp(Tk):
 
         self.max_process_rows = 10
         self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
-    
-        super().__init__()
 
         self.title("psmonitor - A system monitor")
         self.geometry("460x480")
@@ -99,6 +99,10 @@ class PSMonitorApp(Tk):
 
 
     def monitor_memory_usage(self) -> None:
+        """
+        Monitor the app's own memory usage
+        """
+
         current, peak = tracemalloc.get_traced_memory()
         mb = current / (1024 * 1024)
         self.memory_label.config(text=f"Mem: {mb:.1f} MB", font=("", 8))
