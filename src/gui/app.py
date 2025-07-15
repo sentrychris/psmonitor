@@ -12,6 +12,8 @@ from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
 from tkinter.ttk import Treeview
 from tornado.ioloop import IOLoop
 
+from .graphs.cpu_temp import CPUTempGraph
+
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
@@ -34,6 +36,10 @@ class PSMonitorApp(Tk):
         Args:
             data (dict): Initial data to populate the UI.
         """
+
+        self.data = data
+        self.cpu_temp_graph = CPUTempGraph()
+        self.cpu_temp_graph.get_latest_data = lambda: self.data
 
         self.logger = logger
     
@@ -58,8 +64,6 @@ class PSMonitorApp(Tk):
         self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
         self.create_gui_widgets(data)
-
-        self.data = data
         
         self.ws = None
         self.ws_thread = None
@@ -151,7 +155,16 @@ class PSMonitorApp(Tk):
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_closing)
 
+        cpu_menu = Menu(menu_bar, tearoff=0)
+        cpu_graphs_submenu = Menu(cpu_menu, tearoff=0)
+        cpu_graphs_submenu.add_command(
+            label="Temperature Graph",
+            command=lambda: self.cpu_temp_graph.open_window(self)
+        )
+        cpu_menu.add_cascade(label="Graphs", menu=cpu_graphs_submenu)
+
         menu_bar.add_cascade(label="File", menu=file_menu)
+        menu_bar.add_cascade(label="CPU", menu=cpu_menu)
         menu_bar.add_cascade(label="Help", menu=help_menu)
 
 
@@ -165,6 +178,14 @@ class PSMonitorApp(Tk):
         self.update_gui_section(self.cpu_labels, self.data['cpu'])
         self.update_gui_section(self.mem_labels, self.data['mem'])
         self.update_processes_table(self.data['processes'])
+
+        # Update live CPU temp graph only if initialized
+        if hasattr(self, 'cpu_graph_start_time'):
+            try:
+                cpu_temp = float(self.data['cpu']['temp'])
+                self.cpu_temp_graph.update_graph(cpu_temp)
+            except (ValueError, TypeError):
+                pass
 
         self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
