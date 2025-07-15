@@ -64,7 +64,7 @@ Retrieves network monitoring information:
 Renders a simple dashboard to check or test the server.
 
 #### **POST `/`**:
-Creates a worker to pair HTTP connections to websocket sessions and manage execution of monitoring scripts. This endpoint responds with a worker ID which is then used in the websocket connection (below).
+Creates a worker to pair HTTP connections to websocket sessions and manage execution of monitoring scripts. This endpoint responds with a worker ID which is then used in the request to the websocket `/connect` endpoint.
 
 
 ### Websocket
