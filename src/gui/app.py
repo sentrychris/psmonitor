@@ -4,6 +4,7 @@ import os.path
 import requests
 import sys
 import threading
+import tracemalloc
 import websocket
 import webbrowser
 
@@ -12,30 +13,54 @@ from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
 from tkinter.ttk import Treeview
 from tornado.ioloop import IOLoop
 
+from .graph_handler import PSMonitorGraph
+
+tracemalloc.start()
+
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
 WS_URL = 'ws://localhost:4500/connect?id='
 HTTP_URL = 'http://localhost:4500'
-
+UPDATE_INTERVAL = 1000
 
 class PSMonitorApp(Tk):
     """
     GUI application for system monitoring.
-    
-    Attributes:
-        data (dict): Initial data to populate the UI.
     """
 
     def __init__(self, data: dict, logger) -> None:
         """
         Initializes the app with initial data.
-        
-        Args:
-            data (dict): Initial data to populate the UI.
         """
 
         self.logger = logger
+
+        self.data = data
+
+        self.cpu_temp_graph = self.graph_factory(
+            key="cpu",
+            metric="temp",
+            y_label="CPU Temp. (C°)",
+            title="CPU Temperature Graph"
+        )
+
+        self.cpu_usage_graph = self.graph_factory(
+            key="cpu",
+            metric="usage",
+            y_label="CPU Usage (%)",
+            title="CPU Usage Graph"
+        )
+
+        self.mem_usage_graph = self.graph_factory(
+            key="mem",
+            metric="percent",
+            y_label="Mem. Usage (%)",
+            title="Memory Usage Graph"
+        )
+
+        self.max_process_rows = 10
+        self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
     
         super().__init__()
 
@@ -59,13 +84,25 @@ class PSMonitorApp(Tk):
         self.create_gui_menu()
         self.create_gui_widgets(data)
 
-        self.data = data
+        status_frame = Frame(self)
+        status_frame.pack(fill="x", side="bottom", padx=10, pady=(0, 5))
+
+        self.memory_label = Label(status_frame, text="Mem: 0 KB", anchor="e")
+        self.memory_label.pack(side="right")
+        self.monitor_memory_usage()
         
         self.ws = None
         self.ws_thread = None
         self.setup_connection()
 
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+
+    def monitor_memory_usage(self) -> None:
+        current, peak = tracemalloc.get_traced_memory()
+        mb = current / (1024 * 1024)
+        self.memory_label.config(text=f"Mem: {mb:.1f} MB", font=("", 8))
+        self.after(10000, self.monitor_memory_usage)
 
 
     def set_window_icon(self, icon_path: str) -> str:
@@ -80,6 +117,14 @@ class PSMonitorApp(Tk):
         icon = icon.resize((32, 32), Image.LANCZOS)
         icon_photo = ImageTk.PhotoImage(icon)
         self.iconphoto(True, icon_photo)
+
+
+    def graph_factory(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
+            """
+            Creates a new graph instance.
+            """
+
+            return PSMonitorGraph(UPDATE_INTERVAL, key, metric, lambda: self.data, y_label, title)
 
 
     def create_gui_widgets(self, data: dict) -> None:
@@ -120,13 +165,13 @@ class PSMonitorApp(Tk):
         ]
 
         for name, r, c, defs in sections:
-            frame = self.create_section_frame(main_frame, name.capitalize())
+            frame = self.create_section_frame(main_frame, name.upper() if name == "cpu" else name.capitalize())
             frame.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
             setattr(self, f"{name}_frame", frame)
             setattr(self, f"{name}_labels", make_labels(frame, defs))
 
         self.processes_frame = self.create_section_frame(main_frame, "Top Processes")
-        self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=(5, 0), sticky="nsew")
         self.add_processes_table(self.processes_frame, data['processes'])
 
         for i in range(4):
@@ -151,7 +196,19 @@ class PSMonitorApp(Tk):
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_closing)
 
+        graphs_menu = Menu(menu_bar, tearoff=0)
+        graphs_cpu_submenu = Menu(graphs_menu, tearoff=0)
+        graphs_mem_submenu = Menu(graphs_menu, tearoff=0)
+    
+        graphs_cpu_submenu.add_command(label="Temperature Graph", command=lambda: self.cpu_temp_graph.open_window(self))
+        graphs_cpu_submenu.add_command(label="Usage Graph", command=lambda: self.cpu_usage_graph.open_window(self))
+        graphs_menu.add_cascade(label="CPU", menu=graphs_cpu_submenu)
+
+        graphs_mem_submenu.add_command(label="Usage Graph", command=lambda: self.mem_usage_graph.open_window(self))
+        graphs_menu.add_cascade(label="Memory", menu=graphs_mem_submenu)
+
         menu_bar.add_cascade(label="File", menu=file_menu)
+        menu_bar.add_cascade(label="Graphs ", menu=graphs_menu)
         menu_bar.add_cascade(label="Help", menu=help_menu)
 
 
@@ -166,7 +223,7 @@ class PSMonitorApp(Tk):
         self.update_gui_section(self.mem_labels, self.data['mem'])
         self.update_processes_table(self.data['processes'])
 
-        self.after(1000, self.update_gui_sections)
+        self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
 
     def open_about_window(self) -> None:
@@ -261,7 +318,7 @@ class PSMonitorApp(Tk):
         label_text = f"{text} {value} {suffix}".strip()
         label = Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
-        label.label_prefix = text
+        label.prefix = text
 
         return label, suffix
 
@@ -339,7 +396,6 @@ class PSMonitorApp(Tk):
         self.tree.column("mem", anchor='center', width=80, minwidth=60)
 
         # create empty fixed rows
-        self.max_process_rows = 10
         for i in range(self.max_process_rows):
             tag = "odd" if i % 2 == 0 else "even"
             self.tree.insert("", "end", iid=f"proc{i}", values=("", "", "", ""), tags=(tag,))
@@ -401,16 +457,21 @@ class PSMonitorApp(Tk):
         """
 
         for key, value in data.items():
-            if key in labels:
-                if isinstance(labels[key], tuple):
-                    label, suffix = labels[key]
-                    label.config(text=f"{label.label_prefix} {value} {suffix}".strip())
+            if key not in labels:
+                continue
+
+            if isinstance(labels[key], tuple):
+                label, suffix = labels[key]
+                new_text = f"{label.prefix} {value} {suffix}".strip()
+            else:
+                label = labels[key]
+                if key == 'distro':
+                    new_text = f"{value}".strip()
                 else:
-                    label = labels[key]
-                    if key == 'distro':
-                        label.config(text=f"{value}".strip())
-                    else:
-                        label.config(text=f"{label.label_prefix} {value}".strip())
+                    new_text = f"{label.prefix} {value}".strip()
+
+            if label["text"] != new_text:
+                label.config(text=new_text)
 
 
     def update_processes_table(self, processes: list) -> None:
@@ -425,15 +486,17 @@ class PSMonitorApp(Tk):
             if i < len(processes):
                 process = processes[i]
                 values = (
-                    process['pid'],
-                    process['name'],
-                    process['username'],
-                    process['mem']
+                    process.get("pid", ""),
+                    process.get("name", ""),
+                    process.get("username", ""),
+                    process.get("mem", "")
                 )
             else:
                 values = ("", "", "", "")
 
-            self.tree.item(f"proc{i}", values=values)
+            if values != self.cached_processes[i]:
+                self.tree.item(f"proc{i}", values=values)
+                self.cached_processes[i] = values
 
 
     def start_websocket_connection(self) -> None:
@@ -467,7 +530,7 @@ class PSMonitorApp(Tk):
         self.ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
         self.ws_thread.start()
 
-        self.after(1000, self.update_gui_sections)
+        self.after(UPDATE_INTERVAL, self.update_gui_sections)
 
 
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
