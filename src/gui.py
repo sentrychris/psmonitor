@@ -8,8 +8,9 @@ import uuid
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
-from gui.app import PSMonitorApp
 from core import create_app, signal_handler
+from gui.app import PSMonitorApp
+from gui.log_handler import PSMonitorAppLogger
 
 
 # Constants
@@ -17,26 +18,6 @@ BASE_DIR = os.path.dirname(__file__)
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui', 'web')
 STATIC_PATH = os.path.join(BASE_DIR, 'gui', 'web')
 COOKIE_SECRET = uuid.uuid1().hex
-
-
-# Logger
-logger = logging.getLogger(__name__)
-
-
-def configure_logger(logfile: str) -> None:
-    """
-    Configures the logger to write logs to a specified file.
-    
-    Args:
-        logfile (str): The name of the logfile.
-    """
-    filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
-
-    if not os.path.isdir(filepath):
-        os.mkdir(filepath)
-
-    destination = os.path.join(filepath, logfile)
-    logging.basicConfig(filename=destination, level=logging.INFO)
 
 
 def start_server(port: int = 4500) -> None:
@@ -69,10 +50,11 @@ if __name__ == "__main__":
         print("MacOS is not supported.")
         exit(0)
 
-    configure_logger(logfile='app.log')
+    logger = PSMonitorAppLogger("app.log")
     
     tornado_thread = threading.Thread(target=start_server, daemon=True)
     tornado_thread.start()
+    logger.info(f"Tornado thread started with name: {tornado_thread.name}")
 
     data = {
         "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
