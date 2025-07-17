@@ -5,16 +5,26 @@ matplotlib.use("TkAgg")
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import Frame, Toplevel
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .app_manager import PSMonitorApp
 
 class PSMonitorGraph:
     """
     Data graph handler.
     """
 
-    def __init__(self, update_interval: int, data_key: str, data_metric: str,
-            data_callback: Callable[[], dict], y_label: str, window_title: str,
-            manager = None) -> None:
+    def __init__(
+            self,
+            update_interval: int,
+            data_key: str,
+            data_metric: str,
+            data_callback: Callable[[], dict],
+            y_label: str,
+            window_title: str,
+            manager: 'PSMonitorApp' = None
+        ) -> None:
         """
         Initializes the handler with initial data.
         """

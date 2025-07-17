@@ -1,25 +1,19 @@
 
-import json
 import os.path
-import requests
 import sys
-import threading
-import websocket
 import webbrowser
 
 from PIL import Image, ImageTk
 from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
 from tkinter.ttk import Treeview
-from tornado.ioloop import IOLoop
 
+from .app_client import PSMonitorAppClient
 from .graph_handler import PSMonitorGraph
 from .log_handler import PSMonitorAppLogger
 
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
-WS_URL = 'ws://localhost:4500/connect?id='
-HTTP_URL = 'http://localhost:4500'
 UPDATE_INTERVAL = 1000
 
 class PSMonitorApp(Tk):
@@ -35,6 +29,8 @@ class PSMonitorApp(Tk):
         super().__init__()
 
         self.logger = PSMonitorAppLogger("app.log")
+
+        self.client = PSMonitorAppClient(self)
 
         self.data = data
 
@@ -84,11 +80,9 @@ class PSMonitorApp(Tk):
         self.create_gui_menu()
         self.create_gui_sections(data)
         
-        self.ws = None
-        self.ws_thread = None
-        self.setup_connection()
+        self.client.setup_connection()
 
-        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.protocol("WM_DELETE_WINDOW", self.client.on_closing)
 
 
     def set_window_icon(self, icon_path: str) -> str:
@@ -166,7 +160,7 @@ class PSMonitorApp(Tk):
         file_menu.add_command(label="Open web UI...", command=self.open_psmonitor_web)
         file_menu.add_command(label="Open app log...", command=self.logger.open_log)
         file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.on_closing)
+        file_menu.add_command(label="Exit", command=self.client.on_closing)
 
         graphs_menu = Menu(menu_bar, tearoff=0)
         graphs_cpu_submenu = Menu(graphs_menu, tearoff=0)
@@ -485,53 +479,6 @@ class PSMonitorApp(Tk):
         return photo
 
 
-    def setup_connection(self) -> None:
-        """
-        Initialize the connection to the local tornado server.
-        """
-
-        try:
-            response = requests.get(f'{HTTP_URL}/system')
-            initial_data = response.json()
-            self.data.update(initial_data)
-            self.update_gui_sections()
-            self.start_websocket_connection()
-        except requests.RequestException as e:
-            self.logger.error(f"Error connecting to local server: {e}")
-
-
-    def start_websocket_connection(self) -> None:
-        """
-        Starts the websocket connection for live data updates.
-        """
-
-        try:
-            response = requests.post(HTTP_URL, json={'connection': 'monitor'})
-            worker = response.json()
-            self.connect_websocket(worker['id'])
-        except requests.RequestException as e:
-            self.logger.error(f"Error obtaining worker for websocket connection: {e}")
-
-
-    def connect_websocket(self, worker_id: str) -> None:
-        """
-        Starts the websocket connection with the specified worker ID.
-
-        Args:
-            worker_id (str): The worker ID for the websocket connection.
-        """
-
-        self.worker_id = worker_id
-        websocket.enableTrace(False)
-        self.ws = websocket.WebSocketApp(f"{WS_URL}{worker_id}",
-                                         on_message=self.on_message,
-                                         on_error=self.on_error,
-                                         on_close=self.on_close)
-        self.ws.on_open = self.on_open
-        self.ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
-        self.ws_thread.start()
-
-
     def refresh_data(self, new_data: dict) -> None:
             """
             Updates the data in the application.
@@ -546,70 +493,3 @@ class PSMonitorApp(Tk):
             self.data['user'] = new_data.get('user', self.data['user'])
             self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
             self.data['processes'] = new_data.get('processes', self.data['processes'])
-
-
-    def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
-        """
-        Handles incoming websocket messages.
-
-        Args:
-            ws (websocket.WebSocketApp): The websocket instance.
-            message (str): The incoming message.
-        """
-
-        try:
-            new_data = json.loads(message)
-            self.refresh_data(new_data)
-        except Exception as e:
-            self.logger.error(f"Error fetching websocket data: {e}")
-
-
-    def on_error(self, ws: websocket.WebSocketApp, error) -> None:
-        """
-        Handles websocket errors.
-
-        Args:
-            ws (websocket.WebSocketApp): The websocket instance.
-            error (Exception): The error encountered.
-        """
-
-        print(f"WebSocket error: {error}")
-
-
-    def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str) -> None:
-        """
-        Handles websocket closure.
-
-        Args:
-            ws (websocket.WebSocketApp): The websocket instance.
-            close_status_code (int): The status code for the closure.
-            close_msg (str): The closure message.
-        """
-
-        print("WebSocket closed")
-
-
-    def on_open(self, ws: websocket.WebSocketApp) -> None:
-        """
-        Handles websocket opening.
-
-        Args:
-            ws (websocket.WebSocketApp): The websocket instance.
-        """
-
-        print("WebSocket connection opened")
-
-
-    def on_closing(self) -> None:
-        """
-        Handles application closing.
-        """
-
-        if self.ws:
-            self.ws.close()
-        if self.ws_thread:
-            self.ws_thread.join()
-
-        IOLoop.current().add_callback(IOLoop.current().stop)
-        self.destroy()
-

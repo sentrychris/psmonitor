@@ -1,0 +1,154 @@
+
+import json
+import os.path
+import requests
+import threading
+import websocket
+
+from tornado.ioloop import IOLoop
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .app_manager import PSMonitorApp
+
+
+# Constants
+WS_URL = 'ws://localhost:4500/connect?id='
+HTTP_URL = 'http://localhost:4500'
+
+
+class PSMonitorAppClient():
+    """
+    App client for connection to the tornado server.
+    """
+
+    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+        """
+        Initializes the app client.
+        """
+
+        super().__init__()
+        
+        self.manager = manager
+
+        self.ws = None
+        self.ws_thread = None
+        self.worker_id = None
+
+
+    def setup_connection(self) -> None:
+        """
+        Initialize the connection to the local tornado server.
+        """
+
+        try:
+            response = requests.get(f'{HTTP_URL}/system')
+            self.manager.data.update(response.json())
+            self.manager.update_gui_sections()
+            self.start_websocket_connection()
+        except requests.RequestException as e:
+            self.manager.logger.error(f"Error connecting to local server: {e}")
+
+
+    def start_websocket_connection(self) -> None:
+        """
+        Starts the websocket connection for live data updates.
+        """
+
+        try:
+            response = requests.post(HTTP_URL, json={'connection': 'monitor'})
+            worker = response.json()
+            self.connect_websocket(worker['id'])
+        except requests.RequestException as e:
+            self.manager.logger.error(f"Error obtaining worker for websocket connection: {e}")
+
+
+    def connect_websocket(self, worker_id: str) -> None:
+        """
+        Starts the websocket connection with the specified worker ID.
+
+        Args:
+            worker_id (str): The worker ID for the websocket connection.
+        """
+
+        self.worker_id = worker_id
+
+        websocket.enableTrace(False)
+
+        self.ws = websocket.WebSocketApp(
+            f"{WS_URL}{worker_id}",
+            on_message=self.on_message,
+            on_error=self.on_error,
+            on_close=self.on_close
+        )
+        self.ws.on_open = self.on_open
+
+        self.ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
+        self.ws_thread.start()
+
+
+    def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
+        """
+        Handles incoming websocket messages.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+            message (str): The incoming message.
+        """
+
+        try:
+            new_data = json.loads(message)
+            self.manager.refresh_data(new_data)
+        except Exception as e:
+            self.manager.logger.error(f"Error fetching websocket data: {e}")
+
+
+    def on_error(self, ws: websocket.WebSocketApp, error) -> None:
+        """
+        Handles websocket errors.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+            error (Exception): The error encountered.
+        """
+
+        print(f"WebSocket error: {error}")
+
+
+    def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str) -> None:
+        """
+        Handles websocket closure.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+            close_status_code (int): The status code for the closure.
+            close_msg (str): The closure message.
+        """
+
+        print("WebSocket closed")
+
+
+    def on_open(self, ws: websocket.WebSocketApp) -> None:
+        """
+        Handles websocket opening.
+
+        Args:
+            ws (websocket.WebSocketApp): The websocket instance.
+        """
+
+        print("WebSocket connection opened")
+
+
+    def on_closing(self) -> None:
+        """
+        Handles application closing.
+        """
+
+        if self.ws:
+            self.ws.close()
+        if self.ws_thread:
+            self.ws_thread.join()
+
+        IOLoop.current().add_callback(IOLoop.current().stop)
+        self.manager.destroy()
+
