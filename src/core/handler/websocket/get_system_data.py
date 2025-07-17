@@ -7,7 +7,8 @@ async def get_system_data() -> dict:
     """
     Gathers system data including CPU, memory, disk usage, uptime, and processes.
 
-    This function collects various system statistics and returns them in a dictionary.
+    The system data gathering tasks are offloaded to a worker thread in ThreadPoolExecutor,
+    yielding control back to the Tornado IOLoop.
 
     Returns:
         dict: A dictionary containing the following keys:

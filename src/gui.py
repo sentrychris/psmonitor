@@ -48,6 +48,7 @@ if __name__ == "__main__":
         print("MacOS is not supported.")
         exit(0)
     
+    # Start the Tornado server in another thread so it doesn't block the GUI's mainloop().
     tornado_thread = threading.Thread(target=start_server, daemon=True)
     tornado_thread.start()
 

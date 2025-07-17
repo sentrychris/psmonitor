@@ -32,7 +32,7 @@ class PSMonitorAppClient():
         self.manager = manager
 
         self.ws = None
-        self.ws_thread = None
+        self.ws_client_thread = None
         self.worker_id = None
 
 
@@ -83,8 +83,9 @@ class PSMonitorAppClient():
         )
         self.ws.on_open = self.on_open
 
-        self.ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
-        self.ws_thread.start()
+        # Run the websocket client in the another thread so it doesn't block the GUI's mainloop().
+        self.ws_client_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
+        self.ws_client_thread.start()
 
 
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
@@ -146,8 +147,8 @@ class PSMonitorAppClient():
 
         if self.ws:
             self.ws.close()
-        if self.ws_thread:
-            self.ws_thread.join()
+        if self.ws_client_thread:
+            self.ws_client_thread.join()
 
         IOLoop.current().add_callback(IOLoop.current().stop)
         self.manager.destroy()

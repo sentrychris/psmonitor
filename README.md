@@ -29,7 +29,7 @@ The desktop application is built with [Tkinter](https://docs.python.org/3/librar
 
 The server manages the execution of the monitoring scripts, using multiple threads managed through an executor to retrieve data asynchronously and mitigate blocking operations from calls to read system data.
 
-The server is built with [tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections.
+The server is built with [Tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections.
 
 While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on the local network or through port forwarding.
 
@@ -132,6 +132,8 @@ Pass `--clean` if you want to clean the previous build directories. Pass `--upx=
 
 ### Key points
 
+Most of the code is either documented or self-explanatory, however, some key points:
+
 - Workers act as per-client session handlers that are created whenever a websocket connection is requested. The `WebSocketHandler` binds to a specific `worker` instance associated with that client, enabling individual data streams and cleanup.
 
 - Workers that are unclaimed within 3 seconds are removed from the executor thread pool and destroyed.
@@ -139,6 +141,22 @@ Pass `--clean` if you want to clean the previous build directories. Pass `--upx=
 - Separate threads are used to achieve non-blocking behaviour for blocking calls (e.g. `get_cpu()`, `get_memory()`) by offloading them to the executor thread pool.
 
 - During the packing process, UPX is used to compress the executable, resulting in a file size that is ~10MB smaller.
+
+
+#### Threading
+
+psmonitor uses three threading models:
+
+- Tornado's `IOLOOp` async concurrency for non-blocking coroutine execution.
+- `ThreadPoolExecutor` for offloading tasks e,g, `psutil` calls like `get_cpu()`.
+- `threading.Thread` in the GUI client and for embedding the server and websocket client into the GUI process.
+
+`get_cpu()` and similar functions are CPU-bound or blocking I/O. Therefore these tasks are offloaded to a worker thread in `ThreadPoolExecutor`, allowing the Tornado `IOLoop` to remain non-blocking and continue handling other connections and events.
+
+##### In the GUI 
+`threading.Thread` is used to start both the Tornado server and the websocket client in the background so they do not block the GUI's `mainloop()`, which requires the main thread.
+
+
 
 ## Connecting to the headless server from your own app
 
