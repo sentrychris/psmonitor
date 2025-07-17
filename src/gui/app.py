@@ -2,6 +2,7 @@
 import json
 import os.path
 import requests
+import subprocess
 import sys
 import threading
 import websocket
@@ -162,7 +163,8 @@ class PSMonitorApp(Tk):
         help_menu.add_command(label="About...", command=self.open_about_window)
 
         file_menu = Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="Open Web UI...", command=self.open_psmonitor_web)
+        file_menu.add_command(label="Open web UI...", command=self.open_psmonitor_web)
+        file_menu.add_command(label="Open app log...", command=self.open_psmonitor_log)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_closing)
 
@@ -352,6 +354,22 @@ class PSMonitorApp(Tk):
         Opens the web UI for testing the websocket connection.
         """
         webbrowser.open_new("http://127.0.0.1:4500")
+
+
+    def open_psmonitor_log(self) -> None:
+        """
+        Opens the app log.
+        """
+
+        app_log = os.path.join(os.path.expanduser('~'), '.psmonitor-logs', 'app.log')
+        try:
+            if sys.platform == 'win32':
+                subprocess.Popen(['notepad.exe', app_log])
+            elif sys.platform == 'Linux':
+                subprocess.Popen(['xdg-open', app_log])
+        except Exception as e:
+            self.logger.error(f"Failed to open log file: {e}")
+
 
     def create_processes_table(self, frame: Frame, processes_data: list) -> None:
         """
