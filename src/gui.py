@@ -1,4 +1,4 @@
-import os
+import os.path
 import signal
 import sys
 import threading

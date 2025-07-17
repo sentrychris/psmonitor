@@ -610,6 +610,6 @@ class PSMonitorApp(Tk):
         if self.ws_thread:
             self.ws_thread.join()
 
-        IOLoop.instance().add_callback(IOLoop.instance().stop)
+        IOLoop.current().add_callback(IOLoop.current().stop)
         self.destroy()
 
