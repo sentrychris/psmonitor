@@ -1,5 +1,4 @@
-import logging
-import os.path
+import os
 import signal
 import sys
 import threading
@@ -9,8 +8,7 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
 from core import create_app, signal_handler
-from gui.app import PSMonitorApp
-from gui.log_handler import PSMonitorAppLogger
+from gui.app_manager import PSMonitorApp
 
 
 # Constants
@@ -49,14 +47,11 @@ if __name__ == "__main__":
     if sys.platform == "darwin":
         print("MacOS is not supported.")
         exit(0)
-
-    logger = PSMonitorAppLogger("app.log")
     
     tornado_thread = threading.Thread(target=start_server, daemon=True)
     tornado_thread.start()
-    logger.info(f"Tornado thread started with name: {tornado_thread.name}")
 
-    data = {
+    init_data = {
         "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
         "mem": {"total": 0, "used": 0, "free": 0, "percent": 0},
         "disk": {"total": 0, "used": 0, "free": 0, "percent": 0},
@@ -66,5 +61,5 @@ if __name__ == "__main__":
         "processes": []
     }
     
-    app = PSMonitorApp(data, logger)
+    app = PSMonitorApp(init_data)
     app.mainloop()

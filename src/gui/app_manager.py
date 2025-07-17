@@ -2,7 +2,6 @@
 import json
 import os.path
 import requests
-import subprocess
 import sys
 import threading
 import websocket
@@ -14,6 +13,7 @@ from tkinter.ttk import Treeview
 from tornado.ioloop import IOLoop
 
 from .graph_handler import PSMonitorGraph
+from .log_handler import PSMonitorAppLogger
 
 
 # Constants
@@ -27,14 +27,14 @@ class PSMonitorApp(Tk):
     GUI application for system monitoring.
     """
 
-    def __init__(self, data: dict, logger) -> None:
+    def __init__(self, data: dict) -> None:
         """
         Initializes the app with initial data.
         """
 
         super().__init__()
 
-        self.logger = logger
+        self.logger = PSMonitorAppLogger("app.log")
 
         self.data = data
 
@@ -164,7 +164,7 @@ class PSMonitorApp(Tk):
 
         file_menu = Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="Open web UI...", command=self.open_psmonitor_web)
-        file_menu.add_command(label="Open app log...", command=self.open_psmonitor_log)
+        file_menu.add_command(label="Open app log...", command=self.logger.open_log)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.on_closing)
 
@@ -354,21 +354,6 @@ class PSMonitorApp(Tk):
         Opens the web UI for testing the websocket connection.
         """
         webbrowser.open_new("http://127.0.0.1:4500")
-
-
-    def open_psmonitor_log(self) -> None:
-        """
-        Opens the app log.
-        """
-
-        app_log = os.path.join(os.path.expanduser('~'), '.psmonitor-logs', 'app.log')
-        try:
-            if sys.platform == 'win32':
-                subprocess.Popen(['notepad.exe', app_log])
-            elif sys.platform == 'Linux':
-                subprocess.Popen(['xdg-open', app_log])
-        except Exception as e:
-            self.logger.error(f"Failed to open log file: {e}")
 
 
     def create_processes_table(self, frame: Frame, processes_data: list) -> None:
