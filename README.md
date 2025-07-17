@@ -151,6 +151,8 @@ psmonitor uses three threading models:
 - `ThreadPoolExecutor` for offloading tasks e,g, `psutil` calls like `get_cpu()`.
 - `threading.Thread` in the GUI client and for embedding the server and websocket client into the GUI process.
 
+##### In the server
+
 `get_cpu()` and similar functions are CPU-bound or blocking I/O. Therefore these tasks are offloaded to a worker thread in `ThreadPoolExecutor`, allowing the Tornado `IOLoop` to remain non-blocking and continue handling other connections and events.
 
 ##### In the GUI 
