@@ -10,6 +10,9 @@ class PSMonitorAppLogger:
     """
 
     def __init__(self, filename: str):
+        """
+        Initialize the log handler.
+        """
         self._enabled = True
         self._logger = logging.getLogger(__name__)
         self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')

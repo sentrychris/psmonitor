@@ -112,7 +112,6 @@ class PSMonitorApp(Tk):
         """
 
         return PSMonitorGraph(
-            UPDATE_INTERVAL,
             data_key=key,
             data_metric=metric,
             data_callback=lambda: self.data,
@@ -146,7 +145,7 @@ class PSMonitorApp(Tk):
         """
 
         for graph in self.active_graphs[:]:  # Iterate over a copy in case of removal
-            if hasattr(graph, 'g_window') and graph.g_window.winfo_exists():
+            if graph.is_active():
                 graph.refresh_graph()
             else:
                 self.unregister_graph(graph)  # Remove graphs whose windows are closed
