@@ -11,15 +11,15 @@ class PSMonitorAppLogger:
 
     def __init__(self, filename: str):
         self._enabled = True
-        self.logger = logging.getLogger(__name__)
-        self.filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
+        self._logger = logging.getLogger(__name__)
+        self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
 
-        if not os.path.isdir(self.filepath):
-            os.mkdir(self.filepath)
+        if not os.path.isdir(self._filepath):
+            os.mkdir(self._filepath)
         
-        self.fullpath = os.path.join(self.filepath, filename)
+        self._fullpath = os.path.join(self._filepath, filename)
 
-        logging.basicConfig(filename=self.fullpath, level=logging.INFO)
+        logging.basicConfig(filename=self._fullpath, level=logging.INFO)
 
 
     def is_enabled(self) -> bool:
@@ -43,7 +43,7 @@ class PSMonitorAppLogger:
         if not self._enabled:
             return
 
-        self.logger.info(message)
+        self._logger.info(message)
 
 
     def warning(self, message: str) -> None:
@@ -53,7 +53,7 @@ class PSMonitorAppLogger:
         if not self._enabled:
             return
         
-        self.logger.warning(message)
+        self._logger.warning(message)
 
 
     def error(self, message: str) -> None:
@@ -63,7 +63,7 @@ class PSMonitorAppLogger:
         if not self._enabled:
             return
 
-        self.logger.error(message)
+        self._logger.error(message)
 
     
     def debug(self, message: str) -> None:
@@ -73,7 +73,7 @@ class PSMonitorAppLogger:
         if not self._enabled:
             return
 
-        self.logger.debug(message)
+        self._logger.debug(message)
 
 
     def open_log(self) -> None:
@@ -81,18 +81,18 @@ class PSMonitorAppLogger:
         View the app log
         """
 
-        if not os.path.exists(self.fullpath):
-            self.logger.warning(f"Log file not found at {self.fullpath}.")
+        if not os.path.exists(self._fullpath):
+            self._logger.warning(f"Log file not found at {self._fullpath}.")
             return
 
         try:
             if sys.platform == 'win32':
-                subprocess.Popen(['notepad.exe', self.fullpath])
+                subprocess.Popen(['notepad.exe', self._fullpath])
             elif sys.platform == 'Linux':
                 # Use xdg-open to open with the default text editor
-                subprocess.Popen(['xdg-open', self.fullpath])
+                subprocess.Popen(['xdg-open', self._fullpath])
         except Exception as e:
-            self.logger.error(f"Failed to open log file: {e}")
+            self._logger.error(f"Failed to open log file: {e}")
 
 
     def clear_log(self) -> None:
@@ -101,8 +101,8 @@ class PSMonitorAppLogger:
         """
         try:
             # Truncate the log file to zero length, effectively clearing it
-            with open(self.fullpath, 'w'):
+            with open(self._fullpath, 'w'):
                 pass
-            self.logger.info("Log file cleared by user.")
+            self._logger.info("Log file cleared by user.")
         except Exception as e:
-            self.logger.error(f"Failed to clear log file: {e}")
+            self._logger.error(f"Failed to clear log file: {e}")
