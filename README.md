@@ -31,7 +31,7 @@ The server manages the execution of the monitoring scripts, using multiple threa
 
 The server is built with [Tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections.
 
-While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on the local network or through port forwarding.
+While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.5.0.1001/psmonitor-standalone-server-no-gui.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on the local network or through port forwarding.
 
 ### HTTP
 
@@ -77,7 +77,7 @@ A single websocket endpoint is provided.
 
 ### Running the headless server as a managed process
 
-If you would like to run the [headless server](https://github.com/sentrychris/psmonitor/releases/download/v1.4.0.1551/psmonitor-standalone-server-no-gui.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
+If you would like to run the [headless server](https://github.com/sentrychris/psmonitor/releases/download/v1.5.0.1001/psmonitor-standalone-server-no-gui.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
 
 1. Copy the service file and make any necessary changes:
     ```sh
