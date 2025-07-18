@@ -1,30 +1,33 @@
 """
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
 import os
-import psutil
 import platform
 import sys
 import subprocess
 import functools
 from collections import defaultdict
 
+# Third-party imports
+import psutil
 
 # Platform-specific imports
 if sys.platform == "win32":
     import ctypes
     import getpass
 elif sys.platform == 'linux':
-    import pwd
+    import pwd # pylint: disable=import-error
 
 
 # Determine if the script is running in a bundle created by PyInstaller
 if getattr(sys, 'frozen', False):
     # The script is running in a bundled executable
-    bundle_dir = sys._MEIPASS
+    bundle_dir = sys._MEIPASS  # pylint: disable=protected-access
 else:
     # The script is running in a normal Python environment
     bundle_dir = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
@@ -64,7 +67,8 @@ def get_cpu() -> dict:
             executable_path,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
-        cpu_temp = proc.decode('utf-8').rstrip('\r\n') # TODO find an acceptable alternative for temps on windows.
+        # TODO find an acceptable alternative for temps on windows.
+        cpu_temp = proc.decode('utf-8').rstrip('\r\n')
     else:
         cpu_temp = round(psutil.sensors_temperatures()['coretemp'][0].current, 2)
 
@@ -138,7 +142,7 @@ def get_processes() -> list:
             - "username": Username of the process owner.
             - "mem": Memory usage of the process in MB.
     """
-    
+
     aggregated = defaultdict(lambda: {'mem': 0.0, 'pids': [], 'usernames': set()})
 
     for proc in psutil.process_iter(['pid', 'name', 'username', 'memory_info']):
@@ -181,13 +185,15 @@ def get_uptime() -> str:
         try:
             uptime_ms = ctypes.windll.kernel32.GetTickCount64()
             total_seconds = uptime_ms / 1000.0
-        except Exception:
-            return "N/A"
+        except AttributeError:
+            return "N/A"  # GetTickCount64 not available
+        except OSError:
+            return "N/A"  # Problem calling kernel32
     else:
         try:
-            with open('/proc/uptime') as f:
+            with open('/proc/uptime', 'r', encoding='utf-8') as f:
                 total_seconds = float(f.read().split()[0])
-        except Exception:
+        except (FileNotFoundError, PermissionError, ValueError, OSError):
             return "N/A"
 
     days, remainder = divmod(total_seconds, 86400)
@@ -210,7 +216,9 @@ def get_user() -> str:
     Retrieves the username of the current user.
 
     On Windows, it uses the `getpass.getuser()` function.
-    On Unix-like systems, it uses the `pwd` module to get the username associated with the current process's user ID.
+
+    On Unix-like systems, it uses the `pwd` module to get the username associated
+    with the current process's user ID.
 
     Returns:
         str: The username of the current user.
@@ -218,8 +226,8 @@ def get_user() -> str:
 
     if sys.platform == "win32":
         return getpass.getuser()
-    else:
-        return pwd.getpwuid(os.getuid())[0]
+
+    return pwd.getpwuid(os.getuid())[0] # pylint: disable=used-before-assignment,no-member
 
 
 @functools.lru_cache(maxsize=1024)
@@ -238,12 +246,18 @@ def get_distro() -> str:
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-        result = subprocess.check_output(['wmic', 'os', 'get', 'Caption'], text=True, startupinfo=startupinfo)
+        result = subprocess.check_output(
+            ['wmic', 'os', 'get', 'Caption'],
+            text=True,
+            startupinfo=startupinfo
+        )
         os_name = result.strip().split('\n')
 
         return os_name[2].strip() if len(os_name) > 1 else "Unknown OS"
-    else:
-        return os.popen('cat /etc/*-release | grep "^PRETTY_NAME=" | cut -d= -f2').read().replace('"', '').strip()
+
+    return os.popen(
+        'cat /etc/*-release | grep "^PRETTY_NAME=" | cut -d= -f2'
+    ).read().replace('"', '').strip()
 
 
 @functools.lru_cache(maxsize=1024)
@@ -260,5 +274,5 @@ def get_kernel() -> str:
 
     if sys.platform == "win32":
         return platform.version()
-    else:
-        return platform.release()
+
+    return platform.release()

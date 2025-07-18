@@ -1,4 +1,5 @@
 """
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
@@ -130,10 +131,8 @@ class PSMonitorAppClient():
             self._manager.refresh_data(json.loads(message))
         except json.JSONDecodeError as e:
             self._manager.logger.error(f"Invalid JSON from websocket: {message[:100]}... ({e})")
-        # pylint: disable=broad-except
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             self._manager.logger.error(f"Error fetching websocket data: {e}")
-        # pylint: enable=broad-except
 
 
     def on_error(self, ws: websocket.WebSocketApp, error) -> None:

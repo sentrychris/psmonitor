@@ -1,4 +1,5 @@
 """
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
@@ -242,10 +243,8 @@ class PSMonitorSettings:
         try:
             self._manager.logger.clear_log()
             self._show_log_status("✔ Log cleared successfully", "green", duration=2000)
-        # pylint: disable=broad-except
-        except Exception:
+        except Exception: # pylint: disable=broad-except
             self._show_log_status("✖ Failed to clear log", "red", duration=2000)
-        # pylint: enable=broad-except
 
 
     def _show_log_status(self, text: str, color: str, duration: int = 2000):

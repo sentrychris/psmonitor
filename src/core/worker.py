@@ -1,14 +1,18 @@
 """
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Third-party imports
 from tornado.ioloop import IOLoop
+
+# Local application imports
 from core.handler.websocket.websocket_handler import WebsocketHandler
 
 
-class Worker(object):
+class Worker():
     """
     Worker class for managing worker instances within a worker pool.
 

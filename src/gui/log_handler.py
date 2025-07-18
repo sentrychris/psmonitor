@@ -1,4 +1,5 @@
 """
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
@@ -135,10 +136,8 @@ class PSMonitorAppLogger:
                 # Use xdg-open to open with the default text editor
                 subprocess.Popen(['xdg-open', self._fullpath])
                 # pylint: enable=consider-using-with
-        # pylint: disable=broad-except
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             self._logger.error("Failed to open log file: %s", e)
-        # pylint: enable=broad-except
 
 
     def clear_log(self) -> None:

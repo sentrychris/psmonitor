@@ -1,4 +1,5 @@
 """
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
@@ -15,16 +16,14 @@ from typing import TYPE_CHECKING
 # Third-party imports
 from PIL import Image, ImageTk
 
-# Typing (type hints only, no runtime dependency)
-if TYPE_CHECKING:
-    from gui.log_handler import PSMonitorAppLogger
-
 # Local application imports
-# pylint: disable=wrong-import-position
 from gui.app_client import PSMonitorAppClient
 from gui.graph_handler import PSMonitorGraphHandler
 from gui.settings_handler import PSMonitorSettings
-# pylint: enable=wrong-import-position
+
+# Typing (type hints only, no runtime dependency)
+if TYPE_CHECKING:
+    from gui.log_handler import PSMonitorAppLogger
 
 
 # Constants

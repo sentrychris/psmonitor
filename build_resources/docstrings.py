@@ -12,6 +12,7 @@ current_year = datetime.datetime.now().year
 
 # Header to be prepended to each Python file
 HEADER = f'''"""
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © {current_year} Chris Rowles. All rights reserved.
 License: MIT

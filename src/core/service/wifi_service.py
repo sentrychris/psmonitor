@@ -1,12 +1,15 @@
 """
+PSMonitor - A simple system monitoring utility
 Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
 import re
 import sys
 import subprocess
+from typing import Optional
 
 
 def get_wifi_data() -> dict:
@@ -22,11 +25,11 @@ def get_wifi_data() -> dict:
         output = get_wifi_data_windows()
     elif sys.platform == "linux":
         output = get_wifi_data_linux()
-    
+
     return output
 
 
-def get_wifi_data_windows() -> dict:
+def get_wifi_data_windows() -> Optional[dict]:
     """
     Parses Wi-Fi information by scanning available Wi-Fi networks using the netsh command.
 
@@ -35,7 +38,10 @@ def get_wifi_data_windows() -> dict:
     """
 
     try:
-        result = subprocess.check_output(["netsh", "wlan", "show", "interfaces"], universal_newlines=True)
+        result = subprocess.check_output(
+            ["netsh", "wlan", "show", "interfaces"],
+            universal_newlines=True
+        )
 
         output = {
             "name": "",
@@ -57,14 +63,15 @@ def get_wifi_data_windows() -> dict:
 
         for line in result.split('\n'):
             for key, pattern in patterns.items():
-                match = pattern.match(line.strip())
-                if match:
-                    output[key] = match.groups()[0].strip()
+                match_obj = pattern.match(line.strip())
+                if match_obj:
+                    output[key] = match_obj.groups()[0].strip()
 
         return output
 
     except subprocess.CalledProcessError as e:
         print(f"Failed to retrieve Wi-Fi information: {e}")
+        return None
 
 
 def get_wifi_data_linux() -> dict:
@@ -80,8 +87,12 @@ def get_wifi_data_linux() -> dict:
 
     try:
         interface = get_wifi_interface()
-        proc = subprocess.Popen(["iwlist", interface, "scan"], stdout=subprocess.PIPE, universal_newlines=True)
-        out, err = proc.communicate()
+        proc = subprocess.Popen(
+            ["iwlist", interface, "scan"],
+            stdout=subprocess.PIPE,
+            universal_newlines=True
+        )
+        out, _ = proc.communicate()
 
         for line in out.split("\n"):
             cell_line = match(line, "Cell ")
@@ -94,7 +105,7 @@ def get_wifi_data_linux() -> dict:
 
         for cell in cells:
             output.update(parse_cell(cell))
-    except Exception:
+    except Exception: # pylint: disable=broad-except
         return "N/A"
 
     return output
@@ -109,7 +120,7 @@ def get_wifi_interface() -> str:
     """
 
     proc = subprocess.Popen(['iw', 'dev'], stdout=subprocess.PIPE, universal_newlines=True)
-    out, err = proc.communicate()
+    out, _ = proc.communicate()
 
     interface = 'wlan0'
     for line in out.split("\n"):
@@ -142,7 +153,7 @@ def run_wifi_speedtest() -> dict:
             'download': download[0].replace(',', '.'),
             'upload': upload[0].replace(',', '.')
         })
-    except Exception:
+    except Exception: # pylint: disable=broad-except
         pass
 
     return response
@@ -305,8 +316,7 @@ def parse_cell(cell: list) -> dict:
     }
 
     parsed_cell = {}
-    for key in rules:
-        rule = rules[key]
+    for key, rule in rules.items():
         parsed_cell.update({key: rule(cell)})
 
     return parsed_cell
