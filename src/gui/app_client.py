@@ -58,7 +58,8 @@ class PSMonitorAppClient():
         try:
             response = requests.post(HTTP_URL, json={'connection': 'monitor'})
             worker = response.json()
-            self.connect_websocket(worker['id'])
+            self.worker_id = worker['id']
+            self.connect_websocket(self.worker_id)
         except requests.RequestException as e:
             self.manager.logger.error(f"Error obtaining worker for websocket connection: {e}")
 
@@ -70,8 +71,6 @@ class PSMonitorAppClient():
         Args:
             worker_id (str): The worker ID for the websocket connection.
         """
-
-        self.worker_id = worker_id
 
         websocket.enableTrace(False)
 
