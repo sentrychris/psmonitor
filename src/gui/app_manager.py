@@ -17,9 +17,9 @@ from typing import TYPE_CHECKING
 from PIL import Image, ImageTk
 
 # Local application imports
-from gui.app_client import PSMonitorAppClient
-from gui.graph_handler import PSMonitorGraphHandler
-from gui.settings_handler import PSMonitorSettings
+from .app_client import PSMonitorAppClient
+from .graph_handler import PSMonitorGraphHandler
+from .settings_handler import PSMonitorSettings
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:

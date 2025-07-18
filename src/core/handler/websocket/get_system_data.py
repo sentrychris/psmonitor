@@ -5,7 +5,10 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Third-party imports
 from tornado.ioloop import IOLoop
+
+# Local application imports
 from core.thread_pool import executor
 from core.service.system_service import get_cpu, get_disk, get_memory, get_processes, get_uptime
 

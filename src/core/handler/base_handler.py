@@ -5,6 +5,7 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Third-party imports
 from tornado.web import RequestHandler
 
 
@@ -25,6 +26,7 @@ def recycle(worker):
 
     if worker.handler:
         return
+
     workers.pop(worker.id, None)
     worker.close()
 
@@ -44,18 +46,17 @@ class BaseHandler(RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 
-
-    def post(self):
+    async def get(self):
         """
-        Base HTTP POST request handler.
+        Base HTTP GET request handler.
         """
 
         self.write("silence is golden.")
 
 
-    def get(self):
+    async def post(self):
         """
-        Base HTTP GET request handler.
+        Base HTTP POST request handler.
         """
 
         self.write("silence is golden.")
@@ -68,3 +69,9 @@ class BaseHandler(RequestHandler):
 
         self.set_status(204)
         self.finish()
+
+
+    def data_received(self, chunk: bytes) -> None:
+        """
+        For this base handler, we do not process streaming request body.
+        """

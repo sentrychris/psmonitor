@@ -87,7 +87,7 @@ def get_wifi_data_linux() -> dict:
 
     try:
         interface = get_wifi_interface()
-        proc = subprocess.Popen(
+        proc = subprocess.Popen( # pylint: disable=consider-using-with
             ["iwlist", interface, "scan"],
             stdout=subprocess.PIPE,
             universal_newlines=True
@@ -119,7 +119,11 @@ def get_wifi_interface() -> str:
         str: the name of the wi-fi interface.
     """
 
-    proc = subprocess.Popen(['iw', 'dev'], stdout=subprocess.PIPE, universal_newlines=True)
+    proc = subprocess.Popen( # pylint: disable=consider-using-with
+        ['iw', 'dev'],
+        stdout=subprocess.PIPE,
+        universal_newlines=True
+    )
     out, _ = proc.communicate()
 
     interface = 'wlan0'
@@ -139,8 +143,11 @@ def run_wifi_speedtest() -> dict:
         dict: A dictionary containing ping, download, and upload speeds.
     """
 
-    speedtest = subprocess.Popen('speedtest-cli --simple', shell=True,
-                                 stdout=subprocess.PIPE).stdout.read().decode('utf-8')
+    speedtest = subprocess.Popen( # pylint: disable=consider-using-with
+        'speedtest-cli --simple',
+        shell=True,
+        stdout=subprocess.PIPE
+    ).stdout.read().decode('utf-8')
 
     ping = re.findall(r'Ping:\s(.*?)\s', speedtest, re.MULTILINE)
     download = re.findall(r'Download:\s(.*?)\s', speedtest, re.MULTILINE)
@@ -275,7 +282,7 @@ def matching_line(lines: list, keyword: str) -> str:
     return None
 
 
-def match(line: str, keyword: str) -> str:
+def match(line: str, keyword: str) -> Optional[str]:
     """
     Checks if a line starts with a given keyword.
 
@@ -291,8 +298,8 @@ def match(line: str, keyword: str) -> str:
     length = len(keyword)
     if line[:length] == keyword:
         return line[length:]
-    else:
-        return
+
+    return None
 
 
 def parse_cell(cell: list) -> dict:

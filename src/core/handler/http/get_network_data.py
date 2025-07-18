@@ -5,6 +5,7 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Local application imports
 from core.service.network_service import get_avg_in_out, get_interfaces, get_statistics
 from core.service.wifi_service import get_wifi_data
 

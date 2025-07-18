@@ -5,19 +5,25 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library
 import weakref
+
+# Third-party imports
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
+
+# Local application imports
 from core.handler.base_handler import workers
 from core.handler.websocket.get_system_data import get_system_data
 from core.handler.websocket.get_network_data import get_network_data
 
+# Constants
+MAX_CONNECTIONS = 20
 
 active_connections = set()
-max_connections = 20
 
 
 class WebsocketHandler(WebSocketHandler):
@@ -70,17 +76,17 @@ class WebsocketHandler(WebSocketHandler):
         return True
 
 
-    def open(self):
+    def open(self, *args, **kwargs):
         """
         Handles the opening of a WebSocket connection. Retrieves the worker based on the 'id'
         argument, sets the worker for this handler, and starts the monitoring coroutine.
         """
 
-        if len(active_connections) >= max_connections:
+        if len(active_connections) >= MAX_CONNECTIONS:
             self.write_message('Server is at full capacity. Please try again later.')
             self.close()
             return
-        
+
         active_connections.add(self)
 
         # Check worker ID exists in registry, if so then remove from shared pool
@@ -139,6 +145,12 @@ class WebsocketHandler(WebSocketHandler):
             self.close()
 
 
+    def data_received(self, chunk: bytes) -> None:
+        """
+        For this base handler, we do not process streaming request body.
+        """
+
+
     def on_message(self, message: str):
         """
         Handles incoming messages from the WebSocket client.
@@ -149,7 +161,7 @@ class WebsocketHandler(WebSocketHandler):
         Sends a confirmation message back to the client.
         """
 
-        self.write_message('message received %s' % message)
+        self.write_message(f'message received {message}')
 
 
     def on_close(self):
