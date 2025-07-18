@@ -43,21 +43,21 @@ class PSMonitorApp(Tk):
 
         self.graph_handler = PSMonitorGraphHandler(self)
 
-        self.cpu_temp_graph = self.graph_handler.graph_factory(
+        self.cpu_temp_graph = self.graph_handler.create_graph(
             key="cpu",
             metric="temp",
             y_label="CPU Temp. (C°)",
             title="CPU Temperature Graph"
         )
 
-        self.cpu_usage_graph = self.graph_handler.graph_factory(
+        self.cpu_usage_graph = self.graph_handler.create_graph(
             key="cpu",
             metric="usage",
             y_label="CPU Usage (%)",
             title="CPU Usage Graph"
         )
 
-        self.mem_usage_graph = self.graph_handler.graph_factory(
+        self.mem_usage_graph = self.graph_handler.create_graph(
             key="mem",
             metric="percent",
             y_label="Mem. Usage (%)",

@@ -212,7 +212,7 @@ class PSMonitorGraphHandler():
         self._manager = manager
 
     
-    def graph_factory(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
+    def create_graph(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
         """
         Creates a new graph instance.
         """
