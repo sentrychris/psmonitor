@@ -4,6 +4,7 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
 import logging
 import os
 import subprocess
@@ -37,11 +38,13 @@ class PSMonitorAppLogger:
         self._handler.setFormatter(formatter)
 
         # Prevent duplicate handlers if __init__ is called multiple times
-        if not any(isinstance(h, logging.FileHandler) and h.baseFilename == self._handler.baseFilename
-                for h in self._logger.handlers):
+        if not any(
+            isinstance(h, logging.FileHandler) and h.baseFilename == self._handler.baseFilename
+            for h in self._logger.handlers
+        ):
             self._logger.addHandler(self._handler)
 
-    
+
     def set_level(self, level: str) -> None:
         """
         Set the logging level.
@@ -58,7 +61,7 @@ class PSMonitorAppLogger:
         if log_level is not None:
             self._logger.setLevel(log_level)
             self._handler.setLevel(log_level)
-            self._logger.info(f"Log level is set to {level.upper()}")
+            self._logger.info("Log level is set to %s", level.upper())
 
 
     def is_enabled(self) -> bool:
@@ -91,7 +94,7 @@ class PSMonitorAppLogger:
         """
         if not self._enabled:
             return
-        
+
         self._logger.warning(message)
 
 
@@ -104,7 +107,7 @@ class PSMonitorAppLogger:
 
         self._logger.error(message)
 
-    
+
     def debug(self, message: str) -> None:
         """
         Write an debug message to the log if logging is enabled.
@@ -121,7 +124,7 @@ class PSMonitorAppLogger:
         """
 
         if not os.path.exists(self._fullpath):
-            self._logger.warning(f"Log file not found at {self._fullpath}.")
+            self._logger.warning("Log file not found at %s.", self._fullpath)
             return
 
         try:
@@ -130,8 +133,10 @@ class PSMonitorAppLogger:
             elif sys.platform == 'Linux':
                 # Use xdg-open to open with the default text editor
                 subprocess.Popen(['xdg-open', self._fullpath])
+        # pylint: disable=broad-except
         except Exception as e:
-            self._logger.error(f"Failed to open log file: {e}")
+            self._logger.error("Failed to open log file: %s", e)
+        # pylint: enable=broad-except
 
 
     def clear_log(self) -> None:
@@ -140,8 +145,8 @@ class PSMonitorAppLogger:
         """
         try:
             # Truncate the log file to zero length, effectively clearing it
-            with open(self._fullpath, 'w'):
+            with open(self._fullpath, 'w', encoding="utf-8"):
                 pass
             self._logger.info("Log file cleared by user.")
-        except Exception as e:
-            self._logger.error(f"Failed to clear log file: {e}")
+        except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
+            self._logger.error("Failed to open log file: %s", e)

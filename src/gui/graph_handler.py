@@ -4,18 +4,21 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
+import tkinter as tk
+from tkinter import ttk
+from typing import Callable, TYPE_CHECKING
+
+# Third party imports
+import numpy as np
 import matplotlib
 matplotlib.use("TkAgg")
-
-import numpy as np
-import tkinter as tk
-import tkinter.ttk as ttk
-
+# pylint: disable=wrong-import-position
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# pylint: enable=wrong-import-position
 
 # Typing (type hints only, no runtime dependency)
-from typing import Callable, TYPE_CHECKING
 if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
 
@@ -25,6 +28,8 @@ class PSMonitorGraph:
     Data graph.
     """
 
+    # pylint: disable=too-many-instance-attributes,too-many-positional-arguments,too-many-arguments
+    # the number of attributes and arguments are reasonable in this case.
     def __init__(
             self,
             data_key: str,
@@ -46,9 +51,16 @@ class PSMonitorGraph:
         self._data_metric = data_metric
         self._y_label = y_label
 
+        self._window = None
         self._window_title = window_title
-        self._handler = handler
 
+        self._g_fig = None    # matplotlib figure
+        self._g_ax = None     # matplotlib graph
+        self._g_canvas = None # matplotlib axis
+        self._g_line = None   # matplotlib line
+
+
+        self._handler = handler
         self._get_latest_data = data_callback
 
 
@@ -57,7 +69,7 @@ class PSMonitorGraph:
         Open graph window.
         """
 
-        if hasattr(self, '_window') and self._window.winfo_exists():
+        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
                 # Re-register the graph if needed
@@ -66,7 +78,7 @@ class PSMonitorGraph:
             self._window.lift()
             return
 
-        self._window = tk.Toplevel(self._handler._manager)
+        self._window = tk.Toplevel(self._handler.manager)
         self._window.title(self._window_title)
         self._window.geometry("600x200")
         self._window.resizable(False, False)
@@ -91,7 +103,7 @@ class PSMonitorGraph:
 
         for spine in self._g_ax.spines.values():
             spine.set_alpha(0.3)
-    
+
         self._g_line, = self._g_ax.plot([], [], 'r-')
 
         # Create canvas in border frame
@@ -116,7 +128,7 @@ class PSMonitorGraph:
 
         self._sample_data()
         self._update_plot()
-    
+
 
     def is_active(self):
         """
@@ -219,9 +231,9 @@ class PSMonitorGraphHandler():
         """
 
         self.active_graphs: list[PSMonitorGraph] = []
-        self._manager = manager
+        self.manager = manager
 
-    
+
     def create_graph(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
         """
         Creates a new graph instance.
@@ -230,13 +242,13 @@ class PSMonitorGraphHandler():
         return PSMonitorGraph(
             data_key=key,
             data_metric=metric,
-            data_callback=lambda: self._manager.data,
+            data_callback=lambda: self.manager.data,
             y_label=y_label,
             window_title=title,
             handler=self
         )
 
-    
+
     def register_graph(self, graph: PSMonitorGraph) -> None:
         """
         Register a new graph instance.
