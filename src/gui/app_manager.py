@@ -19,6 +19,7 @@ from .graph_handler import PSMonitorGraph
 BASE_DIR = os.path.dirname(__file__)
 UPDATE_INTERVAL = 1000
 
+
 class PSMonitorApp(Tk):
     """
     GUI application for system monitoring.
@@ -483,16 +484,16 @@ class PSMonitorApp(Tk):
 
 
     def refresh_data(self, new_data: dict) -> None:
-            """
-            Updates the data in the application.
+        """
+        Updates the data in the application.
 
-            Args:
-                new_data (dict): The new data to update.
-            """
+        Args:
+            new_data (dict): The new data to update.
+        """
 
-            self.data['cpu'] = new_data.get('cpu', self.data['cpu'])
-            self.data['mem'] = new_data.get('mem', self.data['mem'])
-            self.data['disk'] = new_data.get('disk', self.data['disk'])
-            self.data['user'] = new_data.get('user', self.data['user'])
-            self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
-            self.data['processes'] = new_data.get('processes', self.data['processes'])
+        self.data['cpu'] = new_data.get('cpu', self.data['cpu'])
+        self.data['mem'] = new_data.get('mem', self.data['mem'])
+        self.data['disk'] = new_data.get('disk', self.data['disk'])
+        self.data['user'] = new_data.get('user', self.data['user'])
+        self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
+        self.data['processes'] = new_data.get('processes', self.data['processes'])
