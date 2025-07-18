@@ -35,13 +35,13 @@ class PSMonitorApp(tk.Tk):
 
         super().__init__()
 
+        # Must be initiialized before others and in the following order
         self.data = data
-
         self.logger = logger
+        self.settings = PSMonitorSettings(self)
+        # End initialization
 
         self.client = PSMonitorAppClient(self)
-
-        self.settings = PSMonitorSettings(self)
 
         self.graph_handler = PSMonitorGraphHandler(self)
 

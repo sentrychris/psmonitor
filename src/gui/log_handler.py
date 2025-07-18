@@ -14,15 +14,45 @@ class PSMonitorAppLogger:
         Initialize the log handler.
         """
         self._enabled = True
-        self._logger = logging.getLogger(__name__)
-        self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
+        self._logger = logging.getLogger("PSMonitor")
+        self._logger.setLevel(logging.INFO)  # Default level
 
-        if not os.path.isdir(self._filepath):
-            os.mkdir(self._filepath)
-        
+        self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
+        os.makedirs(self._filepath, exist_ok=True)
         self._fullpath = os.path.join(self._filepath, filename)
 
-        logging.basicConfig(filename=self._fullpath, level=logging.INFO)
+        self._handler = logging.FileHandler(self._fullpath)
+        self._handler.setLevel(logging.INFO)
+
+        formatter = logging.Formatter(
+            '[%(asctime)s] - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        self._handler.setFormatter(formatter)
+
+        # Prevent duplicate handlers if __init__ is called multiple times
+        if not any(isinstance(h, logging.FileHandler) and h.baseFilename == self._handler.baseFilename
+                for h in self._logger.handlers):
+            self._logger.addHandler(self._handler)
+
+    
+    def set_level(self, level: str) -> None:
+        """
+        Set the logging level.
+        Accepts: "DEBUG", "INFO", "WARNING", "ERROR"
+        """
+        level_map = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "ERROR": logging.ERROR
+        }
+
+        log_level = level_map.get(level.upper())
+        if log_level is not None:
+            self._logger.setLevel(log_level)
+            self._handler.setLevel(log_level)
+            self._logger.info(f"Log level is set to {level.upper()}")
 
 
     def is_enabled(self) -> bool:

@@ -37,7 +37,7 @@ def start_server(port: int = 4500) -> None:
     }))
     http.listen(port, address='localhost')
 
-    logger.info((f"Tornado server thread started: {threading.current_thread().name} (ID: {threading.get_ident()})"))
+    logger.debug((f"Tornado server thread started: {threading.current_thread().name} (ID: {threading.get_ident()})"))
     logger.info("server is listening on http://localhost:4500")
 
     IOLoop.current().start()

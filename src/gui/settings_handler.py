@@ -14,7 +14,7 @@ class PSMonitorSettings:
     Settings handler.
     """
 
-    LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
 
     def __init__(self, manager: 'PSMonitorApp' = None) -> None:
         """
@@ -27,11 +27,17 @@ class PSMonitorSettings:
         self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor')
         self._fullpath = os.path.join(self._filepath, "settings.json")
 
-        # settnings
+        # Default settings
         self.logging_enabled = tk.BooleanVar(value=True)
         self.log_level = tk.StringVar(value="INFO")
         self.port_number = tk.IntVar(value=4500)
         self.max_connections = tk.IntVar(value=10)
+
+        # Load saved settings
+        self._load_settings_from_file()
+
+        self._manager.logger.set_enabled(self.logging_enabled.get())
+        self._manager.logger.set_level(self.log_level.get())
 
 
     def open_window(self) -> None:
@@ -107,16 +113,17 @@ class PSMonitorSettings:
 
         # Port
         ttk.Label(server_frame, text="Port Number:").pack(anchor="w")
-        ttk.Entry(server_frame, textvariable=self.port_number).pack(anchor="w", fill="x", pady=(0, 5))
+        ttk.Entry(server_frame, textvariable=self.port_number, state="disabled").pack(anchor="w", fill="x", pady=(0, 5))
 
         # Max connections
         ttk.Label(server_frame, text="Max Connections:").pack(anchor="w")
-        ttk.Entry(server_frame, textvariable=self.max_connections).pack(anchor="w", fill="x", pady=(0, 5))
+        ttk.Entry(server_frame, textvariable=self.max_connections, state="disabled").pack(anchor="w", fill="x", pady=(0, 5))
 
         ttk.Button(
             server_frame,
             text="Save & Restart Server",
-            command=lambda: 1
+            command=lambda: 1,
+            state="disabled"
         ).pack(anchor="e", pady=(10, 0))
 
 
@@ -126,7 +133,7 @@ class PSMonitorSettings:
 
         ttk.Button(
             buttons_frame,
-            text="Apply",
+            text="Save & Apply",
             command=self._on_apply
         ).pack(side="left", padx=10)
 
@@ -154,6 +161,7 @@ class PSMonitorSettings:
     def _on_apply(self):
         success = self._save_settings_to_file()
         if success:
+            self.set_logging_settings()
             self._show_settings_status("✔ Settings applied", "green", 2000)
         else:
             self._show_settings_status("✖ Failed to apply settings", "red", 2000)
@@ -205,6 +213,37 @@ class PSMonitorSettings:
             self._tooltip.withdraw()
 
 
+    def set_logging_settings(self) -> None:
+        """
+        Set the logging settings.
+        """
+        if self._manager:
+            self._manager.logger.set_enabled(self.logging_enabled.get())
+            self._manager.logger.set_level(self.log_level.get())
+
+
+    def _load_settings_from_file(self) -> None:
+        """
+        Load settings from file if it exists.
+        """
+        if not os.path.exists(self._fullpath):
+            self._manager.logger.error(f"Settings file does not exist at: {self._fullpath}")
+            return 
+
+        try:
+            with open(self._fullpath, "r") as f:
+                data = json.load(f)
+
+            self.logging_enabled.set(data.get("logging_enabled", True))
+            self.log_level.set(data.get("log_level", "INFO"))
+            self.port_number.set(data.get("port_number", 4500))
+            self.max_connections.set(data.get("max_connections", 10))
+
+        except Exception:
+            self._manager.logger.error(f"Failed to load settings from: {self._fullpath}")
+            pass
+
+
     def _save_settings_to_file(self) -> bool:
         """
         Serialize current settings to a file.
@@ -223,6 +262,21 @@ class PSMonitorSettings:
             return True
         except Exception as e:
             return False
+
+
+    def _log_current_settings(self) -> None:
+        """
+        Logs the current settings as a JSON object.
+        """
+        settings = {
+            "logging_enabled": self.logging_enabled.get(),
+            "log_level": self.log_level.get(),
+            "port_number": self.port_number.get(),
+            "max_connections": self.max_connections.get()
+        }
+
+        if self._manager and hasattr(self._manager, 'logger'):
+            self._manager.logger.info("Current settings: " + json.dumps(settings, indent=4))
 
 
     def close_window(self) -> None:

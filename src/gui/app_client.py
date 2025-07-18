@@ -85,7 +85,7 @@ class PSMonitorAppClient():
 
         # small helper to allow us to log inside the ws client thread
         def run_ws_forever():
-            self._manager.logger.info(f"Websocket client thread started: {threading.current_thread().name} (ID: {threading.get_ident()})")
+            self._manager.logger.debug(f"Websocket client thread started: {threading.current_thread().name} (ID: {threading.get_ident()})")
             self._ws.run_forever()
 
         # Run the websocket client in the another thread so it doesn't block the GUI's mainloop().
