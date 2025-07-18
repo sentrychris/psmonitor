@@ -4,14 +4,16 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
 import os
 import sys
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter import ttk
 import webbrowser
-
-from PIL import Image, ImageTk
 from typing import TYPE_CHECKING
+
+# Third-party imports
+from PIL import Image, ImageTk
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -71,6 +73,7 @@ class PSMonitorApp(tk.Tk):
             title="Memory Usage Graph"
         )
 
+        self.processes_tree = None
         self.max_process_rows = 10
         self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
 
@@ -93,7 +96,7 @@ class PSMonitorApp(tk.Tk):
         self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
         self.create_gui_sections(data)
-        
+
         self.client.setup_connection()
 
         self.protocol("WM_DELETE_WINDOW", self.client.on_closing)
@@ -108,7 +111,7 @@ class PSMonitorApp(tk.Tk):
         """
 
         icon = Image.open(icon_path)
-        icon = icon.resize((32, 32), Image.LANCZOS)
+        icon = icon.resize((32, 32))
         icon_photo = ImageTk.PhotoImage(icon)
         self.iconphoto(True, icon_photo)
 
@@ -135,12 +138,21 @@ class PSMonitorApp(tk.Tk):
         graphs_menu = tk.Menu(menu_bar, tearoff=0)
         graphs_cpu_submenu = tk.Menu(graphs_menu, tearoff=0)
         graphs_mem_submenu = tk.Menu(graphs_menu, tearoff=0)
-    
-        graphs_cpu_submenu.add_command(label="Temperature Graph", command=self.cpu_temp_graph.open_window)
-        graphs_cpu_submenu.add_command(label="Usage Graph", command=self.cpu_usage_graph.open_window)
+
+        graphs_cpu_submenu.add_command(
+            label="Temperature Graph",
+            command=self.cpu_temp_graph.open_window
+        )
+        graphs_cpu_submenu.add_command(
+            label="Usage Graph",
+            command=self.cpu_usage_graph.open_window
+        )
         graphs_menu.add_cascade(label="CPU", menu=graphs_cpu_submenu)
 
-        graphs_mem_submenu.add_command(label="Usage Graph", command=self.mem_usage_graph.open_window)
+        graphs_mem_submenu.add_command(
+            label="Usage Graph",
+            command=self.mem_usage_graph.open_window
+        )
         graphs_menu.add_cascade(label="Memory", menu=graphs_mem_submenu)
 
         menu_bar.add_cascade(label="File", menu=file_menu)
@@ -164,36 +176,61 @@ class PSMonitorApp(tk.Tk):
 
         sections = [
             ("platform", 0, 0, {
-                "distro": lambda f: self.create_label_with_icon(f, "", data["platform"]["distro"]),
-                "kernel": lambda f: self.create_label(f, "Kernel:", data["platform"]["kernel"]),
-                "uptime": lambda f: self.create_label(f, "Up:", data["platform"]["uptime"]),
+                "distro": lambda f: self.create_label_with_icon(f, data["platform"]["distro"]),
+                "kernel": lambda f: self.create_label(
+                    f, "Kernel:", data["platform"]["kernel"]
+                ),
+                "uptime": lambda f: self.create_label(
+                    f, "Up:", data["platform"]["uptime"]
+                ),
             }),
             ("disk", 0, 1, {
-                "used": lambda f: self.create_label(f, "Used:", f"{data['disk']['used']} GB", "GB"),
-                "free": lambda f: self.create_label(f, "Free:", f"{data['disk']['free']} GB", "GB"),
-                "percent": lambda f: self.create_label(f, "Usage:", f"{data['disk']['percent']} %", "%"),
+                "used": lambda f: self.create_label(
+                    f, "Used:", f"{data['disk']['used']} GB", "GB"
+                ),
+                "free": lambda f: self.create_label(
+                    f, "Free:", f"{data['disk']['free']} GB", "GB"
+                ),
+                "percent": lambda f: self.create_label(
+                    f, "Usage:", f"{data['disk']['percent']} %", "%"
+                ),
             }),
             ("cpu", 1, 0, {
-                "temp": lambda f: self.create_label(f, "Temperature:", f"{data['cpu']['temp']} °C", "°C"),
-                "freq": lambda f: self.create_label(f, "Frequency:", f"{data['cpu']['freq']} MHz", "MHz"),
-                "usage": lambda f: self.create_label(f, "Usage:", f"{data['cpu']['usage']} %", "%"),
+                "temp": lambda f: self.create_label(
+                    f, "Temperature:", f"{data['cpu']['temp']} °C", "°C"
+                ),
+                "freq": lambda f: self.create_label(
+                    f, "Frequency:", f"{data['cpu']['freq']} MHz", "MHz"
+                ),
+                "usage": lambda f: self.create_label(
+                    f, "Usage:", f"{data['cpu']['usage']} %", "%"
+                ),
             }),
             ("mem", 1, 1, {
-                "used": lambda f: self.create_label(f, "Used:", f"{data['mem']['used']} GB", "GB"),
-                "free": lambda f: self.create_label(f, "Free:", f"{data['mem']['free']} GB", "GB"),
-                "percent": lambda f: self.create_label(f, "Usage:", f"{data['mem']['percent']} %", "%"),
+                "used": lambda f: self.create_label(
+                    f, "Used:", f"{data['mem']['used']} GB", "GB"
+                ),
+                "free": lambda f: self.create_label(
+                    f, "Free:", f"{data['mem']['free']} GB", "GB"
+                ),
+                "percent": lambda f: self.create_label(
+                    f, "Usage:", f"{data['mem']['percent']} %", "%"
+                ),
             }),
         ]
 
         for name, r, c, defs in sections:
-            section_frame = self.create_gui_section(main_frame, name.upper() if name == "cpu" else name.capitalize())
+            section_frame = self.create_gui_section(
+                parent=main_frame,
+                title=name.upper() if name == "cpu" else name.capitalize()
+            )
             section_frame.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
             setattr(self, f"{name}_frame", section_frame)
             setattr(self, f"{name}_labels", make_labels(section_frame, defs))
 
         self.processes_frame = self.create_gui_section(main_frame, "Top Processes")
         self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=(5, 0), sticky="nsew")
-        self.create_processes_table(self.processes_frame, data['processes'])
+        self.create_processes_table(self.processes_frame)
 
         for i in range(4):
             main_frame.rowconfigure(i, weight=1)
@@ -273,15 +310,32 @@ class PSMonitorApp(tk.Tk):
         about_window.geometry("400x400")
         about_window.resizable(False, False)
 
-        label_version = ttk.Label(about_window, text="psmonitor - A simple system monitor.", font=("Arial", 10, "bold"))
+        label_version = ttk.Label(
+            about_window,
+            text="psmonitor - A simple system monitor.",
+            font=("Arial", 10, "bold")
+        )
         label_version.pack(pady=3)
 
-        label_version = ttk.Label(about_window, text="Version 1.5.0.1001", font=("Arial", 8, "bold"))
+        label_version = ttk.Label(
+            about_window,
+            text="Version 1.5.0.1001",
+            font=("Arial", 8, "bold")
+        )
         label_version.pack(pady=1)
 
-        label_github = ttk.Label(about_window, text="View the source code on Github", font=("Arial", 8), foreground="blue", cursor="hand2")
+        label_github = ttk.Label(
+            about_window,
+            text="View the source code on Github",
+            font=("Arial", 8),
+            foreground="blue",
+            cursor="hand2"
+        )
         label_github.pack(pady=1)
-        label_github.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/sentrychris/psmonitor"))
+        label_github.bind(
+            sequence="<Button-1>",
+            func=lambda e: webbrowser.open_new("https://github.com/sentrychris/psmonitor")
+        )
 
         # White indented license frame - uses classic tk.Frame instead for bg
         license_frame = tk.Frame(about_window, bg="white", bd=2, relief="sunken")
@@ -307,7 +361,13 @@ class PSMonitorApp(tk.Tk):
             "SOFTWARE."
         )
 
-        text_widget = tk.Text(license_frame, bg="white", relief="flat", wrap="word", font=("Courier", 8))
+        text_widget = tk.Text(
+            license_frame,
+            bg="white",
+            relief="flat",
+            wrap="word",
+            font=("Courier", 8)
+        )
         text_widget.insert("1.0", license_text)
         text_widget.config(state="disabled")  # Make read-only
         text_widget.pack(fill="both", expand=True, padx=5, pady=5)
@@ -320,35 +380,36 @@ class PSMonitorApp(tk.Tk):
         webbrowser.open_new("http://127.0.0.1:4500")
 
 
-    def create_processes_table(self, frame: ttk.Frame, processes_data: list) -> None:
+    def create_processes_table(self, frame: ttk.Frame) -> None:
         """
         Adds a table to display process information.
 
         Args:
             frame (ttk.Frame): The parent frame.
-            processes_data (list): The list of processes data.
         """
 
         columns = ("pid", "name", "username", "mem")
-        self.tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
+        self.processes_tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
 
-        self.tree.heading("pid", text="PID", anchor='center')
-        self.tree.column("pid", anchor='center', width=60, minwidth=50)
-        self.tree.heading("name", text="Name", anchor='center')
-        self.tree.column("name", anchor='center', width=100, minwidth=80)
-        self.tree.heading("username", text="Username", anchor='center')
-        self.tree.column("username", anchor='center', width=120, minwidth=100)
-        self.tree.heading("mem", text="Memory (MB)", anchor='center')
-        self.tree.column("mem", anchor='center', width=80, minwidth=60)
+        self.processes_tree.heading("pid", text="PID", anchor='center')
+        self.processes_tree.column("pid", anchor='center', width=60, minwidth=50)
+        self.processes_tree.heading("name", text="Name", anchor='center')
+        self.processes_tree.column("name", anchor='center', width=100, minwidth=80)
+        self.processes_tree.heading("username", text="Username", anchor='center')
+        self.processes_tree.column("username", anchor='center', width=120, minwidth=100)
+        self.processes_tree.heading("mem", text="Memory (MB)", anchor='center')
+        self.processes_tree.column("mem", anchor='center', width=80, minwidth=60)
 
         # create empty fixed rows
         for i in range(self.max_process_rows):
             tag = "odd" if i % 2 == 0 else "even"
-            self.tree.insert("", "end", iid=f"proc{i}", values=("", "", "", ""), tags=(tag,))
+            self.processes_tree.insert("", "end",
+                                       iid=f"proc{i}",
+                                       values=("", "", "", ""), tags=(tag,))
 
-        self.tree.tag_configure("odd", background="lightgrey")
-        self.tree.tag_configure("even", background="white")
-        self.tree.pack(expand=True, fill="both", padx=10, pady=10)
+        self.processes_tree.tag_configure("odd", background="lightgrey")
+        self.processes_tree.tag_configure("even", background="white")
+        self.processes_tree.pack(expand=True, fill="both", padx=10, pady=10)
 
 
     def update_processes_table(self) -> None:
@@ -372,11 +433,17 @@ class PSMonitorApp(tk.Tk):
                 values = ("", "", "", "")
 
             if values != self.cached_processes[i]:
-                self.tree.item(f"proc{i}", values=values)
+                self.processes_tree.item(f"proc{i}", values=values)
                 self.cached_processes[i] = values
 
 
-    def create_label(self, frame: ttk.Frame, text: str, value: str, suffix: str = "") -> tuple[ttk.Label, str]:
+    def create_label(
+            self,
+            frame: ttk.Frame,
+            text: str,
+            value: str,
+            suffix: str = ""
+        ) -> tuple[ttk.Label, str]:
         """
         Adds a label to the specified frame.
 
@@ -398,13 +465,12 @@ class PSMonitorApp(tk.Tk):
         return label, suffix
 
 
-    def create_label_with_icon(self, frame: ttk.Frame, text: str, value: str) -> ttk.Label:
+    def create_label_with_icon(self, frame: ttk.Frame, value: str) -> ttk.Label:
         """
         Adds a label with an icon to the specified frame.
 
         Args:
             frame (ttk.Frame): The parent frame.
-            text (str): The label text.
             value (str): The value to be displayed.
         
         Returns:
@@ -425,7 +491,7 @@ class PSMonitorApp(tk.Tk):
         text_label.pack(side='left')
 
         return text_label
-    
+
 
     def load_image(self, path: str, width: int) -> ImageTk.PhotoImage:
         """
@@ -442,7 +508,7 @@ class PSMonitorApp(tk.Tk):
         if path in self.image_cache:
             return self.image_cache[path]
         image = Image.open(path)
-        image = image.resize((width, int(image.height * width / image.width)), Image.LANCZOS)
+        image = image.resize((width, int(image.height * width / image.width)))
         photo = ImageTk.PhotoImage(image)
         self.image_cache[path] = photo
 
