@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .app_manager import PSMonitorApp
 
+
 class PSMonitorSettings:
     """
     Settings handler.
