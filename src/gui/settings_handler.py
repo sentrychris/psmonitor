@@ -35,9 +35,7 @@ class PSMonitorSettings:
 
         # Load saved settings
         self._load_settings_from_file()
-
-        self._manager.logger.set_enabled(self.logging_enabled.get())
-        self._manager.logger.set_level(self.log_level.get())
+        self.set_logging_settings()
 
 
     def open_window(self) -> None:
@@ -63,6 +61,15 @@ class PSMonitorSettings:
         self._build_logging_section(main_frame)
         self._build_server_section(main_frame)
         self._build_buttons_section(main_frame)
+
+
+    def set_logging_settings(self) -> None:
+        """
+        Set the logging settings.
+        """
+        if self._manager:
+            self._manager.logger.set_enabled(self.logging_enabled.get())
+            self._manager.logger.set_level(self.log_level.get())
 
 
     def _build_logging_section(self, parent):
@@ -211,15 +218,6 @@ class PSMonitorSettings:
     def _hide_tooltip(self):
         if hasattr(self, '_tooltip'):
             self._tooltip.withdraw()
-
-
-    def set_logging_settings(self) -> None:
-        """
-        Set the logging settings.
-        """
-        if self._manager:
-            self._manager.logger.set_enabled(self.logging_enabled.get())
-            self._manager.logger.set_level(self.log_level.get())
 
 
     def _load_settings_from_file(self) -> None:
