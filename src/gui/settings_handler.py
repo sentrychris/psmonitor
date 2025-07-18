@@ -1,4 +1,6 @@
-from tkinter import BooleanVar, IntVar, StringVar, Toplevel
+import json
+import os
+import tkinter as tk
 import tkinter.ttk as ttk
 from typing import TYPE_CHECKING
 
@@ -21,11 +23,14 @@ class PSMonitorSettings:
         self._window_title = "View/Edit Settings"
         self._manager = manager
 
+        self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor')
+        self._fullpath = os.path.join(self._filepath, "settings.json")
+
         # settnings
-        self.logging_enabled = BooleanVar(value=True)
-        self.log_level = StringVar(value="INFO")
-        self.port_number = IntVar(value=4500)
-        self.max_connections = IntVar(value=10)
+        self.logging_enabled = tk.BooleanVar(value=True)
+        self.log_level = tk.StringVar(value="INFO")
+        self.port_number = tk.IntVar(value=4500)
+        self.max_connections = tk.IntVar(value=10)
 
 
     def open_window(self) -> None:
@@ -39,10 +44,10 @@ class PSMonitorSettings:
             self._window.lift()
             return
 
-        self._window = Toplevel(self._manager)
+        self._window = tk.Toplevel(self._manager)
         self._window.title(self._window_title)
         self._window.geometry("450x500")
-        self._window.resizable(False, False)
+        self._window.resizable(True, True)
         self._window.protocol("WM_DELETE_WINDOW", self.on_close)
 
         main_frame = ttk.Frame(self._window, padding=10)
@@ -79,16 +84,25 @@ class PSMonitorSettings:
         ).pack(anchor="w", fill="x", pady=5)
 
         # Buttons
-        buttons_frame = ttk.Frame(logging_frame)
-        buttons_frame.pack(fill="x", pady=5)
+        self._log_buttons_frame = ttk.Frame(logging_frame)
+        self._log_buttons_frame.pack(fill="x", pady=5)
 
-        ttk.Button(buttons_frame, text="Clear Log", command=self._manager.logger.clear_log).pack(side="left", padx=(0, 5))
-        ttk.Button(buttons_frame, text="Open Log", command=self._manager.logger.open_log).pack(side="left")
+        ttk.Button(self._log_buttons_frame, text="Clear Log", command=self._on_clear_log).pack(side="left", padx=(0, 5))
+        ttk.Button(self._log_buttons_frame, text="Open Log", command=self._manager.logger.open_log).pack(side="left")
+
+        self._log_status_label = ttk.Label(self._log_buttons_frame, text="", foreground="green")
+        self._log_status_label.pack(side="left", padx=(10, 0))
 
 
     def _build_server_section(self, parent):
         server_frame = ttk.LabelFrame(parent, text="Server", padding=10)
         server_frame.pack(fill="x", pady=10)
+
+        # Description label
+        ttk.Label(
+            server_frame,
+            text="Configure the embedded server for remote monitoring."
+        ).pack(anchor="w", pady=(0, 10))
 
         # Port
         ttk.Label(server_frame, text="Port Number:").pack(anchor="w")
@@ -112,22 +126,69 @@ class PSMonitorSettings:
         ttk.Button(
             buttons_frame,
             text="Apply",
-            command=lambda: 1
+            command=self._on_apply
         ).pack(side="left", padx=10)
+
+        # Status label between buttons
+        self._settings_status_label = ttk.Label(buttons_frame, text="", foreground="green")
+        self._settings_status_label.pack(side="left", expand=True)
+
+        cancel_btn = ttk.Button(
+            buttons_frame,
+            text="Cancel",
+            command=self.on_close
+        )
+        cancel_btn.pack(side="right", padx=10)
 
         save_btn = ttk.Button(
             buttons_frame,
             text="Save",
-            command=lambda: 1
+            command=self._on_save
         )
         save_btn.pack(side="right", padx=10)
         save_btn.bind("<Enter>", lambda e: self._show_tooltip("Settings will take effect next time you launch the app"))
         save_btn.bind("<Leave>", lambda e: self._hide_tooltip())
 
-    
+
+    def _on_apply(self):
+        success = self._save_settings_to_file()
+        if success:
+            self._show_settings_status("✔ Settings applied", "green", 2000)
+        else:
+            self._show_settings_status("✖ Failed to apply settings", "red", 2000)
+
+
+    def _on_save(self):
+        success = self._save_settings_to_file()
+        if success:
+            self._show_settings_status("✔ Settings saved", "green", 2000)
+        else:
+            self._show_settings_status("✖ Failed to save settings", "red", 2000)
+
+
+    def _show_settings_status(self, text: str, color: str, duration: int = 2000):
+        if hasattr(self, '_settings_status_label'):
+            self._settings_status_label.config(text=text, foreground=color)
+            self._window.after(duration, lambda: self._settings_status_label.config(text=""))
+
+
+    def _on_clear_log(self):
+        try:
+            self._manager.logger.clear_log()
+            self._show_log_status("✔ Log cleared successfully", "green", duration=2000)
+        except:
+            self._show_log_status("✖ Failed to clear log", "red", duration=2000)
+
+
+    def _show_log_status(self, text: str, color: str, duration: int = 2000):
+        if hasattr(self, '_log_status_label'):
+            self._log_status_label.config(text=text, foreground=color)
+            self._window.after(duration, lambda: self._log_status_label.config(text=""))
+
+
     def _show_tooltip(self, text):
         if not hasattr(self, '_tooltip'):
-            self._tooltip = Toplevel(self._window)
+            self._tooltip = tk.Toplevel(self._window)
             self._tooltip.wm_overrideredirect(True)
             self._tooltip.attributes("-topmost", True)
             label = ttk.Label(self._tooltip, text=text, background="lightyellow", borderwidth=1, relief="solid", padding=5)
@@ -141,6 +202,26 @@ class PSMonitorSettings:
     def _hide_tooltip(self):
         if hasattr(self, '_tooltip'):
             self._tooltip.withdraw()
+
+
+    def _save_settings_to_file(self) -> bool:
+        """
+        Serialize current settings to a file.
+        """
+
+        settings = { # keep flat for now
+            "logging_enabled": self.logging_enabled.get(),
+            "log_level": self.log_level.get(),
+            "port_number": self.port_number.get(),
+            "max_connections": self.max_connections.get()
+        }
+
+        try:
+            with open(self._fullpath, "w") as f:
+                json.dump(settings, f, indent=4)
+            return True
+        except Exception as e:
+            return False
 
 
     def close_window(self) -> None:

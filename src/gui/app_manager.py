@@ -1,11 +1,11 @@
 
-import os.path
+import os
 import sys
+import tkinter as tk
+import tkinter.ttk as ttk
 import webbrowser
 
 from PIL import Image, ImageTk
-from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
-from tkinter.ttk import Treeview
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(__file__)
 UPDATE_INTERVAL = 1000
 
 
-class PSMonitorApp(Tk):
+class PSMonitorApp(tk.Tk):
     """
     GUI application for system monitoring.
     """
@@ -111,13 +111,13 @@ class PSMonitorApp(Tk):
         Creates the menu bar.
         """
 
-        menu_bar = Menu(self)
+        menu_bar = tk.Menu(self)
         self.config(menu=menu_bar)
 
-        help_menu = Menu(menu_bar, tearoff=0)
+        help_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu.add_command(label="About...", command=self.open_about_window)
 
-        file_menu = Menu(menu_bar, tearoff=0)
+        file_menu = tk.Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="Open web UI...", command=self.open_web_ui)
         file_menu.add_command(label="Open app log...", command=self.logger.open_log)
         file_menu.add_separator()
@@ -125,9 +125,9 @@ class PSMonitorApp(Tk):
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.client.on_closing)
 
-        graphs_menu = Menu(menu_bar, tearoff=0)
-        graphs_cpu_submenu = Menu(graphs_menu, tearoff=0)
-        graphs_mem_submenu = Menu(graphs_menu, tearoff=0)
+        graphs_menu = tk.Menu(menu_bar, tearoff=0)
+        graphs_cpu_submenu = tk.Menu(graphs_menu, tearoff=0)
+        graphs_mem_submenu = tk.Menu(graphs_menu, tearoff=0)
     
         graphs_cpu_submenu.add_command(label="Temperature Graph", command=self.cpu_temp_graph.open_window)
         graphs_cpu_submenu.add_command(label="Usage Graph", command=self.cpu_usage_graph.open_window)
@@ -149,7 +149,7 @@ class PSMonitorApp(Tk):
             data (dict): Initial data to populate the widgets.
         """
 
-        main_frame = Frame(self)
+        main_frame = ttk.Frame(self)
         main_frame.pack(expand=True, fill='both', padx=5, pady=5)
 
         def make_labels(frame, defs):
@@ -194,19 +194,19 @@ class PSMonitorApp(Tk):
             main_frame.columnconfigure(i, weight=1)
 
 
-    def create_gui_section(self, parent: Frame, title: str) -> LabelFrame:
+    def create_gui_section(self, parent: ttk.Frame, title: str) -> ttk.LabelFrame:
         """
         Creates a section frame within the parent frame.
 
         Args:
-            parent (Frame): The parent frame.
+            parent (ttk.Frame): The parent frame.
             title (str): The title of the section frame.
         
         Returns:
-            LabelFrame: The created section frame.
+            ttk.LabelFrame: The created section frame.
         """
 
-        section_frame = LabelFrame(parent, text=title)
+        section_frame = ttk.LabelFrame(parent, text=title)
         section_frame.grid(sticky="nsew", padx=5, pady=5)
 
         return section_frame
@@ -261,23 +261,23 @@ class PSMonitorApp(Tk):
         Displays the 'About' window.
         """
 
-        about_window = Toplevel(self)
+        about_window = tk.Toplevel(self)
         about_window.title("About psmonitor")
         about_window.geometry("400x400")
         about_window.resizable(False, False)
 
-        label_version = Label(about_window, text="psmonitor - A simple system monitor.", font=("Arial", 10, "bold"))
+        label_version = ttk.Label(about_window, text="psmonitor - A simple system monitor.", font=("Arial", 10, "bold"))
         label_version.pack(pady=3)
 
-        label_version = Label(about_window, text="Version 1.5.0.1001", font=("Arial", 8, "bold"))
+        label_version = ttk.Label(about_window, text="Version 1.5.0.1001", font=("Arial", 8, "bold"))
         label_version.pack(pady=1)
 
-        label_github = Label(about_window, text="View the source code on Github", font=("Arial", 8), foreground="blue", cursor="hand2")
+        label_github = ttk.Label(about_window, text="View the source code on Github", font=("Arial", 8), foreground="blue", cursor="hand2")
         label_github.pack(pady=1)
         label_github.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/sentrychris/psmonitor"))
 
-        # White indented license frame
-        license_frame = Frame(about_window, bg="white", bd=2, relief="sunken")
+        # White indented license frame - uses classic tk.Frame instead for bg
+        license_frame = tk.Frame(about_window, bg="white", bd=2, relief="sunken")
         license_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         license_text = (
@@ -300,7 +300,7 @@ class PSMonitorApp(Tk):
             "SOFTWARE."
         )
 
-        text_widget = Text(license_frame, bg="white", relief="flat", wrap="word", font=("Courier", 8))
+        text_widget = tk.Text(license_frame, bg="white", relief="flat", wrap="word", font=("Courier", 8))
         text_widget.insert("1.0", license_text)
         text_widget.config(state="disabled")  # Make read-only
         text_widget.pack(fill="both", expand=True, padx=5, pady=5)
@@ -313,17 +313,17 @@ class PSMonitorApp(Tk):
         webbrowser.open_new("http://127.0.0.1:4500")
 
 
-    def create_processes_table(self, frame: Frame, processes_data: list) -> None:
+    def create_processes_table(self, frame: ttk.Frame, processes_data: list) -> None:
         """
         Adds a table to display process information.
 
         Args:
-            frame (Frame): The parent frame.
+            frame (ttk.Frame): The parent frame.
             processes_data (list): The list of processes data.
         """
 
         columns = ("pid", "name", "username", "mem")
-        self.tree = Treeview(frame, columns=columns, show="headings", height=8)
+        self.tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
 
         self.tree.heading("pid", text="PID", anchor='center')
         self.tree.column("pid", anchor='center', width=60, minwidth=50)
@@ -369,12 +369,12 @@ class PSMonitorApp(Tk):
                 self.cached_processes[i] = values
 
 
-    def create_label(self, frame: Frame, text: str, value: str, suffix: str = "") -> tuple[Label, str]:
+    def create_label(self, frame: ttk.Frame, text: str, value: str, suffix: str = "") -> tuple[ttk.Label, str]:
         """
         Adds a label to the specified frame.
 
         Args:
-            frame (Frame): The parent frame.
+            frame (ttk.Frame): The parent frame.
             text (str): The label text.
             value (str): The value to be displayed.
             suffix (str, optional): The suffix for the label text.
@@ -384,37 +384,37 @@ class PSMonitorApp(Tk):
         """
 
         label_text = f"{text} {value} {suffix}".strip()
-        label = Label(frame, text=label_text)
+        label = ttk.Label(frame, text=label_text)
         label.grid(sticky='w', padx=5, pady=2)
         label.prefix = text
 
         return label, suffix
 
 
-    def create_label_with_icon(self, frame: Frame, text: str, value: str) -> Label:
+    def create_label_with_icon(self, frame: ttk.Frame, text: str, value: str) -> ttk.Label:
         """
         Adds a label with an icon to the specified frame.
 
         Args:
-            frame (Frame): The parent frame.
+            frame (ttk.Frame): The parent frame.
             text (str): The label text.
             value (str): The value to be displayed.
         
         Returns:
-            Label: The created label.
+            ttk.Label: The created label.
         """
 
-        container = Frame(frame)
+        container = ttk.Frame(frame)
         container.grid(sticky='w', padx=5, pady=2)
 
         platform_key = 'linux' if sys.platform == 'linux' else 'windows'
         icon = self.platform_icons[platform_key]
 
-        icon_label = Label(container, image=icon)
+        icon_label = ttk.Label(container, image=icon)
         icon_label.image = icon
         icon_label.pack(side='left')
 
-        text_label = Label(container, text=f"{value}")
+        text_label = ttk.Label(container, text=f"{value}")
         text_label.pack(side='left')
 
         return text_label

@@ -1,10 +1,12 @@
 import matplotlib
-import numpy as np
-
 matplotlib.use("TkAgg")
+
+import numpy as np
+import tkinter as tk
+import tkinter.ttk as ttk
+
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from tkinter import Frame, Toplevel
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -57,13 +59,13 @@ class PSMonitorGraph:
             self._window.lift()
             return
 
-        self._window = Toplevel(self._handler._manager)
+        self._window = tk.Toplevel(self._handler._manager)
         self._window.title(self._window_title)
         self._window.geometry("600x200")
         self._window.resizable(False, False)
 
         # Create border frame
-        border_frame = Frame(self._window, borderwidth=2, relief="sunken")
+        border_frame = ttk.Frame(self._window, borderwidth=2, relief="sunken")
         border_frame.pack(expand=True, fill='both', padx=3, pady=3)
 
         # Create matplotlib figure and axis

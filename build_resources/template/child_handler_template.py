@@ -1,5 +1,5 @@
+import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter import Frame, Toplevel
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ class PSMonitorChildHandlerTemplate:
             self._window.lift()
             return
 
-        self._window = Toplevel(self.manager)
+        self._window = tk.Toplevel(self.manager)
         self._window.title(self._window_title)
         self._window.geometry("450x500")
         self._window.resizable(False, False)

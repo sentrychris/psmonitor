@@ -190,7 +190,7 @@ A reusable template class is provided [here](./build_resources/template/child_ha
 #### Template Overview
 
 ```python
-from tkinter import Frame, Toplevel
+import tkinter as tk
 import tkinter.ttk as ttk
 from typing import TYPE_CHECKING
 
@@ -209,7 +209,7 @@ class PSMonitorChildHandlerTemplate:
             self._window.lift()
             return
 
-        self._window = Toplevel(self._manager)
+        self._window = tk.Toplevel(self._manager)
         self._window.title(self._window_title)
         self._window.geometry("450x500")
         self._window.resizable(False, False)

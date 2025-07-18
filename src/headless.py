@@ -1,5 +1,5 @@
 import uuid
-import os.path
+import os
 import signal
 
 from tornado.httpserver import HTTPServer
