@@ -9,6 +9,7 @@ from tornado.ioloop import IOLoop
 
 from core import create_app, signal_handler
 from gui.app_manager import PSMonitorApp
+from gui.log_handler import PSMonitorAppLogger
 
 
 # Constants
@@ -16,6 +17,8 @@ BASE_DIR = os.path.dirname(__file__)
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui', 'web')
 STATIC_PATH = os.path.join(BASE_DIR, 'gui', 'web')
 COOKIE_SECRET = uuid.uuid1().hex
+
+logger = PSMonitorAppLogger("app.log")
 
 
 def start_server(port: int = 4500) -> None:
@@ -32,7 +35,9 @@ def start_server(port: int = 4500) -> None:
     }))
     http.listen(port, address='localhost')
 
-    print("Listening on http://localhost:4500")
+    logger.info((f"Tornado server thread started: {threading.current_thread().name} (ID: {threading.get_ident()})"))
+    logger.info("server is listening on http://localhost:4500")
+
     IOLoop.current().start()
 
 
@@ -49,7 +54,7 @@ if __name__ == "__main__":
         exit(0)
     
     # Start the Tornado server in another thread so it doesn't block the GUI's mainloop().
-    tornado_thread = threading.Thread(target=start_server, daemon=True)
+    tornado_thread = threading.Thread(target=start_server, name="PSMonitorTornadoSrvThread", daemon=True)
     tornado_thread.start()
 
     init_data = {
@@ -62,5 +67,5 @@ if __name__ == "__main__":
         "processes": []
     }
     
-    app = PSMonitorApp(init_data)
+    app = PSMonitorApp(init_data, logger)
     app.mainloop()

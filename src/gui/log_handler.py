@@ -46,6 +46,16 @@ class PSMonitorAppLogger:
         self.logger.info(message)
 
 
+    def warning(self, message: str) -> None:
+        """
+        Write a warning message to the log if logging is enabled.
+        """
+        if not self._enabled:
+            return
+        
+        self.logger.warning(message)
+
+
     def error(self, message: str) -> None:
         """
         Write an error message to the log if logging is enabled.
@@ -54,6 +64,16 @@ class PSMonitorAppLogger:
             return
 
         self.logger.error(message)
+
+    
+    def debug(self, message: str) -> None:
+        """
+        Write an debug message to the log if logging is enabled.
+        """
+        if not self._enabled:
+            return
+
+        self.logger.debug(message)
 
 
     def open_log(self) -> None:

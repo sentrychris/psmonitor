@@ -83,8 +83,13 @@ class PSMonitorAppClient():
         )
         self.ws.on_open = self.on_open
 
+        # small helper to allow us to log inside the ws client thread
+        def run_ws_forever():
+            self.manager.logger.info(f"Websocket client thread started: {threading.current_thread().name} (ID: {threading.get_ident()})")
+            self.ws.run_forever()
+
         # Run the websocket client in the another thread so it doesn't block the GUI's mainloop().
-        self.ws_client_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
+        self.ws_client_thread = threading.Thread(target=run_ws_forever, name="PSMonitorWSClientThread", daemon=True)
         self.ws_client_thread.start()
 
 
@@ -97,9 +102,13 @@ class PSMonitorAppClient():
             message (str): The incoming message.
         """
 
-        try:
-            new_data = json.loads(message)
-            self.manager.refresh_data(new_data)
+        try:            
+            if not message.startswith("{"):
+                return
+
+            self.manager.refresh_data(json.loads(message))
+        except json.JSONDecodeError as e:
+            self.manager.logger.error(f"Invalid JSON from websocket: {message[:100]}... ({e})")
         except Exception as e:
             self.manager.logger.error(f"Error fetching websocket data: {e}")
 
@@ -113,7 +122,7 @@ class PSMonitorAppClient():
             error (Exception): The error encountered.
         """
 
-        print(f"WebSocket error: {error}")
+        self.manager.logger.error(f"Websocket error: {error}")
 
 
     def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str) -> None:
@@ -126,7 +135,7 @@ class PSMonitorAppClient():
             close_msg (str): The closure message.
         """
 
-        print("WebSocket closed")
+        self.manager.logger.info("websocket connection is now closed.")
 
 
     def on_open(self, ws: websocket.WebSocketApp) -> None:
@@ -137,7 +146,7 @@ class PSMonitorAppClient():
             ws (websocket.WebSocketApp): The websocket instance.
         """
 
-        print("WebSocket connection opened")
+        self.manager.logger.info("websocket connection is now open.")
 
 
     def on_closing(self) -> None:

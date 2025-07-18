@@ -6,10 +6,13 @@ import webbrowser
 from PIL import Image, ImageTk
 from tkinter import Tk, Frame, Label, LabelFrame, Menu, Text, Toplevel
 from tkinter.ttk import Treeview
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .log_handler import PSMonitorAppLogger
 
 from .app_client import PSMonitorAppClient
 from .graph_handler import PSMonitorGraph
-from .log_handler import PSMonitorAppLogger
 
 
 # Constants
@@ -21,14 +24,14 @@ class PSMonitorApp(Tk):
     GUI application for system monitoring.
     """
 
-    def __init__(self, data: dict) -> None:
+    def __init__(self, data: dict, logger: 'PSMonitorAppLogger' = None) -> None:
         """
         Initializes the app with initial data.
         """
 
         super().__init__()
 
-        self.logger = PSMonitorAppLogger("app.log")
+        self.logger = logger
 
         self.client = PSMonitorAppClient(self)
 
