@@ -8,6 +8,7 @@ License: MIT
 """
 
 # Standard library imports
+import os
 import signal
 
 # Third-party imports
@@ -29,7 +30,7 @@ if __name__ == '__main__':
 
     parse_command_line()
 
-    http = create_server()
+    http = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
     http.listen(port=options.port, address=options.address)
 
     print(f"Listening on http://{options.address}:{options.port}")

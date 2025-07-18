@@ -8,6 +8,7 @@ License: MIT
 """
 
 # Standard library imports
+import os
 import signal
 import sys
 import threading
@@ -30,7 +31,7 @@ def start_server(port: int = 4500) -> None:
     Starts the server and listens on port 4500.
     """
 
-    http = create_server()
+    http = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
     http.listen(port, address='localhost')
 
     logger.debug(

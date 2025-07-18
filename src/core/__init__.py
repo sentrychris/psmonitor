@@ -23,12 +23,6 @@ from core.handler.http.http_handler import HttpHandler, HttpSystemHandler, HttpN
 from core.handler.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
 
-# Constants
-BASE_DIR = os.path.dirname(__file__)
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui', 'web')
-STATIC_PATH = os.path.join(BASE_DIR, 'gui', 'web')
-COOKIE_SECRET = uuid.uuid1().hex
-
 
 def signal_handler(_sig, _frame):
     """
@@ -45,15 +39,15 @@ def signal_handler(_sig, _frame):
     sys.exit(0)
 
 
-def create_server():
+def create_server(server_path: str):
     """
     Create a server
     """
 
     return HTTPServer(create_app({
-        'template_path': TEMPLATE_PATH,
-        'static_path': STATIC_PATH,
-        'cookie_secret': COOKIE_SECRET,
+        'template_path': server_path,
+        'static_path': server_path,
+        'cookie_secret': uuid.uuid1().hex,
         'xsrf_cookies': False,
         'debug': True
     }))
