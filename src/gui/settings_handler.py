@@ -4,17 +4,20 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
 import json
 import os
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter import ttk
+from typing import TYPE_CHECKING
 
 # Typing (type hints only, no runtime dependency)
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
 
 
+# pylint: disable=too-many-instance-attributes
+# the number of attributes is reasonable in this case.
 class PSMonitorSettings:
     """
     Settings handler.

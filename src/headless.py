@@ -4,14 +4,17 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
 import uuid
 import os
 import signal
 
+# Third-party imports
 from tornado.httpserver import HTTPServer
 from tornado.options import define, options, parse_command_line
 from tornado.ioloop import IOLoop
 
+# Local application imports
 from core import create_app, signal_handler
 
 
@@ -28,10 +31,6 @@ define('port', default=4500, help='Listen port for the application', type=int)
 
 
 if __name__ == '__main__':
-    """
-    Main entry point for the application.
-    """
-
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
@@ -46,5 +45,5 @@ if __name__ == '__main__':
     }))
     http.listen(port=options.port, address=options.address)
 
-    print("Listening on http://{}:{}".format(options.address, options.port))
+    print(f"Listening on http://{options.address}:{options.port}")
     IOLoop.current().start()

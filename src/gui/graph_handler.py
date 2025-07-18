@@ -23,13 +23,13 @@ if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
 
 
+# pylint: disable=too-many-instance-attributes,too-many-positional-arguments,too-many-arguments
+# the number of attributes and arguments are reasonable in this case.
 class PSMonitorGraph:
     """
     Data graph.
     """
 
-    # pylint: disable=too-many-instance-attributes,too-many-positional-arguments,too-many-arguments
-    # the number of attributes and arguments are reasonable in this case.
     def __init__(
             self,
             data_key: str,

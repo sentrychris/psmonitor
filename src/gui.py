@@ -4,12 +4,14 @@ Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
 """
 
+# Standard library imports
 import os
 import signal
 import sys
 import threading
 import uuid
 
+# Third-party imports
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
@@ -43,26 +45,29 @@ def start_server(port: int = 4500) -> None:
     }))
     http.listen(port, address='localhost')
 
-    logger.debug((f"Tornado server thread started: {threading.current_thread().name} (ID: {threading.get_ident()})"))
+    logger.debug(
+        f"Tornado server thread started: {threading.current_thread().name} "
+        f"(ID: {threading.get_ident()})"
+    )
     logger.info("server is listening on http://localhost:4500")
 
     IOLoop.current().start()
 
 
 if __name__ == "__main__":
-    """
-    Main entry point for the application.
-    """
-
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
     if sys.platform == "darwin":
         print("MacOS is not supported.")
         exit(0)
-    
+
     # Start the Tornado server in another thread so it doesn't block the GUI's mainloop().
-    tornado_thread = threading.Thread(target=start_server, name="PSMonitorTornadoSrvThread", daemon=True)
+    tornado_thread = threading.Thread(
+        target=start_server,
+        name="PSMonitorTornadoSrvThread",
+        daemon=True
+    )
     tornado_thread.start()
 
     init_data = {
@@ -74,6 +79,6 @@ if __name__ == "__main__":
         "uptime": "",
         "processes": []
     }
-    
+
     app = PSMonitorApp(init_data, logger)
     app.mainloop()

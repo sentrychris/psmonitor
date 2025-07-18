@@ -20,16 +20,19 @@ if TYPE_CHECKING:
     from gui.log_handler import PSMonitorAppLogger
 
 # Local application imports
+# pylint: disable=wrong-import-position
 from gui.app_client import PSMonitorAppClient
 from gui.graph_handler import PSMonitorGraphHandler
 from gui.settings_handler import PSMonitorSettings
+# pylint: enable=wrong-import-position
 
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
 UPDATE_INTERVAL = 1000
 
-
+# pylint: disable=too-many-instance-attributes
+# the number of attributes is reasonable in this case.
 class PSMonitorApp(tk.Tk):
     """
     GUI application for system monitoring.
