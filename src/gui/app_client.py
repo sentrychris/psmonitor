@@ -78,9 +78,9 @@ class PSMonitorAppClient():
             f"{WS_URL}{worker_id}",
             on_message=self.on_message,
             on_error=self.on_error,
-            on_close=self.on_close
+            on_close=self.on_close,
+            on_open=self.on_open
         )
-        self.ws.on_open = self.on_open
 
         # small helper to allow us to log inside the ws client thread
         def run_ws_forever():
