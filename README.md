@@ -77,7 +77,7 @@ A single websocket endpoint is provided.
 
 ### Running the headless server as a managed process
 
-If you would like to run the [headless server](https://github.com/sentrychris/psmonitor/releases/download/v1.5.0.1001/psmonitor-headless.exe) as a managed process, you can use the systemd [service file](./package/server/linux/psmonitor.service) provided.
+If you would like to run the [headless server](https://github.com/sentrychris/psmonitor/releases/download/v1.5.0.1001/psmonitor-headless.exe) as a managed process, you can use the systemd [service file](./build_resources/headless/linux/psmonitor.service) provided.
 
 1. Copy the service file and make any necessary changes:
     ```sh
