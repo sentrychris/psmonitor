@@ -39,7 +39,7 @@ def signal_handler(_sig, _frame):
     sys.exit(0)
 
 
-def create_server(server_path: str):
+def create_server(server_path: str) -> HTTPServer:
     """
     Create a server
     """

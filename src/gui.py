@@ -9,6 +9,7 @@ License: MIT
 
 # Standard library imports
 import os
+import queue
 import signal
 import sys
 import threading
@@ -26,7 +27,7 @@ from gui.log_handler import PSMonitorAppLogger
 logger = PSMonitorAppLogger("app.log")
 
 
-def start_server(port: int = 4500) -> None:
+def start_server(port: int, server_queue: queue.Queue, thread_event: threading.Event) -> None:
     """
     Starts the server and listens on port 4500.
     """
@@ -34,12 +35,18 @@ def start_server(port: int = 4500) -> None:
     http = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
     http.listen(port, address='localhost')
 
-    logger.debug(
-        f"Tornado server thread started: {threading.current_thread().name} "
-        f"(ID: {threading.get_ident()})"
-    )
+    server_queue.put(http)  # to access from main thread
+
+    def on_start():
+        logger.debug(
+            f"Tornado server thread started: {threading.current_thread().name} "
+            f"(ID: {threading.get_ident()})"
+        )
+        thread_event.set()
+
     logger.info("server is listening on http://localhost:4500")
 
+    IOLoop.current().add_callback(on_start)
     IOLoop.current().start()
 
 
@@ -51,13 +58,22 @@ if __name__ == "__main__":
         print("MacOS is not supported.")
         sys.exit(0)
 
-    # Start the Tornado server in another thread so it doesn't block the GUI's mainloop().
+    tornado_queue = queue.Queue()
+    tornado_started = threading.Event()
+
+    # Start the Tornado server in another thread so its operations
+    # don't block the GUI's mainloop().
     tornado_thread = threading.Thread(
         target=start_server,
+        args=(4500, tornado_queue, tornado_started),
         name="PSMonitorTornadoSrvThread",
         daemon=True
     )
     tornado_thread.start()
+
+    # Wait until the server is available for thread-safe transfer.
+    tornado_server = tornado_queue.get()
+    tornado_started.wait()
 
     init_data = {
         "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
@@ -69,5 +85,5 @@ if __name__ == "__main__":
         "processes": []
     }
 
-    app = PSMonitorApp(init_data, logger)
+    app = PSMonitorApp(init_data, tornado_server, logger)
     app.mainloop()

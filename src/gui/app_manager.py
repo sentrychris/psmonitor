@@ -25,6 +25,7 @@ from gui.settings_handler import PSMonitorSettings
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
+    from tornado.httpserver import HTTPServer
     from gui.log_handler import PSMonitorAppLogger
 
 
@@ -39,12 +40,19 @@ class PSMonitorApp(tk.Tk):
     GUI application for system monitoring.
     """
 
-    def __init__(self, data: dict, logger: 'PSMonitorAppLogger' = None) -> None:
+    def __init__(
+            self,
+            data: dict,
+            server: 'HTTPServer' = None,
+            logger: 'PSMonitorAppLogger' = None,
+        ) -> None:
         """
         Initializes the app with initial data.
         """
 
         super().__init__()
+
+        self.server = server
 
         # Must be initiialized before others and in the following order
         self.data = data
@@ -101,7 +109,11 @@ class PSMonitorApp(tk.Tk):
         self.create_gui_menu()
         self.create_gui_sections(data)
 
-        self.client.setup_connection()
+        if self.client.check_server_reachable():
+            self.client.setup_connection()
+        else:
+            self.client.on_closing()
+            sys.exit(0)
 
         self.protocol("WM_DELETE_WINDOW", self.client.on_closing)
 

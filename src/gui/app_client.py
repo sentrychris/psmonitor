@@ -9,6 +9,7 @@ License: MIT
 
 # Standard library imports
 import json
+import socket
 import threading
 from typing import TYPE_CHECKING
 
@@ -115,6 +116,19 @@ class PSMonitorAppClient():
         Return the ID for the worker managing the session.
         """
         return self._worker_id
+
+
+    def check_server_reachable(self, host="127.0.0.1", port=4500, timeout=1):
+        """
+        Check the server is reachable.
+        """
+        try:
+            with socket.create_connection((host, port), timeout=timeout):
+                self._manager.logger.info("Tornado server is reachable.")
+                return True
+        except OSError as e:
+            self._manager.logger.error(f"Server not reachable: {e}")
+            return False
 
 
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
