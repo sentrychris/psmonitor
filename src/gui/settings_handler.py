@@ -27,7 +27,7 @@ class PSMonitorSettings:
         self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor')
         self._fullpath = os.path.join(self._filepath, "settings.json")
 
-        # Default settings
+        # Default settings - not needed as _load_settings_from_file, remove soon
         self.logging_enabled = tk.BooleanVar(value=True)
         self.log_level = tk.StringVar(value="INFO")
         self.port_number = tk.IntVar(value=4500)
