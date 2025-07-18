@@ -58,7 +58,7 @@ class PSMonitorApp(Tk):
             title="Memory Usage Graph"
         )
 
-        self.active_graphs = []
+        self.active_graphs: list[PSMonitorGraph] = []
 
         self.max_process_rows = 10
         self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
@@ -219,10 +219,10 @@ class PSMonitorApp(Tk):
         ]
 
         for name, r, c, defs in sections:
-            frame = self.create_gui_section(main_frame, name.upper() if name == "cpu" else name.capitalize())
-            frame.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
-            setattr(self, f"{name}_frame", frame)
-            setattr(self, f"{name}_labels", make_labels(frame, defs))
+            section_frame = self.create_gui_section(main_frame, name.upper() if name == "cpu" else name.capitalize())
+            section_frame.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
+            setattr(self, f"{name}_frame", section_frame)
+            setattr(self, f"{name}_labels", make_labels(section_frame, defs))
 
         self.processes_frame = self.create_gui_section(main_frame, "Top Processes")
         self.processes_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=(5, 0), sticky="nsew")
