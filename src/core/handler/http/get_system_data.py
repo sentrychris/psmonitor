@@ -1,5 +1,4 @@
-from ...service.system_service import get_cpu, get_disk, get_distro, get_kernel,\
-    get_memory, get_processes, get_uptime, get_user
+import core.service.system_service as psm
 
 
 def get_system_data() -> dict:
@@ -19,14 +18,14 @@ def get_system_data() -> dict:
     """
 
     return {
-        "cpu": get_cpu(),
-        "mem": get_memory(),
-        "disk": get_disk(),
-        "user": get_user(),
+        "cpu": psm.get_cpu(),
+        "mem": psm.get_memory(),
+        "disk": psm.get_disk(),
+        "user": psm.get_user(),
         "platform": {
-            'distro': get_distro(),
-            'kernel': get_kernel(),
-            "uptime": get_uptime()
+            'distro': psm.get_distro(),
+            'kernel': psm.get_kernel(),
+            "uptime": psm.get_uptime()
         },
-        "processes": get_processes()
+        "processes": psm.get_processes()
     }

@@ -1,5 +1,5 @@
-from ...service.network_service import get_avg_in_out, get_interfaces, get_statistics
-from ...service.wifi_service import get_wifi_data
+from core.service.network_service import get_avg_in_out, get_interfaces, get_statistics
+from core.service.wifi_service import get_wifi_data
 
 
 async def get_network_data(avg_in_out=False) -> dict:

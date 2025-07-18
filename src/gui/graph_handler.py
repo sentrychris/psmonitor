@@ -11,7 +11,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Typing (type hints only, no runtime dependency)
 from typing import Callable, TYPE_CHECKING
 if TYPE_CHECKING:
-    from .app_manager import PSMonitorApp
+    from gui.app_manager import PSMonitorApp
 
 
 class PSMonitorGraph:

@@ -10,12 +10,12 @@ from typing import TYPE_CHECKING
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
-    from .log_handler import PSMonitorAppLogger
+    from gui.log_handler import PSMonitorAppLogger
 
 # Local application imports
-from .app_client import PSMonitorAppClient
-from .graph_handler import PSMonitorGraphHandler
-from .settings_handler import PSMonitorSettings
+from gui.app_client import PSMonitorAppClient
+from gui.graph_handler import PSMonitorGraphHandler
+from gui.settings_handler import PSMonitorSettings
 
 
 # Constants

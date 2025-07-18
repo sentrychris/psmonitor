@@ -10,7 +10,7 @@ from tornado.ioloop import IOLoop
 # Typing (type hints only, no runtime dependency)
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from .app_manager import PSMonitorApp
+    from gui.app_manager import PSMonitorApp
 
 
 # Constants

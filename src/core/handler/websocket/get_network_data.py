@@ -1,6 +1,6 @@
 from tornado.ioloop import IOLoop
-from ...thread_pool import executor
-from ...service.network_service import get_avg_in_out, get_interfaces, get_statistics
+from core.thread_pool import executor
+from core.service.network_service import get_avg_in_out, get_interfaces, get_statistics
 
 
 async def get_network_data(avg_in_out=False) -> dict:

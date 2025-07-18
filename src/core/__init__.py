@@ -2,9 +2,10 @@ import sys
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 from typing import Union
-from .handler.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler
-from .handler.websocket.websocket_handler import WebsocketHandler
-from .thread_pool import executor
+
+from core.handler.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler
+from core.handler.websocket.websocket_handler import WebsocketHandler
+from core.thread_pool import executor
 
 
 def signal_handler(sig, frame):

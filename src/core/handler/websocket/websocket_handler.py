@@ -4,9 +4,9 @@ from tornado.iostream import StreamClosedError
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
-from ..base_handler import workers
-from .get_system_data import get_system_data
-from .get_network_data import get_network_data
+from core.handler.base_handler import workers
+from core.handler.websocket.get_system_data import get_system_data
+from core.handler.websocket.get_network_data import get_network_data
 
 
 active_connections = set()
