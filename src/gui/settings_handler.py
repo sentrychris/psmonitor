@@ -27,7 +27,14 @@ class PSMonitorSettings:
         Initializes the handler.
         """
 
+        self._window = None
         self._window_title = "View/Edit Settings"
+
+        self._log_buttons_frame = None
+        self._log_status_label = None
+        self._settings_status_label = None
+        self._tooltip = None
+
         self._manager = manager
 
         self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor')
@@ -49,7 +56,7 @@ class PSMonitorSettings:
         Open graph window.
         """
 
-        if hasattr(self, '_window') and self._window.winfo_exists():
+        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
             self._window.lift()
@@ -118,8 +125,17 @@ class PSMonitorSettings:
         self._log_buttons_frame = ttk.Frame(logging_frame)
         self._log_buttons_frame.pack(fill="x", pady=5)
 
-        ttk.Button(self._log_buttons_frame, text="Clear Log", command=self._on_clear_log).pack(side="left", padx=(0, 5))
-        ttk.Button(self._log_buttons_frame, text="Open Log", command=self._manager.logger.open_log).pack(side="left")
+        ttk.Button(
+            self._log_buttons_frame,
+            text="Clear Log",
+            command=self._on_clear_log
+        ).pack(side="left", padx=(0, 5))
+
+        ttk.Button(
+            self._log_buttons_frame,
+            text="Open Log",
+            command=self._manager.logger.open_log
+        ).pack(side="left")
 
         self._log_status_label = ttk.Label(self._log_buttons_frame, text="", foreground="green")
         self._log_status_label.pack(side="left", padx=(10, 0))
@@ -137,11 +153,19 @@ class PSMonitorSettings:
 
         # Port
         ttk.Label(server_frame, text="Port Number:").pack(anchor="w")
-        ttk.Entry(server_frame, textvariable=self.port_number, state="disabled").pack(anchor="w", fill="x", pady=(0, 5))
+        ttk.Entry(
+            server_frame,
+            textvariable=self.port_number,
+            state="disabled"
+        ).pack(anchor="w", fill="x", pady=(0, 5))
 
         # Max connections
         ttk.Label(server_frame, text="Max Connections:").pack(anchor="w")
-        ttk.Entry(server_frame, textvariable=self.max_connections, state="disabled").pack(anchor="w", fill="x", pady=(0, 5))
+        ttk.Entry(
+            server_frame,
+            textvariable=self.max_connections,
+            state="disabled"
+        ).pack(anchor="w", fill="x", pady=(0, 5))
 
         ttk.Button(
             server_frame,
@@ -178,8 +202,14 @@ class PSMonitorSettings:
             command=self._on_save
         )
         save_btn.pack(side="right", padx=10)
-        save_btn.bind("<Enter>", lambda e: self._show_tooltip("Settings will take effect next time you launch the app"))
-        save_btn.bind("<Leave>", lambda e: self._hide_tooltip())
+        save_btn.bind(
+            sequence="<Enter>",
+            func=lambda e: self._show_tooltip("Will take effect next time you launch the app")
+        )
+        save_btn.bind(
+            sequence="<Leave>",
+            func=lambda e: self._hide_tooltip()
+        )
 
 
     def _on_apply(self):
@@ -209,8 +239,10 @@ class PSMonitorSettings:
         try:
             self._manager.logger.clear_log()
             self._show_log_status("✔ Log cleared successfully", "green", duration=2000)
-        except:
+        # pylint: disable=broad-except
+        except Exception:
             self._show_log_status("✖ Failed to clear log", "red", duration=2000)
+        # pylint: enable=broad-except
 
 
     def _show_log_status(self, text: str, color: str, duration: int = 2000):
@@ -224,7 +256,14 @@ class PSMonitorSettings:
             self._tooltip = tk.Toplevel(self._window)
             self._tooltip.wm_overrideredirect(True)
             self._tooltip.attributes("-topmost", True)
-            label = ttk.Label(self._tooltip, text=text, background="lightyellow", borderwidth=1, relief="solid", padding=5)
+            label = ttk.Label(
+                self._tooltip,
+                text=text,
+                background="lightyellow",
+                borderwidth=1,
+                relief="solid",
+                padding=5
+            )
             label.pack()
 
         x, y = self._window.winfo_pointerxy()
@@ -243,10 +282,10 @@ class PSMonitorSettings:
         """
         if not os.path.exists(self._fullpath):
             self._manager.logger.error(f"Settings file does not exist at: {self._fullpath}")
-            return 
+            return
 
         try:
-            with open(self._fullpath, "r") as f:
+            with open(self._fullpath, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             self.logging_enabled.set(data.get("logging_enabled", True))
@@ -254,9 +293,8 @@ class PSMonitorSettings:
             self.port_number.set(data.get("port_number", 4500))
             self.max_connections.set(data.get("max_connections", 10))
 
-        except Exception:
-            self._manager.logger.error(f"Failed to load settings from: {self._fullpath}")
-            pass
+        except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
+            self._manager.logger.error("Failed to load settings from file: %s", e)
 
 
     def _save_settings_to_file(self) -> bool:
@@ -265,10 +303,11 @@ class PSMonitorSettings:
         """
 
         try:
-            with open(self._fullpath, "w") as f:
+            with open(self._fullpath, "w", encoding="utf-8") as f:
                 json.dump(self.get_current_settings(), f, indent=4)
             return True
-        except Exception as e:
+        except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
+            self._manager.logger.error("Failed to save settings to file: %s", e)
             return False
 
 
