@@ -28,11 +28,11 @@ class PSMonitorAppClient():
 
         super().__init__()
         
-        self.manager = manager
+        self._manager = manager
 
-        self.ws = None
-        self.ws_client_thread = None
-        self.worker_id = None
+        self._ws = None
+        self._ws_client_thread = None
+        self._worker_id = None
 
 
     def setup_connection(self) -> None:
@@ -42,11 +42,11 @@ class PSMonitorAppClient():
 
         try:
             response = requests.get(f'{HTTP_URL}/system')
-            self.manager.data.update(response.json())
-            self.manager.update_gui_sections()
+            self._manager.data.update(response.json())
+            self._manager.update_gui_sections()
             self.start_websocket_connection()
         except requests.RequestException as e:
-            self.manager.logger.error(f"Error connecting to local server: {e}")
+            self._manager.logger.error(f"Error connecting to local server: {e}")
 
 
     def start_websocket_connection(self) -> None:
@@ -57,10 +57,10 @@ class PSMonitorAppClient():
         try:
             response = requests.post(HTTP_URL, json={'connection': 'monitor'})
             worker = response.json()
-            self.worker_id = worker['id']
-            self.connect_websocket(self.worker_id)
+            self._worker_id = worker['id']
+            self.connect_websocket(self._worker_id)
         except requests.RequestException as e:
-            self.manager.logger.error(f"Error obtaining worker for websocket connection: {e}")
+            self._manager.logger.error(f"Error obtaining worker for websocket connection: {e}")
 
 
     def connect_websocket(self, worker_id: str) -> None:
@@ -73,7 +73,7 @@ class PSMonitorAppClient():
 
         websocket.enableTrace(False)
 
-        self.ws = websocket.WebSocketApp(
+        self._ws = websocket.WebSocketApp(
             f"{WS_URL}{worker_id}",
             on_message=self.on_message,
             on_error=self.on_error,
@@ -83,12 +83,19 @@ class PSMonitorAppClient():
 
         # small helper to allow us to log inside the ws client thread
         def run_ws_forever():
-            self.manager.logger.info(f"Websocket client thread started: {threading.current_thread().name} (ID: {threading.get_ident()})")
-            self.ws.run_forever()
+            self._manager.logger.info(f"Websocket client thread started: {threading.current_thread().name} (ID: {threading.get_ident()})")
+            self._ws.run_forever()
 
         # Run the websocket client in the another thread so it doesn't block the GUI's mainloop().
-        self.ws_client_thread = threading.Thread(target=run_ws_forever, name="PSMonitorWSClientThread", daemon=True)
-        self.ws_client_thread.start()
+        self._ws_client_thread = threading.Thread(target=run_ws_forever, name="PSMonitorWSClientThread", daemon=True)
+        self._ws_client_thread.start()
+
+
+    def get_worker(self) -> str:
+        """
+        Return the ID for the worker managing the session.
+        """
+        return self._worker_id
 
 
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
@@ -104,11 +111,11 @@ class PSMonitorAppClient():
             if not message.startswith("{"):
                 return
 
-            self.manager.refresh_data(json.loads(message))
+            self._manager.refresh_data(json.loads(message))
         except json.JSONDecodeError as e:
-            self.manager.logger.error(f"Invalid JSON from websocket: {message[:100]}... ({e})")
+            self._manager.logger.error(f"Invalid JSON from websocket: {message[:100]}... ({e})")
         except Exception as e:
-            self.manager.logger.error(f"Error fetching websocket data: {e}")
+            self._manager.logger.error(f"Error fetching websocket data: {e}")
 
 
     def on_error(self, ws: websocket.WebSocketApp, error) -> None:
@@ -120,7 +127,7 @@ class PSMonitorAppClient():
             error (Exception): The error encountered.
         """
 
-        self.manager.logger.error(f"Websocket error: {error}")
+        self._manager.logger.error(f"Websocket error: {error}")
 
 
     def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str) -> None:
@@ -133,7 +140,7 @@ class PSMonitorAppClient():
             close_msg (str): The closure message.
         """
 
-        self.manager.logger.info("websocket connection is now closed.")
+        self._manager.logger.info("websocket connection is now closed.")
 
 
     def on_open(self, ws: websocket.WebSocketApp) -> None:
@@ -144,7 +151,7 @@ class PSMonitorAppClient():
             ws (websocket.WebSocketApp): The websocket instance.
         """
 
-        self.manager.logger.info("websocket connection is now open.")
+        self._manager.logger.info("websocket connection is now open.")
 
 
     def on_closing(self) -> None:
@@ -152,11 +159,11 @@ class PSMonitorAppClient():
         Handles application closing.
         """
 
-        if self.ws:
-            self.ws.close()
-        if self.ws_client_thread:
-            self.ws_client_thread.join()
+        if self._ws:
+            self._ws.close()
+        if self._ws_client_thread:
+            self._ws_client_thread.join()
 
         IOLoop.current().add_callback(IOLoop.current().stop)
-        self.manager.destroy()
+        self._manager.destroy()
 
