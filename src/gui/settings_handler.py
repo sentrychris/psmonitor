@@ -27,7 +27,7 @@ class PSMonitorSettings:
         self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor')
         self._fullpath = os.path.join(self._filepath, "settings.json")
 
-        # Default settings - not needed as _load_settings_from_file, remove soon
+        # Default settings
         self.logging_enabled = tk.BooleanVar(value=True)
         self.log_level = tk.StringVar(value="INFO")
         self.port_number = tk.IntVar(value=4500)
@@ -62,6 +62,17 @@ class PSMonitorSettings:
         self._build_server_section(main_frame)
         self._build_buttons_section(main_frame)
 
+
+    def get_current_settings(self):
+        """
+        Get the current settings
+        """
+        return {
+            "logging_enabled": self.logging_enabled.get(),
+            "log_level": self.log_level.get(),
+            "port_number": self.port_number.get(),
+            "max_connections": self.max_connections.get()
+        }
 
     def set_logging_settings(self) -> None:
         """
@@ -247,16 +258,9 @@ class PSMonitorSettings:
         Serialize current settings to a file.
         """
 
-        settings = { # keep flat for now
-            "logging_enabled": self.logging_enabled.get(),
-            "log_level": self.log_level.get(),
-            "port_number": self.port_number.get(),
-            "max_connections": self.max_connections.get()
-        }
-
         try:
             with open(self._fullpath, "w") as f:
-                json.dump(settings, f, indent=4)
+                json.dump(self.get_current_settings(), f, indent=4)
             return True
         except Exception as e:
             return False
@@ -266,15 +270,11 @@ class PSMonitorSettings:
         """
         Logs the current settings as a JSON object.
         """
-        settings = {
-            "logging_enabled": self.logging_enabled.get(),
-            "log_level": self.log_level.get(),
-            "port_number": self.port_number.get(),
-            "max_connections": self.max_connections.get()
-        }
 
         if self._manager and hasattr(self._manager, 'logger'):
-            self._manager.logger.info("Current settings: " + json.dumps(settings, indent=4))
+            self._manager.logger.info(
+                "Current settings: " + json.dumps(self.get_current_settings(), indent=4)
+            )
 
 
     def close_window(self) -> None:
