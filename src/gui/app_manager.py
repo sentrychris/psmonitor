@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from .log_handler import PSMonitorAppLogger
 
 from .app_client import PSMonitorAppClient
-from .graph_handler import PSMonitorGraph
+from .graph_handler import PSMonitorGraphHandler
 from .settings_handler import PSMonitorSettings
 
 
@@ -33,36 +33,36 @@ class PSMonitorApp(Tk):
 
         super().__init__()
 
+        self.data = data
+
         self.logger = logger
 
         self.client = PSMonitorAppClient(self)
 
         self.settings = PSMonitorSettings(self)
 
-        self.data = data
+        self.graph_handler = PSMonitorGraphHandler(self)
 
-        self.cpu_temp_graph = self.graph_factory(
+        self.cpu_temp_graph = self.graph_handler.graph_factory(
             key="cpu",
             metric="temp",
             y_label="CPU Temp. (C°)",
             title="CPU Temperature Graph"
         )
 
-        self.cpu_usage_graph = self.graph_factory(
+        self.cpu_usage_graph = self.graph_handler.graph_factory(
             key="cpu",
             metric="usage",
             y_label="CPU Usage (%)",
             title="CPU Usage Graph"
         )
 
-        self.mem_usage_graph = self.graph_factory(
+        self.mem_usage_graph = self.graph_handler.graph_factory(
             key="mem",
             metric="percent",
             y_label="Mem. Usage (%)",
             title="Memory Usage Graph"
         )
-
-        self.active_graphs: list[PSMonitorGraph] = []
 
         self.max_process_rows = 10
         self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
@@ -106,51 +106,6 @@ class PSMonitorApp(Tk):
         self.iconphoto(True, icon_photo)
 
 
-    def graph_factory(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
-        """
-        Creates a new graph instance.
-        """
-
-        return PSMonitorGraph(
-            data_key=key,
-            data_metric=metric,
-            data_callback=lambda: self.data,
-            y_label=y_label,
-            window_title=title,
-            manager=self
-        )
-
-
-    def register_graph(self, graph: PSMonitorGraph) -> None:
-        """
-        Register a new graph instance.
-        """
-
-        if graph not in self.active_graphs:
-            self.active_graphs.append(graph)
-
-
-    def unregister_graph(self, graph: PSMonitorGraph) -> None:
-        """
-        Unregister an existing graph instance.
-        """
-
-        if graph in self.active_graphs:
-            self.active_graphs.remove(graph)
-
-
-    def update_active_graphs(self) -> None:
-        """
-        Update all active graphs.
-        """
-
-        for graph in self.active_graphs[:]:  # Iterate over a copy in case of removal
-            if graph.is_active():
-                graph.refresh_graph()
-            else:
-                self.unregister_graph(graph)  # Remove graphs whose windows are closed
-
-
     def create_gui_menu(self) -> None:
         """
         Creates the menu bar.
@@ -163,7 +118,7 @@ class PSMonitorApp(Tk):
         help_menu.add_command(label="About...", command=self.open_about_window)
 
         file_menu = Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="Open web UI...", command=self.open_psmonitor_web)
+        file_menu.add_command(label="Open web UI...", command=self.open_web_ui)
         file_menu.add_command(label="Open app log...", command=self.logger.open_log)
         file_menu.add_separator()
         file_menu.add_command(label="Open Settings", command=self.settings.open_window)
@@ -268,7 +223,7 @@ class PSMonitorApp(Tk):
         self.update_gui_section(self.mem_labels, self.data['mem'])
 
         self.update_processes_table()
-        self.update_active_graphs()
+        self.graph_handler.update_active_graphs()
 
         # schedule function to call itself again
         self.after(UPDATE_INTERVAL, self.update_gui_sections)
@@ -351,7 +306,7 @@ class PSMonitorApp(Tk):
         text_widget.pack(fill="both", expand=True, padx=5, pady=5)
 
 
-    def open_psmonitor_web(self) -> None:
+    def open_web_ui(self) -> None:
         """
         Opens the web UI for testing the websocket connection.
         """

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class PSMonitorGraph:
     """
-    Data graph handler.
+    Data graph.
     """
 
     def __init__(
@@ -22,7 +22,7 @@ class PSMonitorGraph:
             data_callback: Callable[[], dict],
             y_label: str,
             window_title: str,
-            manager: 'PSMonitorApp' = None
+            handler: 'PSMonitorGraphHandler' = None
         ) -> None:
         """
         Initializes the handler with initial data.
@@ -37,7 +37,7 @@ class PSMonitorGraph:
         self._y_label = y_label
 
         self._window_title = window_title
-        self._manager = manager
+        self._handler = handler
 
         self._get_latest_data = data_callback
 
@@ -51,12 +51,12 @@ class PSMonitorGraph:
             if not self._window.winfo_viewable():
                 self._window.deiconify()
                 # Re-register the graph if needed
-                if self._manager and self not in self._manager.active_graphs:
-                    self._manager.register_graph(self)
+                if self._handler and self not in self._handler.active_graphs:
+                    self._handler.register_graph(self)
             self._window.lift()
             return
 
-        self._window = Toplevel(self._manager)
+        self._window = Toplevel(self._handler._manager)
         self._window.title(self._window_title)
         self._window.geometry("600x200")
         self._window.resizable(False, False)
@@ -89,9 +89,9 @@ class PSMonitorGraph:
         self._g_canvas.get_tk_widget().pack(expand=True, fill='both', padx=0, pady=0)
         self._g_canvas.draw()
 
-        # Register self to manager when window opens
-        if self._manager:
-            self._manager.register_graph(self)
+        # Register self to graph handler when window opens
+        if self._handler:
+            self._handler.register_graph(self)
 
         self._window.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -196,3 +196,62 @@ class PSMonitorGraph:
             else:
                 self._g_ax.set_xlim(0, self._max_points - 1)
             self._g_canvas.draw_idle()
+
+
+class PSMonitorGraphHandler():
+    """
+    Graph handler.
+    """
+
+    def __init__(self, manager: 'PSMonitorApp' = None):
+        """
+        Initialize the graph handler.
+        """
+
+        self.active_graphs: list[PSMonitorGraph] = []
+        self._manager = manager
+
+    
+    def graph_factory(self, key: str, metric: str, y_label: str, title: str) -> PSMonitorGraph:
+        """
+        Creates a new graph instance.
+        """
+
+        return PSMonitorGraph(
+            data_key=key,
+            data_metric=metric,
+            data_callback=lambda: self._manager.data,
+            y_label=y_label,
+            window_title=title,
+            handler=self
+        )
+
+    
+    def register_graph(self, graph: PSMonitorGraph) -> None:
+        """
+        Register a new graph instance.
+        """
+
+        if graph not in self.active_graphs:
+            self.active_graphs.append(graph)
+
+
+    def unregister_graph(self, graph: PSMonitorGraph) -> None:
+        """
+        Unregister an existing graph instance.
+        """
+
+        if graph in self.active_graphs:
+            self.active_graphs.remove(graph)
+
+
+    def update_active_graphs(self) -> None:
+        """
+        Update active graphs.
+        """
+
+        for graph in self.active_graphs[:]:
+            if graph.is_active():
+                graph.refresh_graph()
+            else:
+                self.unregister_graph(graph)
