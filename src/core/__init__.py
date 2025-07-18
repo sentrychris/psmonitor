@@ -1,3 +1,9 @@
+"""
+Author: Chris Rowles
+Copyright: © 2025 Chris Rowles. All rights reserved.
+License: MIT
+"""
+
 import sys
 from tornado.ioloop import IOLoop
 from tornado.web import Application

@@ -1,8 +1,12 @@
+"""
+Author: Chris Rowles
+Copyright: © 2025 Chris Rowles. All rights reserved.
+License: MIT
+"""
 
-# Standard imports
 import json
-import requests
 import threading
+import requests
 import websocket
 
 from tornado.ioloop import IOLoop
