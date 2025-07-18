@@ -1,8 +1,10 @@
 """
+--------------------------------------------------------------------------
 PSMonitor - A simple system monitoring utility
-Author: <author>
-Copyright: © 2025 <author>. All rights reserved.
+Author: <Author Name>
+Copyright: © 2025 Chris Rowles. All rights reserved.
 License: MIT
+--------------------------------------------------------------------------
 """
 
 import tkinter as tk
