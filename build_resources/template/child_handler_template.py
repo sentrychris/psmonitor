@@ -30,9 +30,6 @@ class PSMonitorChildHandlerTemplate:
         if hasattr(self, '_window') and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
-                # Re-register the child object if needed
-                # if self.manager and self not in self.manager.active_child_handler_objects:
-                #     self.manager.register_child_object(self)
             self._window.lift()
             return
 
@@ -40,12 +37,14 @@ class PSMonitorChildHandlerTemplate:
         self._window.title(self._window_title)
         self._window.geometry("450x500")
         self._window.resizable(False, False)
-
-        # Register self to manager when window opens
-        # if self.manager:
-            # register method here
-
         self._window.protocol("WM_DELETE_WINDOW", self.on_close)
+
+
+    def is_active(self):
+        """
+        Check if the window is active.
+        """
+        return hasattr(self, '_window') and self._window.winfo_exists()
 
 
     def close_window(self) -> None:

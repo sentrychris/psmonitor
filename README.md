@@ -7,7 +7,26 @@ A simple system and network monitoring app with a headless server for remote mon
 
 ![app](./src/gui/assets/app_graphs.png)
 
-View an example [web client dashboard here](https://github.com/sentrychris/system-monitor)
+View an example [web client dashboard for remote monitoring here](https://github.com/sentrychris/system-monitor).
+
+
+## Table of Contents
+
+- [Features](#features)  
+- [GUI Application](#gui-application)  
+- [Headless Server](#headless-server)  
+  - [HTTP](#http)  
+  - [Websocket](#websocket)  
+  - [Running the Headless Server as a Managed Process](#running-the-headless-server-as-a-managed-process)  
+- [Developers](#developers)  
+  - [Building from Source](#building-from-source)  
+  - [Key points](#key-points)  
+  - [Threading](#threading)  
+  - [Developing Custom GUI Windows](#developing-custom-gui-windows)  
+- [Connecting to the Headless Server from Your Own App](#connecting-to-the-headless-server-from-your-own-app)  
+- [License](#license)  
+- [Credits](#credits)
+
 
 ## Features
 
@@ -96,7 +115,11 @@ If you would like to run the [headless server](https://github.com/sentrychris/ps
 
 Alternatively, you could use [supervisor](http://supervisord.org/) or something similar.
 
-## Building from Source
+## Developers
+
+Please find documentation for developers below.
+
+### Building from Source
 
 To build psmonitor from source.
 
@@ -143,28 +166,93 @@ Most of the code is either documented or self-explanatory, however, some key poi
 - During the packing process, UPX is used to compress the executable, resulting in a file size that is ~10MB smaller.
 
 
-#### Threading
+### Threading
 
 psmonitor uses three threading models:
 
 - Tornado's `IOLOOp` async concurrency for non-blocking coroutine execution.
+
 - `ThreadPoolExecutor` for offloading tasks e,g, `psutil` calls like `get_cpu()`.
+
 - `threading.Thread` in the GUI client and for embedding the server and websocket client into the GUI process.
 
-##### In the server
+#### In the server
 
 `get_cpu()` and similar functions are CPU-bound or blocking I/O. Therefore these tasks are offloaded to a worker thread in `ThreadPoolExecutor`, allowing the Tornado `IOLoop` to remain non-blocking and continue handling other connections and events.
 
-##### In the GUI 
+#### In the GUI 
 `threading.Thread` is used to start both the Tornado server and the websocket client in the background so they do not block the GUI's `mainloop()`, which requires the main thread.
 
+### Developing Custom GUI Windows.
+
+A reusable template class is provided [here](./build_resources/template/child_handler_template.py) to provide a standard structure for adding new GUI child windows (e.g. graphs, logs, settings) as separate managed components.
+
+#### Template Overview
+
+```python
+from tkinter import Frame, Toplevel
+import tkinter.ttk as ttk
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gui.app_manager import PSMonitorApp
+
+class PSMonitorChildHandlerTemplate:
+    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+        self._window_title = "Window Title"
+        self._manager = manager
+
+    def open_window(self) -> None:
+        if hasattr(self, '_window') and self._window.winfo_exists():
+            if not self._window.winfo_viewable():
+                self._window.deiconify()
+            self._window.lift()
+            return
+
+        self._window = Toplevel(self._manager)
+        self._window.title(self._window_title)
+        self._window.geometry("450x500")
+        self._window.resizable(False, False)
+        self._window.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def is_active(self) -> bool:
+        return hasattr(self, '_window') and self._window.winfo_exists()
+
+    def close_window(self) -> None:
+        if hasattr(self, '_window') and self._window.winfo_exists():
+            self.on_close()
+
+    def on_close(self):
+        self._window.destroy()
+        del self._window
+```
+
+##### Usage
+
+- Copy `child_handler_template.py` and rename the class to match your handler's purpose.
+
+- Replace `"Window Title"` with the desired title for your window.
+
+- Add widgets and layout logic inside `open_window()` or delegate to helper methods.
+
+- Use `is_active()` to check if the window is open from the parent context.
+
+- Use `close_window()` to programmatically close the child window.
+
+##### Guidelines
+
+- Do **not** run blocking code in the child window's context; use threads or delegate to manager objects.
+
+- All UI components should be constructed and destroyed cleanly to avoid orphaned windows or memory leaks.
+
+- Use `self._manager` to interact with shared state, services (like logging), or signal state changes to the core app.
 
 
 ## Connecting to the headless server from your own app
 
 To connect to the server, you can use any client or language.
 
-#### JavaScript Example
+### JavaScript Example
 
 1. Retrieve the assigned worker:
 
@@ -189,7 +277,7 @@ To connect to the server, you can use any client or language.
     }
     ```
 
-#### Python Example
+### Python Example
 
 1. Retrieve an assigned worker:
 
