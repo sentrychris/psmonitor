@@ -323,7 +323,7 @@ class PSMonitorApp(tk.Tk):
 
         label_version = ttk.Label(
             about_window,
-            text="Version 1.5.0.1001",
+            text="Version 1.5.0.2413",
             font=("Arial", 8, "bold")
         )
         label_version.pack(pady=1)
