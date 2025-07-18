@@ -6,24 +6,14 @@ License: MIT
 """
 
 # Standard library imports
-import uuid
-import os
 import signal
 
 # Third-party imports
-from tornado.httpserver import HTTPServer
 from tornado.options import define, options, parse_command_line
 from tornado.ioloop import IOLoop
 
 # Local application imports
-from core import create_app, signal_handler
-
-
-# Constants
-BASE_DIR = os.path.dirname(__file__)
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui', 'web')
-STATIC_PATH = os.path.join(BASE_DIR, 'gui', 'web')
-COOKIE_SECRET = uuid.uuid1().hex
+from core import create_server, signal_handler
 
 
 # Define command-line options
@@ -37,13 +27,7 @@ if __name__ == '__main__':
 
     parse_command_line()
 
-    http = HTTPServer(create_app({
-        'template_path': TEMPLATE_PATH,
-        'static_path': STATIC_PATH,
-        'cookie_secret': COOKIE_SECRET,
-        'xsrf_cookies': False,
-        'debug': True
-    }))
+    http = create_server()
     http.listen(port=options.port, address=options.address)
 
     print(f"Listening on http://{options.address}:{options.port}")

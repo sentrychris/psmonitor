@@ -67,7 +67,6 @@ def get_cpu() -> dict:
             executable_path,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
-        # TODO find an acceptable alternative for temps on windows.
         cpu_temp = proc.decode('utf-8').rstrip('\r\n')
     else:
         cpu_temp = round(psutil.sensors_temperatures()['coretemp'][0].current, 2)

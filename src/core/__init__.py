@@ -6,17 +6,26 @@ License: MIT
 """
 
 # Standard library imports
+import uuid
+import os
 import sys
 from typing import Union
 
 # Third-party imports
 from tornado.ioloop import IOLoop
 from tornado.web import Application
+from tornado.httpserver import HTTPServer
 
 # Local application imports
 from core.handler.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler
 from core.handler.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
+
+# Constants
+BASE_DIR = os.path.dirname(__file__)
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui', 'web')
+STATIC_PATH = os.path.join(BASE_DIR, 'gui', 'web')
+COOKIE_SECRET = uuid.uuid1().hex
 
 
 def signal_handler(_sig, _frame):
@@ -32,6 +41,20 @@ def signal_handler(_sig, _frame):
     IOLoop.current().stop()
     executor.shutdown(wait=True)
     sys.exit(0)
+
+
+def create_server():
+    """
+    Create a server
+    """
+
+    return HTTPServer(create_app({
+        'template_path': TEMPLATE_PATH,
+        'static_path': STATIC_PATH,
+        'cookie_secret': COOKIE_SECRET,
+        'xsrf_cookies': False,
+        'debug': True
+    }))
 
 
 def create_app(settings: dict) -> Union[Application, bool]:
