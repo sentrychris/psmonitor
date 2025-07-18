@@ -7,6 +7,7 @@ import uuid
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
+# Local application imports
 from core import create_app, signal_handler
 from gui.app_manager import PSMonitorApp
 from gui.log_handler import PSMonitorAppLogger
@@ -18,6 +19,7 @@ TEMPLATE_PATH = os.path.join(BASE_DIR, 'gui', 'web')
 STATIC_PATH = os.path.join(BASE_DIR, 'gui', 'web')
 COOKIE_SECRET = uuid.uuid1().hex
 
+# Logger
 logger = PSMonitorAppLogger("app.log")
 
 

@@ -8,9 +8,11 @@ import webbrowser
 from PIL import Image, ImageTk
 from typing import TYPE_CHECKING
 
+# Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
     from .log_handler import PSMonitorAppLogger
 
+# Local application imports
 from .app_client import PSMonitorAppClient
 from .graph_handler import PSMonitorGraphHandler
 from .settings_handler import PSMonitorSettings

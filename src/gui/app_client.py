@@ -1,12 +1,14 @@
 
+# Standard imports
 import json
 import requests
 import threading
 import websocket
 
 from tornado.ioloop import IOLoop
-from typing import TYPE_CHECKING
 
+# Typing (type hints only, no runtime dependency)
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .app_manager import PSMonitorApp
 

@@ -2,8 +2,9 @@ import json
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
-from typing import TYPE_CHECKING
 
+# Typing (type hints only, no runtime dependency)
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .app_manager import PSMonitorApp
 
