@@ -5,7 +5,7 @@
 
 A simple system and network monitoring app with a headless server for remote monitoring capabilities.
 
-![app](./src/gui/assets/app_graphs.png)
+![app](./readme.png)
 
 View an example [web client dashboard for remote monitoring here](https://github.com/sentrychris/system-monitor).
 
