@@ -44,12 +44,12 @@ class PSMonitorAppClient():
             response = requests.get(f'{HTTP_URL}/system')
             self._manager.data.update(response.json())
             self._manager.update_gui_sections()
-            self.start_websocket_connection()
+            self._start_websocket_connection()
         except requests.RequestException as e:
             self._manager.logger.error(f"Error connecting to local server: {e}")
 
 
-    def start_websocket_connection(self) -> None:
+    def _start_websocket_connection(self) -> None:
         """
         Starts the websocket connection for live data updates.
         """
@@ -58,12 +58,12 @@ class PSMonitorAppClient():
             response = requests.post(HTTP_URL, json={'connection': 'monitor'})
             worker = response.json()
             self._worker_id = worker['id']
-            self.connect_websocket(self._worker_id)
+            self._connect_websocket(self._worker_id)
         except requests.RequestException as e:
             self._manager.logger.error(f"Error obtaining worker for websocket connection: {e}")
 
 
-    def connect_websocket(self, worker_id: str) -> None:
+    def _connect_websocket(self, worker_id: str) -> None:
         """
         Starts the websocket connection with the specified worker ID.
 
