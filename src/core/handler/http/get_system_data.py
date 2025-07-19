@@ -1,3 +1,13 @@
+"""
+--------------------------------------------------------------------------
+PSMonitor - A simple system monitoring utility
+Author: Chris Rowles
+Copyright: © 2025 Chris Rowles. All rights reserved.
+License: MIT
+--------------------------------------------------------------------------
+"""
+
+# Local application imports
 import core.service.system_service as psm
 
 

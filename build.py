@@ -1,3 +1,21 @@
+"""
+Build script for psmonitor application.
+
+This script automates the process of downloading UPX (if needed),
+cleaning previous build artifacts, and building the psmonitor
+executable for the specified build type (GUI or headless).
+
+Usage:
+    python build.py [gui|headless] [--clean] [--upx VERSION]
+
+Arguments:
+    build          Specify the build type: "gui" or "headless"
+    --clean        Optional flag to clean build and dist directories before building
+    --upx VERSION  Specify the UPX version to download and use (default: 5.0.1)
+
+The script handles platform differences for UPX download URLs and extraction.
+"""
+
 import os
 import shutil
 import subprocess
@@ -24,19 +42,19 @@ def get_upx(build_resources: str, upx_pkg: str, upx_url: str, is_windows: bool) 
     """
 
     upx_dir = os.path.join(build_resources, upx_pkg)
-    
+
     if not os.path.exists(upx_dir):
         print("Downloading UPX...")
         upx_path = os.path.join(build_resources, f"{upx_pkg}.{'zip' if is_windows else 'tar.xz'}")
         urllib.request.urlretrieve(upx_url, upx_path)
-        
+
         if is_windows:
             with zipfile.ZipFile(upx_path, 'r') as zip_ref:
                 zip_ref.extractall(build_resources)
         else:
             with tarfile.open(upx_path, 'r:xz') as tar_ref:
                 tar_ref.extractall(build_resources)
-                
+
         os.remove(upx_path)
     else:
         print("UPX is available")
@@ -103,7 +121,7 @@ def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
     else:
         upx_pkg = f"upx-{upx_ver}-amd64_linux.tar"
         upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.tar.xz"
-    
+
     if clean_build:
         print("Cleaning previous build directories...")
         clean_dir(dist_dir)
@@ -118,9 +136,22 @@ def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build psmonitor executables.")
+
     parser.add_argument("build", choices=["gui", "headless"], help="Build e.g. gui or headless")
-    parser.add_argument("--clean", action="store_true", help="Clean build and dist directories before building")
-    parser.add_argument("--upx", metavar="VERSION", type=str, default=DEFAULT_UPX_VER, help="Specify UPX version (default: 5.0.1)")
+
+    parser.add_argument(
+        "--clean",
+        action="store_true",
+        help="Clean build and dist directories before building"
+    )
+
+    parser.add_argument(
+        "--upx",
+        metavar="VERSION",
+        type=str,
+        default=DEFAULT_UPX_VER,
+        help="Specify UPX version (default: 5.0.1)"
+    )
     args = parser.parse_args()
 
     main(build_type=args.build, clean_build=args.clean, upx_ver=args.upx)

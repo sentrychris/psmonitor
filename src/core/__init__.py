@@ -1,14 +1,30 @@
+"""
+--------------------------------------------------------------------------
+PSMonitor - A simple system monitoring utility
+Author: Chris Rowles
+Copyright: © 2025 Chris Rowles. All rights reserved.
+License: MIT
+--------------------------------------------------------------------------
+"""
+
+# Standard library imports
+import uuid
+import os
 import sys
-from tornado.ioloop import IOLoop
-from tornado.web import Application
 from typing import Union
 
+# Third-party imports
+from tornado.ioloop import IOLoop
+from tornado.web import Application
+from tornado.httpserver import HTTPServer
+
+# Local application imports
 from core.handler.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler
 from core.handler.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
 
 
-def signal_handler(sig, frame):
+def signal_handler(_sig, _frame):
     """
     Signal handler for graceful shutdown of the application.
 
@@ -21,6 +37,20 @@ def signal_handler(sig, frame):
     IOLoop.current().stop()
     executor.shutdown(wait=True)
     sys.exit(0)
+
+
+def create_server(server_path: str) -> HTTPServer:
+    """
+    Create a server
+    """
+
+    return HTTPServer(create_app({
+        'template_path': server_path,
+        'static_path': server_path,
+        'cookie_secret': uuid.uuid1().hex,
+        'xsrf_cookies': False,
+        'debug': True
+    }))
 
 
 def create_app(settings: dict) -> Union[Application, bool]:

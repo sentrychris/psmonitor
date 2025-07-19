@@ -1,21 +1,26 @@
+"""
+--------------------------------------------------------------------------
+PSMonitor - A simple system monitoring utility
+Author: Chris Rowles
+Copyright: © 2025 Chris Rowles. All rights reserved.
+License: MIT
+--------------------------------------------------------------------------
+"""
 
-# Standard imports
+# Standard library imports
 import json
-import requests
+import socket
 import threading
-import websocket
+from typing import TYPE_CHECKING
 
+# Third-party imports
+import requests
+import websocket
 from tornado.ioloop import IOLoop
 
 # Typing (type hints only, no runtime dependency)
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
-
-
-# Constants
-WS_URL = 'ws://localhost:4500/connect?id='
-HTTP_URL = 'http://localhost:4500'
 
 
 class PSMonitorAppClient():
@@ -29,11 +34,18 @@ class PSMonitorAppClient():
         """
 
         super().__init__()
-        
+
         self._manager = manager
+
+        self.port = self._manager.server.port
+        self.address = self._manager.server.address
+
+        self.http_url = f"http://{self.address}:{self.port}"
+        self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
 
         self._ws = None
         self._ws_client_thread = None
+
         self._worker_id = None
 
 
@@ -43,7 +55,7 @@ class PSMonitorAppClient():
         """
 
         try:
-            response = requests.get(f'{HTTP_URL}/system')
+            response = requests.get(f'{self.http_url}/system', timeout=5)
             self._manager.data.update(response.json())
             self._manager.update_gui_sections()
             self._start_websocket_connection()
@@ -57,7 +69,7 @@ class PSMonitorAppClient():
         """
 
         try:
-            response = requests.post(HTTP_URL, json={'connection': 'monitor'})
+            response = requests.post(self.http_url, json={'connection': 'monitor'}, timeout=5)
             worker = response.json()
             self._worker_id = worker['id']
             self._connect_websocket(self._worker_id)
@@ -76,7 +88,7 @@ class PSMonitorAppClient():
         websocket.enableTrace(False)
 
         self._ws = websocket.WebSocketApp(
-            f"{WS_URL}{worker_id}",
+            f"{self.ws_url}{worker_id}",
             on_message=self.on_message,
             on_error=self.on_error,
             on_close=self.on_close,
@@ -85,11 +97,19 @@ class PSMonitorAppClient():
 
         # small helper to allow us to log inside the ws client thread
         def run_ws_forever():
-            self._manager.logger.debug(f"Websocket client thread started: {threading.current_thread().name} (ID: {threading.get_ident()})")
+            self._manager.logger.debug(
+                f"Websocket client thread started: {threading.current_thread().name} "
+                f"(ID: {threading.get_ident()})"
+            )
             self._ws.run_forever()
 
         # Run the websocket client in the another thread so it doesn't block the GUI's mainloop().
-        self._ws_client_thread = threading.Thread(target=run_ws_forever, name="PSMonitorWSClientThread", daemon=True)
+        self._ws_client_thread = threading.Thread(
+            target=run_ws_forever,
+            name="PSMonitorWSClientThread",
+            daemon=True
+        )
+
         self._ws_client_thread.start()
 
 
@@ -98,6 +118,19 @@ class PSMonitorAppClient():
         Return the ID for the worker managing the session.
         """
         return self._worker_id
+
+
+    def check_server_reachable(self, timeout=1):
+        """
+        Check the server is reachable.
+        """
+        try:
+            with socket.create_connection((self.address, self.port), timeout=timeout):
+                self._manager.logger.info("Tornado server is reachable")
+                return True
+        except OSError as e:
+            self._manager.logger.error(f"Tornado server is not reachable: {e}")
+            return False
 
 
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
@@ -109,14 +142,14 @@ class PSMonitorAppClient():
             message (str): The incoming message.
         """
 
-        try:            
-            if not message.startswith("{"):
+        try:
+            if not ws or not message.startswith("{"):
                 return
 
             self._manager.refresh_data(json.loads(message))
         except json.JSONDecodeError as e:
             self._manager.logger.error(f"Invalid JSON from websocket: {message[:100]}... ({e})")
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             self._manager.logger.error(f"Error fetching websocket data: {e}")
 
 
@@ -129,20 +162,20 @@ class PSMonitorAppClient():
             error (Exception): The error encountered.
         """
 
-        self._manager.logger.error(f"Websocket error: {error}")
+        self._manager.logger.error(f"Websocket error: {error} ({ws.url})")
 
 
-    def on_close(self, ws: websocket.WebSocketApp, close_status_code: int, close_msg: str) -> None:
+    def on_close(self, _ws: websocket.WebSocketApp, _status_code: int, _msg: str) -> None:
         """
         Handles websocket closure.
 
         Args:
-            ws (websocket.WebSocketApp): The websocket instance.
-            close_status_code (int): The status code for the closure.
-            close_msg (str): The closure message.
+            _ws (websocket.WebSocketApp): The websocket instance.
+            _status_code (int): The status code for the closure.
+            _msg (str): The closure message.
         """
 
-        self._manager.logger.info("websocket connection is now closed.")
+        self._manager.logger.info("Websocket connection is closed")
 
 
     def on_open(self, ws: websocket.WebSocketApp) -> None:
@@ -153,7 +186,7 @@ class PSMonitorAppClient():
             ws (websocket.WebSocketApp): The websocket instance.
         """
 
-        self._manager.logger.info("websocket connection is now open.")
+        self._manager.logger.info(f"Websocket connection is open ({ws.url})")
 
 
     def on_closing(self) -> None:
@@ -162,10 +195,17 @@ class PSMonitorAppClient():
         """
 
         if self._ws:
-            self._ws.close()
+            self._ws.close() # signal the websocket to close
+
         if self._ws_client_thread:
-            self._ws_client_thread.join()
+            self._ws_client_thread.join(timeout=5)
+            if self._ws_client_thread.is_alive():
+                self._manager.logger.error("Websocket client thread did not terminate gracefully")
+            else:
+                self._manager.logger.debug("Websocket server thread terminated gracefully")
 
+        self._manager.server.stop()
+        self._manager.logger.stop()
         IOLoop.current().add_callback(IOLoop.current().stop)
-        self._manager.destroy()
 
+        self._manager.destroy()

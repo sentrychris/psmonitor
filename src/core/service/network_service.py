@@ -1,10 +1,21 @@
+"""
+--------------------------------------------------------------------------
+PSMonitor - A simple system monitoring utility
+Author: Chris Rowles
+Copyright: © 2025 Chris Rowles. All rights reserved.
+License: MIT
+--------------------------------------------------------------------------
+"""
+
+# Standard library imports
 import asyncio
 import psutil
 
 
 async def get_avg_in_out(inet="wlan0", interval=5, sample_rate=0.1) -> dict:
     """
-    Asynchronously calculates average network statistics for a given network interface over a specified interval.
+    Asynchronously calculates average network statistics for a given network interface
+    over a specified interval.
 
     Args:
         inet (str): The network interface to monitor (default is "wlan0").

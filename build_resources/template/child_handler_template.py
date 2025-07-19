@@ -1,5 +1,14 @@
+"""
+--------------------------------------------------------------------------
+PSMonitor - A simple system monitoring utility
+Author: <Author Name>
+Copyright: © 2025 Chris Rowles. All rights reserved.
+License: MIT
+--------------------------------------------------------------------------
+"""
+
 import tkinter as tk
-import tkinter.ttk as ttk
+# from tkinter import ttk
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -18,6 +27,7 @@ class PSMonitorChildHandlerTemplate:
         Initializes the handler.
         """
 
+        self._window = None
         self._window_title = "Window Title"
         self._manager = manager
 
@@ -27,13 +37,13 @@ class PSMonitorChildHandlerTemplate:
         Open graph window.
         """
 
-        if hasattr(self, '_window') and self._window.winfo_exists():
+        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
             self._window.lift()
             return
 
-        self._window = tk.Toplevel(self.manager)
+        self._window = tk.Toplevel(self._manager)
         self._window.title(self._window_title)
         self._window.geometry("450x500")
         self._window.resizable(False, False)
