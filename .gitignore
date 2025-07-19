@@ -1,6 +1,8 @@
 ssl
 .idea
 venv
+.venv
+.env
 
 test.py
 

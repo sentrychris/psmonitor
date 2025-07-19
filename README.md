@@ -133,12 +133,22 @@ Step 2: Install submodules (all located in `src/lib/`)
 git submodule update --init --recursive
 ```
 
-Step 3: Install dependencies
+Step 3: Create virtualenv:
+```sh
+python -m venv .venv
+```
+
+Step 4: Activate virtualenv:
+```sh
+.venv\Scripts\Activate.ps1
+```
+
+Step 5: Install dependencies
 ```sh
 pip install -r requirements.txt
 ```
 
-Step 4: Run the `build.py` script to generate a single-file executable:
+Step 6: Run the `build.py` script to generate a single-file executable:
 
 - GUI: (builds the GUI monitoring app with embedded monitoring server):
     ```sh
