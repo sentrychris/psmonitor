@@ -100,19 +100,6 @@ class PSMonitorAppSettingsHandler:
         }
 
 
-    def _on_apply(self):
-        """
-        Handle apply button
-        """
-
-        success = self._save_settings_to_file()
-        if success:
-            self._apply_logging_settings()
-            self._show_settings_status("✔ Settings applied", "green", 2000)
-        else:
-            self._show_settings_status("✖ Failed to apply settings", "red", 2000)
-
-
     def _on_save(self):
         """
         Handle save button
@@ -170,6 +157,12 @@ class PSMonitorAppSettingsHandler:
             command=self._manager.logger.open_log
         ).pack(side="left")
 
+        ttk.Button(
+            self._log_buttons_frame,
+            text="Save & Apply",
+            command=self._save_and_apply_logging_settings
+        ).pack(side="right", padx=(0, 5))
+
         self._log_status_label = ttk.Label(self._log_buttons_frame, text="", foreground="green")
         self._log_status_label.pack(side="left", padx=(10, 0))
 
@@ -221,7 +214,7 @@ class PSMonitorAppSettingsHandler:
 
         ttk.Button(
             server_frame,
-            text="Save & Restart Server",
+            text="Save & Apply",
             command=self._save_and_restart_server
         ).pack(anchor="e", pady=(10, 0))
 
@@ -234,13 +227,7 @@ class PSMonitorAppSettingsHandler:
         buttons_frame = ttk.Frame(parent)
         buttons_frame.pack(side="bottom", fill="x", pady=10)
 
-        ttk.Button(
-            buttons_frame,
-            text="Save & Apply",
-            command=self._on_apply
-        ).pack(side="left", padx=10)
-
-        # Status label between buttons
+        # Status label
         self._settings_status_label = ttk.Label(buttons_frame, text="", foreground="green")
         self._settings_status_label.pack(side="left", expand=True)
 
@@ -277,14 +264,17 @@ class PSMonitorAppSettingsHandler:
             self._window.after(duration, lambda: self._settings_status_label.config(text=""))
 
 
-    def _apply_logging_settings(self) -> None:
+    def _save_and_apply_logging_settings(self) -> None:
         """
-        Apply the logging settings to the logger.
+        Save and apply logging settings.
         """
+
+        self._save_settings_to_file()
 
         if self._manager:
             self._manager.logger.set_enabled(self.logging_enabled.get())
             self._manager.logger.set_level(self.log_level.get())
+            self._show_logging_action_status("✔ Log settings applied", "green", 2000)
 
 
     def _save_and_restart_server(self) -> None:
@@ -292,14 +282,17 @@ class PSMonitorAppSettingsHandler:
         Save and restart the server.
         """
 
+        self._save_settings_to_file()
+
         address = self.address.get()
         port = self.port_number.get()
 
-        self._save_settings_to_file()
         self._manager.client.close_websocket_connection()
         self._manager.client.set_address_and_port(address, port)
         self._manager.server.restart(port)
         self._manager.client.safe_connect()
+        # TODO make separate label to left of save and apply button
+        self._show_settings_status("✔ Server settings applied", "green", 2000)
 
 
     def _on_clear_log(self):
@@ -309,12 +302,12 @@ class PSMonitorAppSettingsHandler:
 
         try:
             self._manager.logger.clear_log()
-            self._show_log_status("✔ Log cleared successfully", "green", duration=2000)
+            self._show_logging_action_status("✔ Log has been cleared", "green", duration=2000)
         except Exception:
-            self._show_log_status("✖ Failed to clear log", "red", duration=2000)
+            self._show_logging_action_status("✖ Failed to clear log", "red", duration=2000)
 
 
-    def _show_log_status(self, text: str, color: str, duration: int = 2000):
+    def _show_logging_action_status(self, text: str, color: str, duration: int = 2000):
         """
         Show log actions status label
         """
