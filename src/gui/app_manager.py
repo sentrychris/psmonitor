@@ -108,11 +108,7 @@ class PSMonitorApp(tk.Tk):
         self.create_gui_menu()
         self.create_gui_sections(data)
 
-        if self.client.check_server_reachable():
-            self.client.setup_connection()
-        else:
-            self.shutdown()
-            sys.exit(1)
+        self.client.safe_connect()
 
         self.protocol("WM_DELETE_WINDOW", self.shutdown)
 

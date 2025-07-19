@@ -274,13 +274,7 @@ class PSMonitorAppSettingsHandler:
         self._manager.client.close_websocket_connection()
         self._manager.client.set_address_and_port(address, port)
         self._manager.server.restart(port)
-
-        if self._manager.client.check_server_reachable():
-            self._manager.client.setup_connection()
-        else:
-            # TODO implement retry methods
-            self._manager.shutdown()
-            sys.exit(1)
+        self._manager.client.safe_connect()
 
 
     def _on_clear_log(self):

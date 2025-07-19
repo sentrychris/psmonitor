@@ -10,6 +10,7 @@ License: MIT
 # Standard library imports
 import json
 import socket
+import sys
 import threading
 from typing import TYPE_CHECKING
 
@@ -48,6 +49,19 @@ class PSMonitorAppClient():
         self._worker_id = None
 
 
+    def safe_connect(self) -> None:
+        """
+        Initialize the connection if the server is reachable.
+        """
+
+        if self.check_server_reachable():
+            self._setup_connection()
+        else:
+            # TODO implement retry methods
+            self._manager.shutdown()
+            sys.exit(1)
+
+
     def set_address_and_port(self, address: str, port: str) -> None:
         """
         Configure connection address and port.
@@ -60,9 +74,9 @@ class PSMonitorAppClient():
         self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
 
 
-    def setup_connection(self) -> None:
+    def _setup_connection(self) -> None:
         """
-        Initialize the connection to the local tornado server.
+        Initialize the connection.
         """
 
         try:
@@ -71,7 +85,7 @@ class PSMonitorAppClient():
             self._manager.update_gui_sections()
             self._start_websocket_connection()
         except requests.RequestException as e:
-            self._manager.logger.error(f"Error connecting to local server: {e}")
+            self._manager.logger.error(f"Error connecting to server: {e}")
 
 
     def _start_websocket_connection(self) -> None:
