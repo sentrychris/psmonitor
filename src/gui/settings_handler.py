@@ -10,7 +10,6 @@ License: MIT
 # Standard library imports
 import json
 import os
-import sys
 import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
@@ -90,6 +89,7 @@ class PSMonitorAppSettingsHandler:
         """
         Get the current settings
         """
+
         return {
             "logging_enabled": self.logging_enabled.get(),
             "log_level": self.log_level.get(),
@@ -101,6 +101,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _on_apply(self):
+        """
+        Handle apply button
+        """
+
         success = self._save_settings_to_file()
         if success:
             self._apply_logging_settings()
@@ -110,6 +114,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _on_save(self):
+        """
+        Handle save button
+        """
+
         success = self._save_settings_to_file()
         if success:
             self._show_settings_status("✔ Settings saved", "green", 2000)
@@ -118,6 +126,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _build_logging_section(self, parent):
+        """
+        Build the logging section
+        """
+
         logging_frame = ttk.LabelFrame(parent, text="Logging", padding=10)
         logging_frame.pack(fill="x", pady=10)
 
@@ -163,6 +175,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _build_server_section(self, parent):
+        """
+        Build the server section
+        """
+
         server_frame = ttk.LabelFrame(parent, text="Server", padding=10)
         server_frame.pack(fill="x", pady=10)
 
@@ -211,6 +227,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _build_buttons_section(self, parent):
+        """
+        Build the buttons section
+        """
+
         buttons_frame = ttk.Frame(parent)
         buttons_frame.pack(side="bottom", fill="x", pady=10)
 
@@ -248,6 +268,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _show_settings_status(self, text: str, color: str, duration: int = 2000):
+        """
+        Show actions status label
+        """
+
         if hasattr(self, '_settings_status_label'):
             self._settings_status_label.config(text=text, foreground=color)
             self._window.after(duration, lambda: self._settings_status_label.config(text=""))
@@ -255,8 +279,9 @@ class PSMonitorAppSettingsHandler:
 
     def _apply_logging_settings(self) -> None:
         """
-        Set the logging settings.
+        Apply the logging settings to the logger.
         """
+
         if self._manager:
             self._manager.logger.set_enabled(self.logging_enabled.get())
             self._manager.logger.set_level(self.log_level.get())
@@ -278,6 +303,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _on_clear_log(self):
+        """
+        Handle clear log button
+        """
+
         try:
             self._manager.logger.clear_log()
             self._show_log_status("✔ Log cleared successfully", "green", duration=2000)
@@ -286,12 +315,20 @@ class PSMonitorAppSettingsHandler:
 
 
     def _show_log_status(self, text: str, color: str, duration: int = 2000):
+        """
+        Show log actions status label
+        """
+
         if hasattr(self, '_log_status_label'):
             self._log_status_label.config(text=text, foreground=color)
             self._window.after(duration, lambda: self._log_status_label.config(text=""))
 
 
     def _show_tooltip(self, text):
+        """
+        Show a tooltip
+        """
+
         if self._tooltip is None and self._window:
             self._tooltip = tk.Toplevel(self._window)
             self._tooltip.wm_overrideredirect(True)
@@ -312,6 +349,10 @@ class PSMonitorAppSettingsHandler:
 
 
     def _hide_tooltip(self):
+        """
+        Hide a tooltip
+        """
+
         if hasattr(self, '_tooltip'):
             self._tooltip.withdraw()
 
@@ -320,6 +361,7 @@ class PSMonitorAppSettingsHandler:
         """
         Load settings from file if it exists.
         """
+
         if not os.path.exists(self._settings_path):
             self._manager.logger.error(f"Settings file does not exist at: {self._settings_path}")
             return
@@ -373,6 +415,7 @@ class PSMonitorAppSettingsHandler:
         """
         On close handler
         """
+
         # Destroy the window to free Tk resources
         self._window.destroy()
 
