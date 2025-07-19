@@ -9,7 +9,7 @@ License: MIT
 
 # Third-party imports
 from tornado.ioloop import IOLoop
-
+import logging
 # Local application imports
 from core.worker import Worker
 from core.server.base_handler import BaseHandler, workers, recycle
@@ -60,7 +60,8 @@ class HttpHandler(BaseHandler):
             # Create a new worker to pair HTTP connection with websocket session
             worker = self.create_worker()
         except Exception as e:
-            status = str(e)
+            logging.exception("Error creating worker in HttpHandler.post")
+            status = "Internal server error"
         else:
             # Add the worker to the worker registry
             worker_id = worker.id
