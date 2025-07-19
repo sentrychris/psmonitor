@@ -23,18 +23,18 @@ if TYPE_CHECKING:
     from core.app_logger import PSMonitorLogger
 
 
+# pylint: disable=too-many-instance-attributes
+# the number of attributes is reasonable in this case.
 class PSMonitorServerManager:
     """
     Manages a Tornado HTTP server running in a background thread.
-
-    Provides start, stop, and restart functionality with thread-safe control
-    over the Tornado IOLoop and server lifecycle.
     """
 
     def __init__(self, logger: 'PSMonitorLogger' = None):
         """
-        Initializes the TornadoServerManager with default state.
+        Initializes the server manager with default state.
         """
+
         self.logger = logger
 
         self.thread = None
@@ -43,23 +43,21 @@ class PSMonitorServerManager:
         self.server_queue = queue.Queue()
         self.started_event = threading.Event()
         self.port = None
-        self.max_connections = None
         self.lock = threading.Lock()
 
 
-    def _server_thread(self, port, max_connections, queue_, started_event):
+    def _server_thread(self, port, queue_, started_event):
         """
         The target function for the server thread.
 
         Args:
             port (int): Port to listen on.
-            max_connections (int | None): Maximum number of connections if supported.
             queue_ (queue.Queue): Queue to send the HTTP server instance back to main thread.
             started_event (threading.Event): Event to signal when server is ready.
         """
+
         self.ioloop = IOLoop()
 
-        # Pass max_connections to create_server if supported by your implementation
         self.http_server = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
         self.http_server.listen(port, address="localhost")
 
@@ -76,30 +74,29 @@ class PSMonitorServerManager:
         self.ioloop.start()
 
 
-    def start(self, port, max_connections=5):
+    def start(self, port):
         """
         Starts the Tornado server in a new thread.
 
-        Blocks until the server signals it is ready.
+        Waits until the server signals it is ready.
 
         Args:
             port (int): Port to listen on.
-            max_connections (int): Optional maximum number of connections.
 
         Raises:
             RuntimeError: If server is already running.
         """
+
         with self.lock:
             if self.thread and self.thread.is_alive():
                 raise RuntimeError("Server already running")
             self.port = port
-            self.max_connections = max_connections
             self.server_queue = queue.Queue()
             self.started_event = threading.Event()
 
             self.thread = threading.Thread(
                 target=self._server_thread,
-                args=(port, max_connections, self.server_queue, self.started_event),
+                args=(port, self.server_queue, self.started_event),
                 daemon=True,
                 name="TornadoServerThread",
             )
@@ -133,14 +130,13 @@ class PSMonitorServerManager:
                 self.logger.debug("Tornado server thread terminated...")
 
 
-    def restart(self, port, max_connections=5):
+    def restart(self, port):
         """
         Restarts the server with new parameters.
 
         Args:
             port (int): Port to listen on.
-            max_connections (int): Optional maximum number of connections.
         """
 
         self.stop()
-        self.start(port, max_connections)
+        self.start(port)

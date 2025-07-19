@@ -87,6 +87,7 @@ class PSMonitorLogger:
         Set the logging level.
         Accepts: "DEBUG", "INFO", "WARNING", "ERROR"
         """
+
         level_map = {
             "DEBUG": logging.DEBUG,
             "INFO": logging.INFO,
@@ -106,6 +107,7 @@ class PSMonitorLogger:
         """
         Check if logging is enabled.
         """
+
         return self._enabled
 
 
@@ -113,6 +115,7 @@ class PSMonitorLogger:
         """
         Set logging enabled status.
         """
+
         self._enabled = enabled
 
 
@@ -120,6 +123,7 @@ class PSMonitorLogger:
         """
         Write an info message to the log if logging is enabled.
         """
+
         if not self._enabled:
             return
 
@@ -130,6 +134,7 @@ class PSMonitorLogger:
         """
         Write a warning message to the log if logging is enabled.
         """
+
         if not self._enabled:
             return
 
@@ -140,6 +145,7 @@ class PSMonitorLogger:
         """
         Write an error message to the log if logging is enabled.
         """
+
         if not self._enabled:
             return
 
@@ -150,6 +156,7 @@ class PSMonitorLogger:
         """
         Write an debug message to the log if logging is enabled.
         """
+
         if not self._enabled:
             return
 
@@ -181,6 +188,7 @@ class PSMonitorLogger:
         """
         Clear the app log.
         """
+
         try:
             # Truncate the log file to zero length, effectively clearing it
             with open(self._fullpath, 'w', encoding="utf-8"):
@@ -194,6 +202,7 @@ class PSMonitorLogger:
         """
         Read settings to apply outside of the GUI context
         """
+
         try:
             settings_file = os.path.join(
                 os.path.join(os.path.expanduser('~'), '.psmonitor'),
@@ -214,4 +223,5 @@ class PSMonitorLogger:
         Stop the QueueListener and flush all remaining logs.
         Call this on app shutdown.
         """
+
         self._listener.stop()

@@ -29,7 +29,7 @@ if __name__ == "__main__":
     server_manager = PSMonitorServerManager(logger)
 
     try:
-        server_manager.start(port=4500, max_connections=100)  # example max_connections
+        server_manager.start(port=4500)
     except Exception as e: # pylint: disable=broad-except
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)
