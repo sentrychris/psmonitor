@@ -35,18 +35,18 @@ class PSMonitorServerManager:
         Initializes the server manager with default state.
         """
 
-        self.logger = logger
+        self._logger = logger
 
-        self.thread = None
-        self.ioloop = None
-        self.server_queue = queue.Queue()
-        self.started_event = threading.Event()
-
-        self._server = None
         self.port = None
         self.address = "localhost"
 
-        self.lock = threading.Lock()
+        self._thread = None
+        self._ioloop = None
+        self._server = None
+        self._server_queue = queue.Queue()
+        self._started_event = threading.Event()
+
+        self._lock = threading.Lock()
 
 
     def _server_thread(self, port, queue_, started_event):
@@ -59,24 +59,24 @@ class PSMonitorServerManager:
             started_event (threading.Event): Event to signal when server is ready.
         """
 
-        self.ioloop = IOLoop()
+        self._ioloop = IOLoop()
 
         base_dir = os.path.dirname(os.path.dirname(__file__))
         self._server = create_server(os.path.join(base_dir, 'gui', 'web'))
         self._server.listen(port, address=self.address)
-        self.logger.info(f"Tornado server listening on http://{self.address}:{self.port}")
+        self._logger.info(f"Tornado server listening on http://{self.address}:{self.port}")
 
         queue_.put(self._server)
 
         def on_start():
-            self.logger.debug(
+            self._logger.debug(
                 f"Tornado server thread started: {threading.current_thread().name} "
                 f"(ID: {threading.get_ident()})"
             )
             started_event.set()
 
-        self.ioloop.add_callback(on_start)
-        self.ioloop.start()
+        self._ioloop.add_callback(on_start)
+        self._ioloop.start()
 
 
     def start(self, port):
@@ -92,27 +92,27 @@ class PSMonitorServerManager:
             RuntimeError: If server is already running.
         """
 
-        with self.lock:
-            if self.thread and self.thread.is_alive():
+        with self._lock:
+            if self._thread and self._thread.is_alive():
                 raise RuntimeError("Server already running")
             self.port = port
-            self.server_queue = queue.Queue()
-            self.started_event = threading.Event()
+            self._server_queue = queue.Queue()
+            self._started_event = threading.Event()
 
-            self.thread = threading.Thread(
+            self._thread = threading.Thread(
                 target=self._server_thread,
-                args=(port, self.server_queue, self.started_event),
+                args=(port, self._server_queue, self._started_event),
                 daemon=True,
                 name="TornadoServerThread",
             )
-            self.thread.start()
+            self._thread.start()
 
             # Wait for server to signal it is ready
-            started = self.started_event.wait(timeout=5)
+            started = self._started_event.wait(timeout=5)
             if not started:
                 raise TimeoutError("Server failed to start within timeout")
 
-            self._server = self.server_queue.get()
+            self._server = self._server_queue.get()
 
 
     def stop(self):
@@ -122,18 +122,18 @@ class PSMonitorServerManager:
         Does nothing if the server is not running.
         """
 
-        with self.lock:
-            if self.thread and self.thread.is_alive() and self.ioloop:
+        with self._lock:
+            if self._thread and self._thread.is_alive() and self._ioloop:
                 if self._server:
-                    self.logger.debug("Tornado server is shutting down...")
+                    self._logger.debug("Tornado server is shutting down...")
                     self._server.stop()
 
-                self.ioloop.add_callback(self.ioloop.stop)
-                self.thread.join(timeout=5)
-                self.thread = None
-                self.ioloop = None
+                self._ioloop.add_callback(self._ioloop.stop)
+                self._thread.join(timeout=5)
+                self._thread = None
+                self._ioloop = None
                 self._server = None
-                self.logger.debug("Tornado server thread terminated...")
+                self._logger.debug("Tornado server thread terminated...")
 
 
     def restart(self, port):
