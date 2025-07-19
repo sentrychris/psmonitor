@@ -15,7 +15,8 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 # Local application imports
-from core.server_manager import DEFAULT_PORT
+from core.util import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, DEFAULT_PORT, \
+    DEFAULT_SETTINGS_FILEPATH, DEFAULT_SETTINGS_FILE
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -44,12 +45,12 @@ class PSMonitorAppSettingsHandler:
 
         self._manager = manager
 
-        self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor')
-        self._fullpath = os.path.join(self._filepath, "settings.json")
+        self._filepath = DEFAULT_SETTINGS_FILEPATH
+        self._fullpath = DEFAULT_SETTINGS_FILE
 
         # Default settings
-        self.logging_enabled = tk.BooleanVar(value=True)
-        self.log_level = tk.StringVar(value="INFO")
+        self.logging_enabled = tk.BooleanVar(value=DEFAULT_LOG_ENABLED)
+        self.log_level = tk.StringVar(value=DEFAULT_LOG_LEVEL)
         self.port_number = tk.IntVar(value=DEFAULT_PORT)
         self.max_connections = tk.IntVar(value=10)
 
@@ -292,8 +293,8 @@ class PSMonitorAppSettingsHandler:
             with open(self._fullpath, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            self.logging_enabled.set(data.get("logging_enabled", True))
-            self.log_level.set(data.get("log_level", "INFO"))
+            self.logging_enabled.set(data.get("logging_enabled", DEFAULT_LOG_ENABLED))
+            self.log_level.set(data.get("log_level", DEFAULT_LOG_LEVEL))
             self.port_number.set(data.get("port_number", DEFAULT_PORT))
             self.max_connections.set(data.get("max_connections", 10))
 

@@ -17,7 +17,7 @@ import sys
 from threading import Lock
 
 # Local application imports
-from core.util import read_settings_file
+from core.util import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, read_settings_file
 
 
 class PSMonitorLogger:
@@ -203,8 +203,8 @@ class PSMonitorLogger:
 
         stored_settings = read_settings_file(self._logger)
         if isinstance(stored_settings, dict):
-            self.set_level(stored_settings.get("log_level", "INFO"))
-            self.set_enabled(stored_settings.get("logging_enabled", True))
+            self.set_level(stored_settings.get("log_level", DEFAULT_LOG_LEVEL))
+            self.set_enabled(stored_settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
 
 
     def stop(self) -> None:
