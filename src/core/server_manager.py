@@ -39,10 +39,13 @@ class PSMonitorServerManager:
 
         self.thread = None
         self.ioloop = None
-        self.http_server = None
         self.server_queue = queue.Queue()
         self.started_event = threading.Event()
+
+        self._server = None
         self.port = None
+        self.address = "localhost"
+
         self.lock = threading.Lock()
 
 
@@ -58,10 +61,12 @@ class PSMonitorServerManager:
 
         self.ioloop = IOLoop()
 
-        self.http_server = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
-        self.http_server.listen(port, address="localhost")
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        self._server = create_server(os.path.join(base_dir, 'gui', 'web'))
+        self._server.listen(port, address=self.address)
+        self.logger.info(f"Tornado server listening on http://{self.address}:{self.port}")
 
-        queue_.put(self.http_server)
+        queue_.put(self._server)
 
         def on_start():
             self.logger.debug(
@@ -106,7 +111,8 @@ class PSMonitorServerManager:
             started = self.started_event.wait(timeout=5)
             if not started:
                 raise TimeoutError("Server failed to start within timeout")
-            self.http_server = self.server_queue.get()
+
+            self._server = self.server_queue.get()
 
 
     def stop(self):
@@ -118,15 +124,15 @@ class PSMonitorServerManager:
 
         with self.lock:
             if self.thread and self.thread.is_alive() and self.ioloop:
-                if self.http_server:
+                if self._server:
                     self.logger.debug("Tornado server is shutting down...")
-                    self.http_server.stop()
+                    self._server.stop()
 
                 self.ioloop.add_callback(self.ioloop.stop)
                 self.thread.join(timeout=5)
                 self.thread = None
                 self.ioloop = None
-                self.http_server = None
+                self._server = None
                 self.logger.debug("Tornado server thread terminated...")
 
 

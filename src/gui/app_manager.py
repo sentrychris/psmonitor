@@ -393,7 +393,7 @@ class PSMonitorApp(tk.Tk):
         """
         Opens the web UI for testing the websocket connection.
         """
-        webbrowser.open_new("http://127.0.0.1:4500")
+        webbrowser.open_new(self.client.http_url)
 
 
     def create_processes_table(self, frame: ttk.Frame) -> None:

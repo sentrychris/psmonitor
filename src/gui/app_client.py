@@ -23,11 +23,6 @@ if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
 
 
-# Constants
-WS_URL = 'ws://localhost:4500/connect?id='
-HTTP_URL = 'http://localhost:4500'
-
-
 class PSMonitorAppClient():
     """
     App client for connection to the tornado server.
@@ -42,8 +37,15 @@ class PSMonitorAppClient():
 
         self._manager = manager
 
+        self.port = self._manager.server.port
+        self.address = self._manager.server.address
+
+        self.http_url = f"http://{self.address}:{self.port}"
+        self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
+
         self._ws = None
         self._ws_client_thread = None
+
         self._worker_id = None
 
 
@@ -53,7 +55,7 @@ class PSMonitorAppClient():
         """
 
         try:
-            response = requests.get(f'{HTTP_URL}/system', timeout=5)
+            response = requests.get(f'{self.http_url}/system', timeout=5)
             self._manager.data.update(response.json())
             self._manager.update_gui_sections()
             self._start_websocket_connection()
@@ -67,7 +69,7 @@ class PSMonitorAppClient():
         """
 
         try:
-            response = requests.post(HTTP_URL, json={'connection': 'monitor'}, timeout=5)
+            response = requests.post(self.http_url, json={'connection': 'monitor'}, timeout=5)
             worker = response.json()
             self._worker_id = worker['id']
             self._connect_websocket(self._worker_id)
@@ -86,7 +88,7 @@ class PSMonitorAppClient():
         websocket.enableTrace(False)
 
         self._ws = websocket.WebSocketApp(
-            f"{WS_URL}{worker_id}",
+            f"{self.ws_url}{worker_id}",
             on_message=self.on_message,
             on_error=self.on_error,
             on_close=self.on_close,
@@ -118,12 +120,12 @@ class PSMonitorAppClient():
         return self._worker_id
 
 
-    def check_server_reachable(self, host="127.0.0.1", port=4500, timeout=1):
+    def check_server_reachable(self, timeout=1):
         """
         Check the server is reachable.
         """
         try:
-            with socket.create_connection((host, port), timeout=timeout):
+            with socket.create_connection((self.address, self.port), timeout=timeout):
                 self._manager.logger.info("Tornado server is reachable.")
                 return True
         except OSError as e:
