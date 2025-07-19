@@ -40,7 +40,7 @@ class PSMonitorGraph:
             data_callback: Callable[[], dict],
             y_label: str,
             window_title: str,
-            handler: 'PSMonitorGraphHandler' = None
+            handler: 'PSMonitorAppGraphHandler' = None
         ) -> None:
         """
         Initializes the handler with initial data.
@@ -223,7 +223,7 @@ class PSMonitorGraph:
             self._g_canvas.draw_idle()
 
 
-class PSMonitorGraphHandler():
+class PSMonitorAppGraphHandler():
     """
     Graph handler.
     """

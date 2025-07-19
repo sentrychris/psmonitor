@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes
 # the number of attributes is reasonable in this case.
-class PSMonitorSettings:
+class PSMonitorAppSettingsHandler:
     """
     Settings handler.
     """
@@ -54,7 +54,6 @@ class PSMonitorSettings:
 
         # Load saved settings
         self._load_settings_from_file()
-        self.set_logging_settings()
 
 
     def open_window(self) -> None:
