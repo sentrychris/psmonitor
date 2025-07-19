@@ -14,7 +14,6 @@ import os
 import queue
 import subprocess
 import sys
-from threading import Lock
 
 # Local application imports
 from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, read_settings_file
@@ -39,7 +38,6 @@ class PSMonitorLogger:
         Initialize the log handler.
         """
         self._enabled = True
-        self._lock = Lock()
 
         self._log_queue = queue.Queue(-1)  # Infinite size
         self._logger = logging.getLogger("PSMonitor")

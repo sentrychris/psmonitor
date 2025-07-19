@@ -10,6 +10,7 @@ License: MIT
 # Standard library imports
 import os
 import sys
+import threading
 import tkinter as tk
 from tkinter import ttk
 import webbrowser
@@ -52,6 +53,8 @@ class PSMonitorApp(tk.Tk):
         super().__init__()
 
         self.server = server
+
+        self._lock = threading.Lock()
 
         # Must be initiialized before others and in the following order
         self.data = data
@@ -272,11 +275,20 @@ class PSMonitorApp(tk.Tk):
         Updates the GUI with the latest data.
         """
 
-        self.update_gui_section(self.platform_labels, self.data['platform'])
-        self.update_gui_section(self.disk_labels, self.data['disk'])
-        self.update_gui_section(self.cpu_labels, self.data['cpu'])
-        self.update_gui_section(self.mem_labels, self.data['mem'])
+        with self._lock:
+            platform_data = self.data['platform'].copy()
+            disk_data = self.data['disk'].copy()
+            cpu_data = self.data['cpu'].copy()
+            mem_data = self.data['mem'].copy()
+            processes_data = self.data['processes'][:]
 
+        # Update UI with copies outside the lock
+        self.update_gui_section(self.platform_labels, platform_data)
+        self.update_gui_section(self.disk_labels, disk_data)
+        self.update_gui_section(self.cpu_labels, cpu_data)
+        self.update_gui_section(self.mem_labels, mem_data)
+
+        self.data['processes'] = processes_data
         self.update_processes_table()
         self.graph_handler.update_active_graphs()
 
@@ -536,12 +548,13 @@ class PSMonitorApp(tk.Tk):
             new_data (dict): The new data to update.
         """
 
-        self.data['cpu'] = new_data.get('cpu', self.data['cpu'])
-        self.data['mem'] = new_data.get('mem', self.data['mem'])
-        self.data['disk'] = new_data.get('disk', self.data['disk'])
-        self.data['user'] = new_data.get('user', self.data['user'])
-        self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
-        self.data['processes'] = new_data.get('processes', self.data['processes'])
+        with self._lock:
+            self.data['cpu'] = new_data.get('cpu', self.data['cpu'])
+            self.data['mem'] = new_data.get('mem', self.data['mem'])
+            self.data['disk'] = new_data.get('disk', self.data['disk'])
+            self.data['user'] = new_data.get('user', self.data['user'])
+            self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
+            self.data['processes'] = new_data.get('processes', self.data['processes'])
 
 
     def shutdown(self) -> None:
