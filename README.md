@@ -195,10 +195,12 @@ psmonitor uses three threading models:
 `get_cpu()` and similar functions are CPU-bound or blocking I/O. Therefore these tasks are offloaded to a worker thread in `ThreadPoolExecutor`, allowing the Tornado `IOLoop` to remain non-blocking and continue handling other connections and events.
 
 #### In the GUI 
-`threading.Thread` is used to start both the Tornado server and the websocket client in the background so they do not block the GUI's `mainloop()`, which requires the main thread.
+`threading.Thread` is used to start the Tornado server and the websocket client in separate threads so they do not block the GUI's `mainloop()`.
 
 #### Thread safety with shared data
-The core application state, especially the `self.data` dictionary holding system metrics, is shared between the main GUI thread and the websocket client thread. To avoid data corruption and race conditions when multiple threads access or update `self.data`, psmonitor uses a thread lock:
+The core application state, especially the `self.data` dictionary holding system metrics, is shared between the main GUI thread and the websocket client thread.
+
+To avoid data corruption and race conditions when multiple threads access or update `self.data`, psmonitor uses a thread lock:
 
 - Before a thread reads or modifies `self.data`, it acquires the lock.
 - This prevents other threads from accessing `self.data` concurrently.
