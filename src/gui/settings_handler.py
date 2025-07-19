@@ -15,8 +15,8 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 # Local application imports
-from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, DEFAULT_PORT, \
-    DEFAULT_SETTINGS_FILEPATH, DEFAULT_SETTINGS_FILE
+from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, \
+    DEFAULT_PORT, DEFAULT_SETTINGS_FILE
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -44,9 +44,7 @@ class PSMonitorAppSettingsHandler:
         self._tooltip = None
 
         self._manager = manager
-
-        self._filepath = DEFAULT_SETTINGS_FILEPATH
-        self._fullpath = DEFAULT_SETTINGS_FILE
+        self._settings_path = DEFAULT_SETTINGS_FILE
 
         # Default settings
         self.logging_enabled = tk.BooleanVar(value=DEFAULT_LOG_ENABLED)
@@ -71,8 +69,8 @@ class PSMonitorAppSettingsHandler:
 
         self._window = tk.Toplevel(self._manager)
         self._window.title(self._window_title)
-        self._window.geometry("450x500")
-        self._window.resizable(True, True)
+        self._window.geometry("450x560")
+        self._window.resizable(False, True)
         self._window.protocol("WM_DELETE_WINDOW", self.on_close)
 
         main_frame = ttk.Frame(self._window, padding=10)
@@ -93,6 +91,7 @@ class PSMonitorAppSettingsHandler:
             "port_number": self.port_number.get(),
             "max_connections": self.max_connections.get()
         }
+
 
     def set_logging_settings(self) -> None:
         """
@@ -152,6 +151,9 @@ class PSMonitorAppSettingsHandler:
         server_frame = ttk.LabelFrame(parent, text="Server", padding=10)
         server_frame.pack(fill="x", pady=10)
 
+        style = ttk.Style()
+        style.configure("Help.TLabel", foreground="#333333", font=("Arial", 8))
+
         # Description label
         ttk.Label(
             server_frame,
@@ -163,8 +165,14 @@ class PSMonitorAppSettingsHandler:
         ttk.Entry(
             server_frame,
             textvariable=self.port_number,
-            state="disabled"
         ).pack(anchor="w", fill="x", pady=(0, 5))
+
+        ttk.Label(
+            server_frame,
+            text="Sets the port for the embedded server to listen on for incoming connections.",
+            wraplength=400,
+            style="Help.TLabel"
+        ).pack(anchor="w", pady=(1, 15))
 
         # Max connections
         ttk.Label(server_frame, text="Max Connections:").pack(anchor="w")
@@ -173,6 +181,13 @@ class PSMonitorAppSettingsHandler:
             textvariable=self.max_connections,
             state="disabled"
         ).pack(anchor="w", fill="x", pady=(0, 5))
+
+        ttk.Label(
+            server_frame,
+            text="Sets the max number of allowed websocket connections to the embedded server.",
+            wraplength=400,
+            style="Help.TLabel"
+        ).pack(anchor="w", pady=(1, 15))
 
         ttk.Button(
             server_frame,
@@ -184,7 +199,7 @@ class PSMonitorAppSettingsHandler:
 
     def _build_buttons_section(self, parent):
         buttons_frame = ttk.Frame(parent)
-        buttons_frame.pack(side="bottom", fill="x", pady=20)
+        buttons_frame.pack(side="bottom", fill="x", pady=10)
 
         ttk.Button(
             buttons_frame,
@@ -257,7 +272,7 @@ class PSMonitorAppSettingsHandler:
 
 
     def _show_tooltip(self, text):
-        if not hasattr(self, '_tooltip'):
+        if self._tooltip is None and self._window:
             self._tooltip = tk.Toplevel(self._window)
             self._tooltip.wm_overrideredirect(True)
             self._tooltip.attributes("-topmost", True)
@@ -285,12 +300,12 @@ class PSMonitorAppSettingsHandler:
         """
         Load settings from file if it exists.
         """
-        if not os.path.exists(self._fullpath):
-            self._manager.logger.error(f"Settings file does not exist at: {self._fullpath}")
+        if not os.path.exists(self._settings_path):
+            self._manager.logger.error(f"Settings file does not exist at: {self._settings_path}")
             return
 
         try:
-            with open(self._fullpath, "r", encoding="utf-8") as f:
+            with open(self._settings_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             self.logging_enabled.set(data.get("logging_enabled", DEFAULT_LOG_ENABLED))
@@ -308,7 +323,7 @@ class PSMonitorAppSettingsHandler:
         """
 
         try:
-            with open(self._fullpath, "w", encoding="utf-8") as f:
+            with open(self._settings_path, "w", encoding="utf-8") as f:
                 json.dump(self.get_current_settings(), f, indent=4)
             return True
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
