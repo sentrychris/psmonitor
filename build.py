@@ -10,9 +10,9 @@ Usage:
 
 Arguments:
     --build TYPE         Specify the build type: "gui" or "headless"
-    --clean              Optional flag to clean build and dist directories before building
     --upx VERSION        Specify the UPX version to download and use (default: 5.0.1)
-    --insert-docstrings  Insert docstrings into .py source files (does not build EXEs).
+    --clean              Optional flag to clean build and dist directories before building
+    --insert-docstrings  Insert docstrings into .py source files (does not build EXEs)
 
 The script handles platform differences for UPX download URLs and extraction.
 """
