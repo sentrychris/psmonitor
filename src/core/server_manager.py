@@ -18,7 +18,7 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import create_server
-from core.util import DEFAULT_ADDRESS, DEFAULT_PORT, read_settings_file
+from core.config import DEFAULT_ADDRESS, DEFAULT_PORT, read_settings_file
 
 if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger

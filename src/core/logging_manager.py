@@ -17,7 +17,7 @@ import sys
 from threading import Lock
 
 # Local application imports
-from core.util import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, read_settings_file
+from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, read_settings_file
 
 
 class PSMonitorLogger:

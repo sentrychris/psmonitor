@@ -22,10 +22,11 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    # Logger
+    # Create logger and clear log for new session
     logger = PSMonitorLogger("app.log")
+    logger.clear_log()
 
-    # Server manager instance
+    # Create server manager to handle threaded server
     server_manager = PSMonitorServerManager(logger)
 
     try:
@@ -34,6 +35,7 @@ if __name__ == "__main__":
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)
 
+    # Create placeholder data to intialise GUI widgets
     init_data = {
         "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
         "mem": {"total": 0, "used": 0, "free": 0, "percent": 0},

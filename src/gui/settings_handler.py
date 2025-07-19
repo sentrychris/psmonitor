@@ -15,7 +15,7 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 # Local application imports
-from core.util import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, DEFAULT_PORT, \
+from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, DEFAULT_PORT, \
     DEFAULT_SETTINGS_FILEPATH, DEFAULT_SETTINGS_FILE
 
 # Typing (type hints only, no runtime dependency)

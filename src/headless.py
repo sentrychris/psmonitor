@@ -17,7 +17,7 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import create_server, signal_handler
-from core.util import DEFAULT_PORT
+from core.config import DEFAULT_PORT
 
 
 # Define command-line options
