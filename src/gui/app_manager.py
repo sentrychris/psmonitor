@@ -394,6 +394,63 @@ class PSMonitorApp(tk.Tk):
         return photo
 
 
+    def create_processes_table(self, frame: ttk.Frame) -> None:
+        """
+        Adds a table to display process information.
+
+        Args:
+            frame (ttk.Frame): The parent frame.
+        """
+
+        columns = ("pid", "name", "username", "mem")
+        self.processes_tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
+
+        self.processes_tree.heading("pid", text="PID", anchor='center')
+        self.processes_tree.column("pid", anchor='center', width=60, minwidth=50)
+        self.processes_tree.heading("name", text="Name", anchor='center')
+        self.processes_tree.column("name", anchor='center', width=100, minwidth=80)
+        self.processes_tree.heading("username", text="Username", anchor='center')
+        self.processes_tree.column("username", anchor='center', width=120, minwidth=100)
+        self.processes_tree.heading("mem", text="Memory (MB)", anchor='center')
+        self.processes_tree.column("mem", anchor='center', width=80, minwidth=60)
+
+        # create empty fixed rows
+        for i in range(self.max_process_rows):
+            tag = "odd" if i % 2 == 0 else "even"
+            self.processes_tree.insert("", "end",
+                                       iid=f"proc{i}",
+                                       values=("", "", "", ""), tags=(tag,))
+
+        self.processes_tree.tag_configure("odd", background="lightgrey")
+        self.processes_tree.tag_configure("even", background="white")
+        self.processes_tree.pack(expand=True, fill="both", padx=10, pady=10)
+
+
+    def update_processes_table(self) -> None:
+        """
+        Updates the processes table with new data.
+
+        Args:
+            processes (list): The list of processes to update.
+        """
+
+        for i in range(self.max_process_rows):
+            if i < len(self.data['processes']):
+                process = self.data['processes'][i]
+                values = (
+                    process.get("pid", ""),
+                    process.get("name", ""),
+                    process.get("username", ""),
+                    process.get("mem", "")
+                )
+            else:
+                values = ("", "", "", "")
+
+            if values != self.cached_processes[i]:
+                self.processes_tree.item(f"proc{i}", values=values)
+                self.cached_processes[i] = values
+
+
     def open_about_window(self) -> None:
         """
         Displays the 'About' window.
@@ -472,63 +529,6 @@ class PSMonitorApp(tk.Tk):
         Opens the web UI for testing the websocket connection.
         """
         webbrowser.open_new(self.client.http_url)
-
-
-    def create_processes_table(self, frame: ttk.Frame) -> None:
-        """
-        Adds a table to display process information.
-
-        Args:
-            frame (ttk.Frame): The parent frame.
-        """
-
-        columns = ("pid", "name", "username", "mem")
-        self.processes_tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
-
-        self.processes_tree.heading("pid", text="PID", anchor='center')
-        self.processes_tree.column("pid", anchor='center', width=60, minwidth=50)
-        self.processes_tree.heading("name", text="Name", anchor='center')
-        self.processes_tree.column("name", anchor='center', width=100, minwidth=80)
-        self.processes_tree.heading("username", text="Username", anchor='center')
-        self.processes_tree.column("username", anchor='center', width=120, minwidth=100)
-        self.processes_tree.heading("mem", text="Memory (MB)", anchor='center')
-        self.processes_tree.column("mem", anchor='center', width=80, minwidth=60)
-
-        # create empty fixed rows
-        for i in range(self.max_process_rows):
-            tag = "odd" if i % 2 == 0 else "even"
-            self.processes_tree.insert("", "end",
-                                       iid=f"proc{i}",
-                                       values=("", "", "", ""), tags=(tag,))
-
-        self.processes_tree.tag_configure("odd", background="lightgrey")
-        self.processes_tree.tag_configure("even", background="white")
-        self.processes_tree.pack(expand=True, fill="both", padx=10, pady=10)
-
-
-    def update_processes_table(self) -> None:
-        """
-        Updates the processes table with new data.
-
-        Args:
-            processes (list): The list of processes to update.
-        """
-
-        for i in range(self.max_process_rows):
-            if i < len(self.data['processes']):
-                process = self.data['processes'][i]
-                values = (
-                    process.get("pid", ""),
-                    process.get("name", ""),
-                    process.get("username", ""),
-                    process.get("mem", "")
-                )
-            else:
-                values = ("", "", "", "")
-
-            if values != self.cached_processes[i]:
-                self.processes_tree.item(f"proc{i}", values=values)
-                self.cached_processes[i] = values
 
 
     def refresh_data(self, new_data: dict) -> None:
