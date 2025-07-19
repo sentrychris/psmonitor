@@ -59,8 +59,8 @@ class HttpHandler(BaseHandler):
         try:
             # Create a new worker to pair HTTP connection with websocket session
             worker = self.create_worker()
-        except Exception as e:
-            status = str(e)
+        except Exception:
+            status = "Error: failed to create worker."
         else:
             # Add the worker to the worker registry
             worker_id = worker.id
