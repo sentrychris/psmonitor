@@ -20,7 +20,7 @@ from tornado.ioloop import IOLoop
 from core import create_server
 
 if TYPE_CHECKING:
-    from core.app_logger import PSMonitorLogger
+    from core.logging_manager import PSMonitorLogger
 
 
 # pylint: disable=too-many-instance-attributes

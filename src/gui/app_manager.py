@@ -25,7 +25,7 @@ from gui.settings_handler import PSMonitorAppSettingsHandler
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
-    from core.app_logger import PSMonitorLogger
+    from core.logging_manager import PSMonitorLogger
     from core.server_manager import PSMonitorServerManager
 
 

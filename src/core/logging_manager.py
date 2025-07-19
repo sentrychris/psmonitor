@@ -100,7 +100,7 @@ class PSMonitorLogger:
             self._logger.setLevel(log_level)
             self._file_handler.setLevel(log_level)
             self._console_handler.setLevel(log_level)
-            self._logger.info("Log level is set to %s", level.upper())
+            self._logger.debug("Log level is set to %s", level.upper())
 
 
     def is_enabled(self) -> bool:

@@ -13,7 +13,7 @@ import sys
 
 # Local application imports
 from core import signal_handler
-from core.app_logger import PSMonitorLogger
+from core.logging_manager import PSMonitorLogger
 from core.server_manager import PSMonitorServerManager
 from gui.app_manager import PSMonitorApp
 
