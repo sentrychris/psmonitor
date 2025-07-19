@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 
 # Third-party imports
 from PIL import Image, ImageTk
+from tornado.ioloop import IOLoop
 
 # Local application imports
 from gui.app_client import PSMonitorAppClient
@@ -111,10 +112,10 @@ class PSMonitorApp(tk.Tk):
         if self.client.check_server_reachable():
             self.client.setup_connection()
         else:
-            self.client.on_closing()
+            self.shutdown()
             sys.exit(1)
 
-        self.protocol("WM_DELETE_WINDOW", self.client.on_closing)
+        self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
 
     def set_window_icon(self, icon_path: str) -> str:
@@ -148,7 +149,7 @@ class PSMonitorApp(tk.Tk):
         file_menu.add_separator()
         file_menu.add_command(label="Open Settings", command=self.settings_handler.open_window)
         file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.client.on_closing)
+        file_menu.add_command(label="Exit", command=self.shutdown)
 
         graphs_menu = tk.Menu(menu_bar, tearoff=0)
         graphs_cpu_submenu = tk.Menu(graphs_menu, tearoff=0)
@@ -544,3 +545,16 @@ class PSMonitorApp(tk.Tk):
         self.data['user'] = new_data.get('user', self.data['user'])
         self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
         self.data['processes'] = new_data.get('processes', self.data['processes'])
+
+
+    def shutdown(self) -> None:
+        """
+        Handles application closing.
+        """
+
+        self.client.close_websocket_connection()
+        self.server.stop()
+        self.logger.stop()
+        IOLoop.current().add_callback(IOLoop.current().stop)
+
+        self.destroy()

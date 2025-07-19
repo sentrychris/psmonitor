@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 # Third-party imports
 import requests
 import websocket
-from tornado.ioloop import IOLoop
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -215,16 +214,3 @@ class PSMonitorAppClient():
         """
 
         self._manager.logger.info(f"Websocket connection is open ({ws.url})")
-
-
-    def on_closing(self) -> None:
-        """
-        Handles application closing.
-        """
-
-        self.close_websocket_connection()
-        self._manager.server.stop()
-        self._manager.logger.stop()
-        IOLoop.current().add_callback(IOLoop.current().stop)
-
-        self._manager.destroy()

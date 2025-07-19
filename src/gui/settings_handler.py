@@ -274,7 +274,8 @@ class PSMonitorAppSettingsHandler:
         if self._manager.client.check_server_reachable():
             self._manager.client.setup_connection()
         else:
-            self._manager.client.on_closing()
+            # TODO implement retry methods
+            self._manager.shutdown()
             sys.exit(1)
 
 
