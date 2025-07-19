@@ -11,7 +11,7 @@ License: MIT
 from tornado.ioloop import IOLoop
 
 # Local application imports
-from core.handler.websocket.websocket_handler import WebsocketHandler
+from core.server.websocket.websocket_handler import WebsocketHandler
 
 
 class Worker():

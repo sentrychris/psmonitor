@@ -9,7 +9,6 @@ License: MIT
 
 # Standard library imports
 import uuid
-import os
 import sys
 from typing import Union
 
@@ -19,8 +18,8 @@ from tornado.web import Application
 from tornado.httpserver import HTTPServer
 
 # Local application imports
-from core.handler.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler
-from core.handler.websocket.websocket_handler import WebsocketHandler
+from core.server.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler
+from core.server.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
 
 
