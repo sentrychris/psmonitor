@@ -48,7 +48,7 @@ def create_server(server_path: str) -> HTTPServer:
         'static_path': server_path,
         'cookie_secret': uuid.uuid1().hex,
         'xsrf_cookies': False,
-        'debug': True
+        'debug': False
     }))
 
 

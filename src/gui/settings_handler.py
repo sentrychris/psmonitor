@@ -10,13 +10,14 @@ License: MIT
 # Standard library imports
 import json
 import os
+import sys
 import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
 # Local application imports
 from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, \
-    DEFAULT_PORT, DEFAULT_SETTINGS_FILE, read_settings_file
+    DEFAULT_ADDRESS, DEFAULT_PORT, DEFAULT_SETTINGS_FILE, read_settings_file
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -49,6 +50,7 @@ class PSMonitorAppSettingsHandler:
         # Default settings
         self.logging_enabled = tk.BooleanVar(value=DEFAULT_LOG_ENABLED)
         self.log_level = tk.StringVar(value=DEFAULT_LOG_LEVEL)
+        self.address = tk.StringVar(value=DEFAULT_ADDRESS)
         self.port_number = tk.IntVar(value=DEFAULT_PORT)
         self.max_ws_connections = tk.IntVar(value=10)
 
@@ -88,6 +90,7 @@ class PSMonitorAppSettingsHandler:
         return {
             "logging_enabled": self.logging_enabled.get(),
             "log_level": self.log_level.get(),
+            "address": self.address.get(),
             "port_number": self.port_number.get(),
             "max_ws_connections": self.max_ws_connections.get()
         }
@@ -199,8 +202,7 @@ class PSMonitorAppSettingsHandler:
         ttk.Button(
             server_frame,
             text="Save & Restart Server",
-            command=lambda: 1,
-            state="disabled"
+            command=self._save_and_restart_server
         ).pack(anchor="e", pady=(10, 0))
 
 
@@ -256,6 +258,26 @@ class PSMonitorAppSettingsHandler:
             self._manager.logger.set_level(self.log_level.get())
 
 
+    def _save_and_restart_server(self) -> None:
+        """
+        Save and restart the server.
+        """
+
+        address = self.address.get()
+        port = self.port_number.get()
+
+        self._save_settings_to_file()
+        self._manager.client.close_websocket_connection()
+        self._manager.client.set_address_and_port(address, port)
+        self._manager.server.restart(port)
+
+        if self._manager.client.check_server_reachable():
+            self._manager.client.setup_connection()
+        else:
+            self._manager.client.on_closing()
+            sys.exit(1)
+
+
     def _on_clear_log(self):
         try:
             self._manager.logger.clear_log()
@@ -307,6 +329,7 @@ class PSMonitorAppSettingsHandler:
         if isinstance(settings, dict):
             self.logging_enabled.set(settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
             self.log_level.set(settings.get("log_level", DEFAULT_LOG_LEVEL))
+            self.address.set(settings.get("address", DEFAULT_ADDRESS))
             self.port_number.set(settings.get("port_number", DEFAULT_PORT))
             self.max_ws_connections.set(settings.get("max_ws_connections", 10))
 

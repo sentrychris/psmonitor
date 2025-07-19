@@ -73,7 +73,7 @@ class PSMonitorServerManager:
                 f"Tornado server thread started: {threading.current_thread().name} "
                 f"(ID: {threading.get_ident()})"
             )
-            self._logger.info(f"Tornado server listening on http://{self.address}:{self.port}")
+            self._logger.info(f"Tornado server listening on http://{self.address}:{port}")
             started_event.set()
 
         self._ioloop.add_callback(on_start)

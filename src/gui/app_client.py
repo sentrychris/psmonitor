@@ -49,6 +49,18 @@ class PSMonitorAppClient():
         self._worker_id = None
 
 
+    def set_address_and_port(self, address: str, port: str) -> None:
+        """
+        Configure connection address and port.
+        """
+
+        self.address = address
+        self.port = port
+
+        self.http_url = f"http://{self.address}:{self.port}"
+        self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
+
+
     def setup_connection(self) -> None:
         """
         Initialize the connection to the local tornado server.
@@ -133,6 +145,22 @@ class PSMonitorAppClient():
             return False
 
 
+    def close_websocket_connection(self):
+        """
+        Close the websocket connection.
+        """
+
+        if self._ws:
+            self._ws.close() # signal the websocket to close
+
+        if self._ws_client_thread:
+            self._ws_client_thread.join(timeout=5)
+            if self._ws_client_thread.is_alive():
+                self._manager.logger.error("Websocket client thread did not terminate gracefully")
+            else:
+                self._manager.logger.debug("Websocket server thread terminated gracefully")
+
+
     def on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
         """
         Handles incoming websocket messages.
@@ -194,16 +222,7 @@ class PSMonitorAppClient():
         Handles application closing.
         """
 
-        if self._ws:
-            self._ws.close() # signal the websocket to close
-
-        if self._ws_client_thread:
-            self._ws_client_thread.join(timeout=5)
-            if self._ws_client_thread.is_alive():
-                self._manager.logger.error("Websocket client thread did not terminate gracefully")
-            else:
-                self._manager.logger.debug("Websocket server thread terminated gracefully")
-
+        self.close_websocket_connection()
         self._manager.server.stop()
         self._manager.logger.stop()
         IOLoop.current().add_callback(IOLoop.current().stop)
