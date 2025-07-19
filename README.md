@@ -197,6 +197,13 @@ psmonitor uses three threading models:
 #### In the GUI 
 `threading.Thread` is used to start both the Tornado server and the websocket client in the background so they do not block the GUI's `mainloop()`, which requires the main thread.
 
+#### Thread safety with shared data
+The core application state, especially the `self.data` dictionary holding system metrics, is shared between the main GUI thread and the websocket client thread. To avoid data corruption and race conditions when multiple threads access or update `self.data`, psmonitor uses a thread lock:
+
+- Before a thread reads or modifies `self.data`, it acquires the lock.
+- This prevents other threads from accessing `self.data` concurrently.
+- Once the operation completes, the lock is released, allowing other threads to proceed.
+
 ### Developing Custom GUI Windows.
 
 A reusable template class is provided [here](./build_resources/template/child_handler_template.py) to provide a standard structure for adding new GUI child windows (e.g. graphs, logs, settings) as separate managed components.
