@@ -19,9 +19,18 @@ from threading import Lock
 
 # pylint: disable=too-many-instance-attributes
 # the number of attributes is reasonable in this case.
-class ThreadSafeLogger:
+class PSMonitorLogger:
     """
-    Thread-safe logger for PSMonitor app using QueueHandler and QueueListener.
+    Thread-safe logger for the PSMonitor application.
+
+    Uses Python's `QueueHandler` and `QueueListener` to safely handle logging from
+    multiple threads without risk of interleaved output or contention on shared I/O
+    handlers.
+
+    Architecture:
+        - A single `queue.Queue` receives all log records via `QueueHandler`.
+        - A dedicated background thread (`QueueListener`) consumes records from the 
+          queue and dispatches them to attached handlers (e.g., file and console).
     """
 
     def __init__(self, filename: str):

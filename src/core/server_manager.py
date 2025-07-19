@@ -20,10 +20,10 @@ from tornado.ioloop import IOLoop
 from core import create_server
 
 if TYPE_CHECKING:
-    from logger import ThreadSafeLogger
+    from core.app_logger import PSMonitorLogger
 
 
-class TornadoServerManager:
+class PSMonitorServerManager:
     """
     Manages a Tornado HTTP server running in a background thread.
 
@@ -31,7 +31,7 @@ class TornadoServerManager:
     over the Tornado IOLoop and server lifecycle.
     """
 
-    def __init__(self, logger: 'ThreadSafeLogger' = None):
+    def __init__(self, logger: 'PSMonitorLogger' = None):
         """
         Initializes the TornadoServerManager with default state.
         """
@@ -122,14 +122,15 @@ class TornadoServerManager:
         with self.lock:
             if self.thread and self.thread.is_alive() and self.ioloop:
                 if self.http_server:
-                    self.logger.info("Tornado server is shutting down...")
+                    self.logger.debug("Tornado server is shutting down...")
                     self.http_server.stop()
+
                 self.ioloop.add_callback(self.ioloop.stop)
                 self.thread.join(timeout=5)
                 self.thread = None
                 self.ioloop = None
                 self.http_server = None
-                self.logger.info("Tornado server thread terminated...")
+                self.logger.debug("Tornado server thread terminated...")
 
 
     def restart(self, port, max_connections=5):

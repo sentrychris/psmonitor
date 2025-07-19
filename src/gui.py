@@ -13,9 +13,9 @@ import sys
 
 # Local application imports
 from core import signal_handler
+from core.app_logger import PSMonitorLogger
+from core.server_manager import PSMonitorServerManager
 from gui.app_manager import PSMonitorApp
-from logger import ThreadSafeLogger
-from manager import TornadoServerManager
 
 
 if __name__ == "__main__":
@@ -23,14 +23,14 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, signal_handler)
 
     # Logger
-    logger = ThreadSafeLogger("app.log")
+    logger = PSMonitorLogger("app.log")
 
     # Server manager instance
-    server_manager = TornadoServerManager(logger)
+    server_manager = PSMonitorServerManager(logger)
 
     try:
         server_manager.start(port=4500, max_connections=100)  # example max_connections
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)
 

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes
 # the number of attributes is reasonable in this case.
-class PSMonitorSettings:
+class PSMonitorAppSettingsHandler:
     """
     Settings handler.
     """

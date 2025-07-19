@@ -20,13 +20,13 @@ from PIL import Image, ImageTk
 
 # Local application imports
 from gui.app_client import PSMonitorAppClient
-from gui.graph_handler import PSMonitorGraphHandler
-from gui.settings_handler import PSMonitorSettings
+from gui.graph_handler import PSMonitorAppGraphHandler
+from gui.settings_handler import PSMonitorAppSettingsHandler
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
-    from ..manager import TornadoServerManager
-    from logger import ThreadSafeLogger
+    from core.app_logger import PSMonitorLogger
+    from core.server_manager import PSMonitorServerManager
 
 
 # Constants
@@ -43,8 +43,8 @@ class PSMonitorApp(tk.Tk):
     def __init__(
             self,
             data: dict,
-            server: 'TornadoServerManager' = None,
-            logger: 'ThreadSafeLogger' = None,
+            server: 'PSMonitorServerManager' = None,
+            logger: 'PSMonitorLogger' = None,
         ) -> None:
         """
         Initializes the app with initial data.
@@ -57,12 +57,12 @@ class PSMonitorApp(tk.Tk):
         # Must be initiialized before others and in the following order
         self.data = data
         self.logger = logger
-        self.settings = PSMonitorSettings(self)
+        self.settings_handler = PSMonitorAppSettingsHandler(self)
         # End initialization
 
         self.client = PSMonitorAppClient(self)
 
-        self.graph_handler = PSMonitorGraphHandler(self)
+        self.graph_handler = PSMonitorAppGraphHandler(self)
 
         self.cpu_temp_graph = self.graph_handler.create_graph(
             key="cpu",
@@ -147,7 +147,7 @@ class PSMonitorApp(tk.Tk):
         file_menu.add_command(label="Open web UI...", command=self.open_web_ui)
         file_menu.add_command(label="Open app log...", command=self.logger.open_log)
         file_menu.add_separator()
-        file_menu.add_command(label="Open Settings", command=self.settings.open_window)
+        file_menu.add_command(label="Open Settings", command=self.settings_handler.open_window)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.client.on_closing)
 
