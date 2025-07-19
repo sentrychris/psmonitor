@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 
 # Local application imports
 from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, \
-    DEFAULT_PORT, DEFAULT_SETTINGS_FILE
+    DEFAULT_PORT, DEFAULT_SETTINGS_FILE, read_settings_file
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -93,13 +93,21 @@ class PSMonitorAppSettingsHandler:
         }
 
 
-    def set_logging_settings(self) -> None:
-        """
-        Set the logging settings.
-        """
-        if self._manager:
-            self._manager.logger.set_enabled(self.logging_enabled.get())
-            self._manager.logger.set_level(self.log_level.get())
+    def _on_apply(self):
+        success = self._save_settings_to_file()
+        if success:
+            self._apply_logging_settings()
+            self._show_settings_status("✔ Settings applied", "green", 2000)
+        else:
+            self._show_settings_status("✖ Failed to apply settings", "red", 2000)
+
+
+    def _on_save(self):
+        success = self._save_settings_to_file()
+        if success:
+            self._show_settings_status("✔ Settings saved", "green", 2000)
+        else:
+            self._show_settings_status("✖ Failed to save settings", "red", 2000)
 
 
     def _build_logging_section(self, parent):
@@ -233,27 +241,19 @@ class PSMonitorAppSettingsHandler:
         )
 
 
-    def _on_apply(self):
-        success = self._save_settings_to_file()
-        if success:
-            self.set_logging_settings()
-            self._show_settings_status("✔ Settings applied", "green", 2000)
-        else:
-            self._show_settings_status("✖ Failed to apply settings", "red", 2000)
-
-
-    def _on_save(self):
-        success = self._save_settings_to_file()
-        if success:
-            self._show_settings_status("✔ Settings saved", "green", 2000)
-        else:
-            self._show_settings_status("✖ Failed to save settings", "red", 2000)
-
-
     def _show_settings_status(self, text: str, color: str, duration: int = 2000):
         if hasattr(self, '_settings_status_label'):
             self._settings_status_label.config(text=text, foreground=color)
             self._window.after(duration, lambda: self._settings_status_label.config(text=""))
+
+
+    def _apply_logging_settings(self) -> None:
+        """
+        Set the logging settings.
+        """
+        if self._manager:
+            self._manager.logger.set_enabled(self.logging_enabled.get())
+            self._manager.logger.set_level(self.log_level.get())
 
 
     def _on_clear_log(self):
@@ -303,17 +303,12 @@ class PSMonitorAppSettingsHandler:
             self._manager.logger.error(f"Settings file does not exist at: {self._settings_path}")
             return
 
-        try:
-            with open(self._settings_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            self.logging_enabled.set(data.get("logging_enabled", DEFAULT_LOG_ENABLED))
-            self.log_level.set(data.get("log_level", DEFAULT_LOG_LEVEL))
-            self.port_number.set(data.get("port_number", DEFAULT_PORT))
-            self.max_ws_connections.set(data.get("max_ws_connections", 10))
-
-        except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
-            self._manager.logger.error("Failed to load settings from file: %s", e)
+        settings = read_settings_file(self._manager.logger)
+        if isinstance(settings, dict):
+            self.logging_enabled.set(settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
+            self.log_level.set(settings.get("log_level", DEFAULT_LOG_LEVEL))
+            self.port_number.set(settings.get("port_number", DEFAULT_PORT))
+            self.max_ws_connections.set(settings.get("max_ws_connections", 10))
 
 
     def _save_settings_to_file(self) -> bool:
@@ -328,17 +323,6 @@ class PSMonitorAppSettingsHandler:
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
             self._manager.logger.error("Failed to save settings to file: %s", e)
             return False
-
-
-    def _log_current_settings(self) -> None:
-        """
-        Logs the current settings as a JSON object.
-        """
-
-        if self._manager and hasattr(self._manager, 'logger'):
-            self._manager.logger.info(
-                "Current settings: " + json.dumps(self.get_current_settings(), indent=4)
-            )
 
 
     def close_window(self) -> None:
