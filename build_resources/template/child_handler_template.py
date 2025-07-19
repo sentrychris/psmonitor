@@ -19,10 +19,7 @@ class PSMonitorChildHandlerTemplate:
     Handler template.
     """
 
-    def __init__(
-            self,
-            manager: 'PSMonitorApp' = None
-        ) -> None:
+    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
         """
         Initializes the handler.
         """
@@ -34,7 +31,7 @@ class PSMonitorChildHandlerTemplate:
 
     def open_window(self) -> None:
         """
-        Open graph window.
+        Open window.
         """
 
         if hasattr(self, '_window') and self._window and self._window.winfo_exists():
@@ -54,7 +51,8 @@ class PSMonitorChildHandlerTemplate:
         """
         Check if the window is active.
         """
-        return hasattr(self, '_window') and self._window.winfo_exists()
+
+        return hasattr(self, '_window') and self._window and self._window.winfo_exists()
 
 
     def close_window(self) -> None:
@@ -62,7 +60,7 @@ class PSMonitorChildHandlerTemplate:
         Close window.
         """
 
-        if hasattr(self, '_window') and self._window.winfo_exists():
+        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
             self.on_close()
 
 
@@ -70,8 +68,6 @@ class PSMonitorChildHandlerTemplate:
         """
         On close handler
         """
-        # Destroy the window to free Tk resources
-        self._window.destroy()
 
-        # Optionally delete the _window reference
+        self._window.destroy()
         del self._window
