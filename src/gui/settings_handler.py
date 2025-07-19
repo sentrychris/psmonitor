@@ -17,7 +17,9 @@ from typing import TYPE_CHECKING
 
 # Local application imports
 from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, \
-    DEFAULT_ADDRESS, DEFAULT_PORT, DEFAULT_SETTINGS_FILE, read_settings_file
+    DEFAULT_ADDRESS, DEFAULT_PORT, DEFAULT_MAX_WS_CONNECTIONS, \
+        DEFAULT_REFRESH_INTERVAL, DEFAULT_SETTINGS_FILE, \
+            read_settings_file
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -52,7 +54,8 @@ class PSMonitorAppSettingsHandler:
         self.log_level = tk.StringVar(value=DEFAULT_LOG_LEVEL)
         self.address = tk.StringVar(value=DEFAULT_ADDRESS)
         self.port_number = tk.IntVar(value=DEFAULT_PORT)
-        self.max_ws_connections = tk.IntVar(value=10)
+        self.max_ws_connections = tk.IntVar(value=DEFAULT_MAX_WS_CONNECTIONS)
+        self.refresh_interval = tk.IntVar(value=DEFAULT_REFRESH_INTERVAL)
 
         # Load saved settings
         self._load_settings_from_file()
@@ -92,7 +95,8 @@ class PSMonitorAppSettingsHandler:
             "log_level": self.log_level.get(),
             "address": self.address.get(),
             "port_number": self.port_number.get(),
-            "max_ws_connections": self.max_ws_connections.get()
+            "max_ws_connections": self.max_ws_connections.get(),
+            "refresh_interval": self.refresh_interval.get()
         }
 
 
@@ -328,11 +332,24 @@ class PSMonitorAppSettingsHandler:
 
         settings = read_settings_file(self._manager.logger)
         if isinstance(settings, dict):
-            self.logging_enabled.set(settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
-            self.log_level.set(settings.get("log_level", DEFAULT_LOG_LEVEL))
-            self.address.set(settings.get("address", DEFAULT_ADDRESS))
-            self.port_number.set(settings.get("port_number", DEFAULT_PORT))
-            self.max_ws_connections.set(settings.get("max_ws_connections", 10))
+            self.logging_enabled.set(
+                value=settings.get("logging_enabled", DEFAULT_LOG_ENABLED)
+            )
+            self.log_level.set(
+                value=settings.get("log_level", DEFAULT_LOG_LEVEL)
+            )
+            self.address.set(
+                value=settings.get("address", DEFAULT_ADDRESS)
+            )
+            self.port_number.set(
+                value=settings.get("port_number", DEFAULT_PORT)
+            )
+            self.max_ws_connections.set(
+                value=settings.get("max_ws_connections", DEFAULT_MAX_WS_CONNECTIONS)
+            )
+            self.refresh_interval.set(
+                value=settings.get("refresh_interval", DEFAULT_REFRESH_INTERVAL)
+            )
 
 
     def _save_settings_to_file(self) -> bool:

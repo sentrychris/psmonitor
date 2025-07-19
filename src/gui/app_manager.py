@@ -32,7 +32,6 @@ if TYPE_CHECKING:
 
 # Constants
 BASE_DIR = os.path.dirname(__file__)
-UPDATE_INTERVAL = 1000
 
 
 class PSMonitorApp(tk.Tk):
@@ -285,8 +284,10 @@ class PSMonitorApp(tk.Tk):
         self.update_processes_table()
         self.graph_handler.update_active_graphs()
 
-        # schedule function to call itself again
-        self.after(UPDATE_INTERVAL, self.update_gui_sections)
+        self.after(
+            ms=self.settings_handler.refresh_interval.get(),
+            func=self.update_gui_sections
+        )
 
 
     def update_gui_section(self, labels: dict, data: dict) -> None:

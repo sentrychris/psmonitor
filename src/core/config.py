@@ -17,15 +17,21 @@ if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
 
 
-# Constants
+# Default settings path and full filepath (including filename).
 DEFAULT_SETTINGS_FILEPATH = os.path.join(os.path.expanduser('~'), '.psmonitor')
 DEFAULT_SETTINGS_FILE = os.path.join(DEFAULT_SETTINGS_FILEPATH, "settings.json")
 
-DEFAULT_PORT = 4500
+# Default server address and port
 DEFAULT_ADDRESS = "localhost"
+DEFAULT_PORT = 4500
 
+# Default max allowed websocket connections
 DEFAULT_MAX_WS_CONNECTIONS = 20
 
+# Default GUI widget update interval
+DEFAULT_REFRESH_INTERVAL = 1000
+
+# Default logging level and enabled state
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_ENABLED = True
 
