@@ -21,7 +21,7 @@ from threading import Lock
 # the number of attributes is reasonable in this case.
 class PSMonitorLogger:
     """
-    Thread-safe logger for the PSMonitor application.
+    Concurrent logger.
 
     Uses Python's `QueueHandler` and `QueueListener` to safely handle logging from
     multiple threads without risk of interleaved output or contention on shared I/O
