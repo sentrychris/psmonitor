@@ -29,7 +29,7 @@ if __name__ == "__main__":
     server_manager = PSMonitorServerManager(logger)
 
     try:
-        server_manager.start(port=4500)
+        server_manager.start()
     except Exception as e:
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)

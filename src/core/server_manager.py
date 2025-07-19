@@ -18,9 +18,15 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import create_server
+from core.util import read_settings_file
 
 if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
+
+
+# Constants
+DEFAULT_PORT = 4500
+DEFAULT_ADDRESS = "localhost"
 
 
 class PSMonitorServerManager:
@@ -35,8 +41,10 @@ class PSMonitorServerManager:
 
         self._logger = logger
 
-        self.port = None
-        self.address = "localhost"
+        self.port = DEFAULT_PORT
+        self.address = DEFAULT_ADDRESS
+
+        self.load_settings()
 
         self._thread = None
         self._ioloop = None
@@ -77,23 +85,27 @@ class PSMonitorServerManager:
         self._ioloop.start()
 
 
-    def start(self, port):
+    def start(self, port = None):
         """
         Starts the Tornado server in a new thread.
 
         Waits until the server signals it is ready.
 
         Args:
-            port (int): Port to listen on.
+            port (int|None): Port to listen on.
 
         Raises:
             RuntimeError: If server is already running.
         """
 
+        # If port is not overridden then use the server manager's port
+        # which is assigned from load_settings() or DEFAULT_PORT
+        if port is None:
+            port = self.port
+
         with self._lock:
             if self._thread and self._thread.is_alive():
                 raise RuntimeError("Server already running")
-            self.port = port
             self._server_queue = queue.Queue()
             self._started_event = threading.Event()
 
@@ -148,3 +160,14 @@ class PSMonitorServerManager:
 
         self.stop()
         self.start(port)
+
+
+    def load_settings(self):
+        """
+        Read settings to apply outside of the GUI context
+        """
+
+        stored_settings = read_settings_file(self._logger)
+        if isinstance(stored_settings, dict):
+            self.port = stored_settings.get("port_number", DEFAULT_PORT)
+            self.address = stored_settings.get("port_address", DEFAULT_ADDRESS)

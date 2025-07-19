@@ -14,6 +14,9 @@ import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
+# Local application imports
+from core.server_manager import DEFAULT_PORT
+
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
@@ -47,7 +50,7 @@ class PSMonitorAppSettingsHandler:
         # Default settings
         self.logging_enabled = tk.BooleanVar(value=True)
         self.log_level = tk.StringVar(value="INFO")
-        self.port_number = tk.IntVar(value=4500)
+        self.port_number = tk.IntVar(value=DEFAULT_PORT)
         self.max_connections = tk.IntVar(value=10)
 
         # Load saved settings
@@ -291,7 +294,7 @@ class PSMonitorAppSettingsHandler:
 
             self.logging_enabled.set(data.get("logging_enabled", True))
             self.log_level.set(data.get("log_level", "INFO"))
-            self.port_number.set(data.get("port_number", 4500))
+            self.port_number.set(data.get("port_number", DEFAULT_PORT))
             self.max_connections.set(data.get("max_connections", 10))
 
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:

@@ -8,7 +8,6 @@ License: MIT
 """
 
 # Standard library imports
-import json
 import logging
 import logging.handlers
 import os
@@ -16,6 +15,9 @@ import queue
 import subprocess
 import sys
 from threading import Lock
+
+# Local application imports
+from core.util import read_settings_file
 
 
 class PSMonitorLogger:
@@ -199,19 +201,10 @@ class PSMonitorLogger:
         Read settings to apply outside of the GUI context
         """
 
-        try:
-            settings_file = os.path.join(
-                os.path.join(os.path.expanduser('~'), '.psmonitor'),
-                "settings.json"
-            )
-
-            with open(settings_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            self.set_level(data.get("log_level", "INFO"))
-            self.set_enabled(data.get("logging_enabled", True))
-        except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
-            self._logger.error("Failed to load settings from file: %s", e)
+        stored_settings = read_settings_file(self._logger)
+        if isinstance(stored_settings, dict):
+            self.set_level(stored_settings.get("log_level", "INFO"))
+            self.set_enabled(stored_settings.get("logging_enabled", True))
 
 
     def stop(self) -> None:

@@ -17,11 +17,12 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import create_server, signal_handler
+from core.server_manager import DEFAULT_PORT
 
 
 # Define command-line options
 define('address', default='localhost', help='Listen address for the application')
-define('port', default=4500, help='Listen port for the application', type=int)
+define('port', default=DEFAULT_PORT, help='Listen port for the application', type=int)
 
 
 if __name__ == '__main__':

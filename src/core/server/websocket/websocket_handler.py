@@ -22,6 +22,7 @@ from core.server.base_handler import workers
 from core.server.websocket.get_system_data import get_system_data
 from core.server.websocket.get_network_data import get_network_data
 
+
 # Constants
 MAX_CONNECTIONS = 20
 
