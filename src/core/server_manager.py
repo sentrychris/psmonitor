@@ -64,7 +64,6 @@ class PSMonitorServerManager:
         base_dir = os.path.dirname(os.path.dirname(__file__))
         self._server = create_server(os.path.join(base_dir, 'gui', 'web'))
         self._server.listen(port, address=self.address)
-        self._logger.info(f"Tornado server listening on http://{self.address}:{self.port}")
 
         queue_.put(self._server)
 
@@ -73,6 +72,7 @@ class PSMonitorServerManager:
                 f"Tornado server thread started: {threading.current_thread().name} "
                 f"(ID: {threading.get_ident()})"
             )
+            self._logger.info(f"Tornado server listening on http://{self.address}:{self.port}")
             started_event.set()
 
         self._ioloop.add_callback(on_start)
@@ -125,15 +125,19 @@ class PSMonitorServerManager:
         with self._lock:
             if self._thread and self._thread.is_alive() and self._ioloop:
                 if self._server:
-                    self._logger.debug("Tornado server is shutting down...")
                     self._server.stop()
+                    self._logger.info("Tornado server is shut down")
 
                 self._ioloop.add_callback(self._ioloop.stop)
                 self._thread.join(timeout=5)
+                if self._thread.is_alive():
+                    self._logger.error("Tornado server thread did not terminate gracefully")
+                else:
+                    self._logger.debug("Tornado server thread terminated gracefully")
+
                 self._thread = None
                 self._ioloop = None
                 self._server = None
-                self._logger.debug("Tornado server thread terminated...")
 
 
     def restart(self, port):

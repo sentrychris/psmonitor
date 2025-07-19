@@ -169,7 +169,7 @@ class PSMonitorLogger:
         """
 
         if not os.path.exists(self._fullpath):
-            self._logger.warning("Log file not found at %s.", self._fullpath)
+            self._logger.warning("Log file not found at %s", self._fullpath)
             return
 
         try:
@@ -193,7 +193,7 @@ class PSMonitorLogger:
             # Truncate the log file to zero length, effectively clearing it
             with open(self._fullpath, 'w', encoding="utf-8"):
                 pass
-            self._logger.info("Log file cleared by user.")
+            self._logger.info("Log file cleared by user")
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
             self._logger.error("Failed to open log file: %s", e)
 

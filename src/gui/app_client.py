@@ -126,10 +126,10 @@ class PSMonitorAppClient():
         """
         try:
             with socket.create_connection((self.address, self.port), timeout=timeout):
-                self._manager.logger.info("Tornado server is reachable.")
+                self._manager.logger.info("Tornado server is reachable")
                 return True
         except OSError as e:
-            self._manager.logger.error(f"Server not reachable: {e}")
+            self._manager.logger.error(f"Tornado server is not reachable: {e}")
             return False
 
 
@@ -162,7 +162,7 @@ class PSMonitorAppClient():
             error (Exception): The error encountered.
         """
 
-        self._manager.logger.error(f"Websocket error: {error} (ws url: {ws.url})")
+        self._manager.logger.error(f"Websocket error: {error} ({ws.url})")
 
 
     def on_close(self, _ws: websocket.WebSocketApp, _status_code: int, _msg: str) -> None:
@@ -175,7 +175,7 @@ class PSMonitorAppClient():
             _msg (str): The closure message.
         """
 
-        self._manager.logger.info("websocket connection is now closed.")
+        self._manager.logger.info("Websocket connection is closed")
 
 
     def on_open(self, ws: websocket.WebSocketApp) -> None:
@@ -186,7 +186,7 @@ class PSMonitorAppClient():
             ws (websocket.WebSocketApp): The websocket instance.
         """
 
-        self._manager.logger.info(f"websocket connection is now open (ws url: {ws.url})")
+        self._manager.logger.info(f"Websocket connection is open ({ws.url})")
 
 
     def on_closing(self) -> None:
@@ -195,9 +195,14 @@ class PSMonitorAppClient():
         """
 
         if self._ws:
-            self._ws.close()
+            self._ws.close() # signal the websocket to close
+
         if self._ws_client_thread:
-            self._ws_client_thread.join()
+            self._ws_client_thread.join(timeout=5)
+            if self._ws_client_thread.is_alive():
+                self._manager.logger.error("Websocket client thread did not terminate gracefully")
+            else:
+                self._manager.logger.debug("Websocket server thread terminated gracefully")
 
         self._manager.server.stop()
         self._manager.logger.stop()
