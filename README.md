@@ -152,15 +152,19 @@ Step 6: Run the `build.py` script to generate a single-file executable:
 
 - GUI: (builds the GUI monitoring app with embedded monitoring server):
     ```sh
-    python build.py gui --clean --upx=<upx-ver>
+    python build.py --build gui --upx 5.0.1 --clean
     ```
 
 - Headless: (builds only the headless monitoring server without the GUI app);
     ```sh
-    python build.py headless --clean --upx=<upx-ver>
+    python build.py --build headless --upx 5.0.1 --clean
     ```
 
-Pass `--clean` if you want to clean the previous build directories. Pass `--upx=<upx-ver>` if you want to use [UPX](https://github.com/upx/upx) when packing the executable, if you don't pass a UPX version then it will use the latest available release.
+- Pass `--build <gui or headless>` to build either the GUI app or headless server.
+
+- Pass `--upx <upx-ver>` to set the [UPX](https://github.com/upx/upx) version used for packing the executable.
+
+- Pass `--clean` if you want to clean the previous build directories.
 
 
 ### Key points

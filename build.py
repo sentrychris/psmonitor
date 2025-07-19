@@ -24,6 +24,8 @@ import zipfile
 import tarfile
 import argparse
 
+from build_resources.docstrings import insert_docstrings
+
 DEFAULT_UPX_VER="5.0.1"
 
 
@@ -96,7 +98,7 @@ def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> No
     ], check=True)
 
 
-def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
+def main(build_type: str, clean_build: bool, upx_ver: str, insert_only: bool = False) -> None:
     """
     Main function that orchestrates the build process for psmonitor.
 
@@ -108,6 +110,11 @@ def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
     This function sets up the build environment, downloads UPX if necessary,
     cleans the build and dist directories, and then builds the application.
     """
+
+    if insert_only:
+        print("Inserting docstrings into source .py files...")
+        insert_docstrings()
+        return
 
     cwd = os.getcwd()
     dist_dir = os.path.join(cwd, "output", "dist", build_type)
@@ -135,9 +142,13 @@ def main(build_type: str, clean_build: bool, upx_ver: str) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Build psmonitor executables.")
+    parser = argparse.ArgumentParser(description="PSMonitor build utilities.")
 
-    parser.add_argument("build", choices=["gui", "headless"], help="Build e.g. gui or headless")
+    parser.add_argument(
+        "--build",
+        choices=["gui", "headless"],
+        help="Build type (gui or headless)"
+    )
 
     parser.add_argument(
         "--clean",
@@ -152,6 +163,18 @@ if __name__ == "__main__":
         default=DEFAULT_UPX_VER,
         help="Specify UPX version (default: 5.0.1)"
     )
+
+    parser.add_argument(
+        "--insert-docstrings",
+        action="store_true",
+        help="Insert docstrings into source files instead of building"
+    )
+
     args = parser.parse_args()
 
-    main(build_type=args.build, clean_build=args.clean, upx_ver=args.upx)
+    main(
+        build_type=args.build,
+        clean_build=args.clean,
+        upx_ver=args.upx,
+        insert_only=args.insert_docstrings
+    )

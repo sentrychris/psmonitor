@@ -66,11 +66,11 @@ def prepend_header_to_file(filepath: str) -> None:
     if HEADER_PATTERN.match(contents):
         # Replace the old header with the current HEADER
         new_contents = HEADER + "\n" + HEADER_PATTERN.sub('', contents, count=1).lstrip()
-        action = "Header replaced in"
+        action = "Docstring header replaced in"
     else:
         # Add HEADER at the top
         new_contents = HEADER + "\n" + contents
-        action = "Header added to"
+        action = "Docstring header added to"
 
     with open(filepath, "w", encoding="utf-8") as file:
         file.write(new_contents)
@@ -96,6 +96,10 @@ def process_directory(root: str) -> None:
             prepend_header_to_file(full_path)
 
 
-if __name__ == "__main__":
+def insert_docstrings():
+    """
+    Insert docstrings into source files.
+    """
+
     project_root = os.path.join(os.getcwd(), "src")
     process_directory(project_root)
