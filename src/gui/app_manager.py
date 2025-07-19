@@ -33,8 +33,7 @@ if TYPE_CHECKING:
 BASE_DIR = os.path.dirname(__file__)
 UPDATE_INTERVAL = 1000
 
-# pylint: disable=too-many-instance-attributes
-# the number of attributes is reasonable in this case.
+
 class PSMonitorApp(tk.Tk):
     """
     GUI application for system monitoring.

@@ -89,7 +89,7 @@ def get_wifi_data_linux() -> dict:
 
     try:
         interface = get_wifi_interface()
-        proc = subprocess.Popen( # pylint: disable=consider-using-with
+        proc = subprocess.Popen(
             ["iwlist", interface, "scan"],
             stdout=subprocess.PIPE,
             universal_newlines=True
@@ -121,7 +121,7 @@ def get_wifi_interface() -> str:
         str: the name of the wi-fi interface.
     """
 
-    proc = subprocess.Popen( # pylint: disable=consider-using-with
+    proc = subprocess.Popen(
         ['iw', 'dev'],
         stdout=subprocess.PIPE,
         universal_newlines=True
@@ -145,7 +145,7 @@ def run_wifi_speedtest() -> dict:
         dict: A dictionary containing ping, download, and upload speeds.
     """
 
-    speedtest = subprocess.Popen( # pylint: disable=consider-using-with
+    speedtest = subprocess.Popen(
         'speedtest-cli --simple',
         shell=True,
         stdout=subprocess.PIPE
@@ -162,7 +162,7 @@ def run_wifi_speedtest() -> dict:
             'download': download[0].replace(',', '.'),
             'upload': upload[0].replace(',', '.')
         })
-    except Exception: # pylint: disable=broad-except
+    except Exception:
         pass
 
     return response

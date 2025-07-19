@@ -17,8 +17,7 @@ import subprocess
 import sys
 from threading import Lock
 
-# pylint: disable=too-many-instance-attributes
-# the number of attributes is reasonable in this case.
+
 class PSMonitorLogger:
     """
     Concurrent logger.
@@ -173,7 +172,7 @@ class PSMonitorLogger:
             return
 
         try:
-            subprocess.Popen([ # pylint: disable=consider-using-with
+            subprocess.Popen([
                 'notepad.exe' if sys.platform == "win32" else "xdg-open",
                 self._fullpath
             ])

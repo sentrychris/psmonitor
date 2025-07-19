@@ -23,8 +23,6 @@ if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
 
 
-# pylint: disable=too-many-instance-attributes
-# the number of attributes is reasonable in this case.
 class PSMonitorServerManager:
     """
     Manages a Tornado HTTP server running in a background thread.

@@ -59,7 +59,7 @@ class HttpHandler(BaseHandler):
         try:
             # Create a new worker to pair HTTP connection with websocket session
             worker = self.create_worker()
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:
             status = str(e)
         else:
             # Add the worker to the worker registry

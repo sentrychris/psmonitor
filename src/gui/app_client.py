@@ -23,8 +23,6 @@ if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
 
 
-# pylint: disable=too-many-instance-attributes
-# the number of attributes is reasonable in this case.
 class PSMonitorAppClient():
     """
     App client for connection to the tornado server.
@@ -151,7 +149,7 @@ class PSMonitorAppClient():
             self._manager.refresh_data(json.loads(message))
         except json.JSONDecodeError as e:
             self._manager.logger.error(f"Invalid JSON from websocket: {message[:100]}... ({e})")
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:
             self._manager.logger.error(f"Error fetching websocket data: {e}")
 
 

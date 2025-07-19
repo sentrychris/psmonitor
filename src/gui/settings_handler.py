@@ -19,8 +19,6 @@ if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
 
 
-# pylint: disable=too-many-instance-attributes
-# the number of attributes is reasonable in this case.
 class PSMonitorAppSettingsHandler:
     """
     Settings handler.
@@ -244,7 +242,7 @@ class PSMonitorAppSettingsHandler:
         try:
             self._manager.logger.clear_log()
             self._show_log_status("✔ Log cleared successfully", "green", duration=2000)
-        except Exception: # pylint: disable=broad-except
+        except Exception:
             self._show_log_status("✖ Failed to clear log", "red", duration=2000)
 
 

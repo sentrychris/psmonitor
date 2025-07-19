@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     try:
         server_manager.start(port=4500)
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)
 

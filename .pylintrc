@@ -1,0 +1,2 @@
+[MESSAGES CONTROL]
+disable=broad-except,consider-using-with,too-many-arguments,too-many-instance-attributes,too-many-positional-arguments
