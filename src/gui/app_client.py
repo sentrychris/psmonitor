@@ -23,6 +23,8 @@ if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
 
 
+# pylint: disable=too-many-instance-attributes
+# the number of attributes is reasonable in this case.
 class PSMonitorAppClient():
     """
     App client for connection to the tornado server.

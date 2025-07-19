@@ -173,14 +173,11 @@ class PSMonitorLogger:
             return
 
         try:
-            if sys.platform == 'win32':
-                # pylint: disable=consider-using-with
-                subprocess.Popen(['notepad.exe', self._fullpath])
-            elif sys.platform == 'Linux':
-                # Use xdg-open to open with the default text editor
-                subprocess.Popen(['xdg-open', self._fullpath])
-                # pylint: enable=consider-using-with
-        except Exception as e: # pylint: disable=broad-except
+            subprocess.Popen([ # pylint: disable=consider-using-with
+                'notepad.exe' if sys.platform == "win32" else "xdg-open",
+                self._fullpath
+            ])
+        except (OSError, ValueError) as e:
             self._logger.error("Failed to open log file: %s", e)
 
 

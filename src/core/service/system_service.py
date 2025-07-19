@@ -29,10 +29,10 @@ elif sys.platform == 'linux':
 # Determine if the script is running in a bundle created by PyInstaller
 if getattr(sys, 'frozen', False):
     # The script is running in a bundled executable
-    bundle_dir = sys._MEIPASS  # pylint: disable=protected-access
+    BUNDLE_DIR = getattr(sys, '_MEIPASS')
 else:
     # The script is running in a normal Python environment
-    bundle_dir = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
+    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
 
 
 def convert_bytes(x: int, pre: int = 2) -> float:
@@ -64,7 +64,7 @@ def get_cpu() -> dict:
     """
 
     if sys.platform == "win32":
-        executable_path = os.path.join(bundle_dir, 'libwincputemp.exe')
+        executable_path = os.path.join(BUNDLE_DIR, 'libwincputemp.exe')
         proc = subprocess.check_output(
             executable_path,
             creationflags=subprocess.CREATE_NO_WINDOW

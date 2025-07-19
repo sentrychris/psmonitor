@@ -107,7 +107,7 @@ def get_wifi_data_linux() -> dict:
 
         for cell in cells:
             output.update(parse_cell(cell))
-    except Exception: # pylint: disable=broad-except
+    except (OSError, ValueError):
         return "N/A"
 
     return output
