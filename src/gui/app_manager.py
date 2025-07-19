@@ -316,6 +316,84 @@ class PSMonitorApp(tk.Tk):
                 label.config(text=new_text)
 
 
+    def create_label(
+            self,
+            frame: ttk.Frame,
+            text: str,
+            value: str,
+            suffix: str = ""
+        ) -> tuple[ttk.Label, str]:
+        """
+        Adds a label to the specified frame.
+
+        Args:
+            frame (ttk.Frame): The parent frame.
+            text (str): The label text.
+            value (str): The value to be displayed.
+            suffix (str, optional): The suffix for the label text.
+        
+        Returns:
+            tuple: The created label and suffix.
+        """
+
+        label_text = f"{text} {value} {suffix}".strip()
+        label = ttk.Label(frame, text=label_text)
+        label.grid(sticky='w', padx=5, pady=2)
+        label.prefix = text
+
+        return label, suffix
+
+
+    def create_label_with_icon(self, frame: ttk.Frame, value: str) -> ttk.Label:
+        """
+        Adds a label with an icon to the specified frame.
+
+        Args:
+            frame (ttk.Frame): The parent frame.
+            value (str): The value to be displayed.
+        
+        Returns:
+            ttk.Label: The created label.
+        """
+
+        container = ttk.Frame(frame)
+        container.grid(sticky='w', padx=5, pady=2)
+
+        platform_key = 'linux' if sys.platform == 'linux' else 'windows'
+        icon = self.platform_icons[platform_key]
+
+        icon_label = ttk.Label(container, image=icon)
+        icon_label.image = icon
+        icon_label.pack(side='left')
+
+        text_label = ttk.Label(container, text=f"{value}")
+        text_label.pack(side='left')
+
+        return text_label
+
+
+    def load_image(self, path: str, width: int) -> ImageTk.PhotoImage:
+        """
+        Loads an image from the specified path and resizes it.
+
+        Args:
+            path (str): The path to the image file.
+            width (int): The desired width of the image.
+        
+        Returns:
+            ImageTk.PhotoImage: The loaded and resized image.
+        """
+
+        if path in self.image_cache:
+            return self.image_cache[path]
+        image = Image.open(path)
+        image = image.resize((width, int(image.height * width / image.width)))
+        photo = ImageTk.PhotoImage(image)
+        self.image_cache[path] = photo
+
+        return photo
+
+
     def open_about_window(self) -> None:
         """
         Displays the 'About' window.
@@ -451,84 +529,6 @@ class PSMonitorApp(tk.Tk):
             if values != self.cached_processes[i]:
                 self.processes_tree.item(f"proc{i}", values=values)
                 self.cached_processes[i] = values
-
-
-    def create_label(
-            self,
-            frame: ttk.Frame,
-            text: str,
-            value: str,
-            suffix: str = ""
-        ) -> tuple[ttk.Label, str]:
-        """
-        Adds a label to the specified frame.
-
-        Args:
-            frame (ttk.Frame): The parent frame.
-            text (str): The label text.
-            value (str): The value to be displayed.
-            suffix (str, optional): The suffix for the label text.
-        
-        Returns:
-            tuple: The created label and suffix.
-        """
-
-        label_text = f"{text} {value} {suffix}".strip()
-        label = ttk.Label(frame, text=label_text)
-        label.grid(sticky='w', padx=5, pady=2)
-        label.prefix = text
-
-        return label, suffix
-
-
-    def create_label_with_icon(self, frame: ttk.Frame, value: str) -> ttk.Label:
-        """
-        Adds a label with an icon to the specified frame.
-
-        Args:
-            frame (ttk.Frame): The parent frame.
-            value (str): The value to be displayed.
-        
-        Returns:
-            ttk.Label: The created label.
-        """
-
-        container = ttk.Frame(frame)
-        container.grid(sticky='w', padx=5, pady=2)
-
-        platform_key = 'linux' if sys.platform == 'linux' else 'windows'
-        icon = self.platform_icons[platform_key]
-
-        icon_label = ttk.Label(container, image=icon)
-        icon_label.image = icon
-        icon_label.pack(side='left')
-
-        text_label = ttk.Label(container, text=f"{value}")
-        text_label.pack(side='left')
-
-        return text_label
-
-
-    def load_image(self, path: str, width: int) -> ImageTk.PhotoImage:
-        """
-        Loads an image from the specified path and resizes it.
-
-        Args:
-            path (str): The path to the image file.
-            width (int): The desired width of the image.
-        
-        Returns:
-            ImageTk.PhotoImage: The loaded and resized image.
-        """
-
-        if path in self.image_cache:
-            return self.image_cache[path]
-        image = Image.open(path)
-        image = image.resize((width, int(image.height * width / image.width)))
-        photo = ImageTk.PhotoImage(image)
-        self.image_cache[path] = photo
-
-        return photo
 
 
     def refresh_data(self, new_data: dict) -> None:
