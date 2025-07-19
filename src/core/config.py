@@ -10,7 +10,7 @@ License: MIT
 # Standard library imports
 import json
 import os
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -24,11 +24,13 @@ DEFAULT_SETTINGS_FILE = os.path.join(DEFAULT_SETTINGS_FILEPATH, "settings.json")
 DEFAULT_PORT = 4500
 DEFAULT_ADDRESS = "localhost"
 
+DEFAULT_MAX_WS_CONNECTIONS = 20
+
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_ENABLED = True
 
 
-def read_settings_file(logger: 'PSMonitorLogger') -> Union[dict, bool]:
+def read_settings_file(logger: 'PSMonitorLogger' = None) -> Union[dict, bool]:
     """
     Read settings from file.
     """
@@ -44,5 +46,18 @@ def read_settings_file(logger: 'PSMonitorLogger') -> Union[dict, bool]:
 
         return data
     except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
-        logger.error("Failed to load settings from file: %s", e)
+        if logger:
+            logger.error("Failed to load settings from file: %s", e)
         return False
+
+
+def get_setting(key: str, settings: Optional[dict] = None, default: Optional[str] = None):
+    """
+    Get a particular setting.
+    """
+
+    if settings is None:
+        settings = read_settings_file()
+
+
+    return settings.get(key, default)

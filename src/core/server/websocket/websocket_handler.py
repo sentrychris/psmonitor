@@ -18,13 +18,11 @@ from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 # Local application imports
+from core.config import DEFAULT_MAX_WS_CONNECTIONS, get_setting
 from core.server.base_handler import workers
 from core.server.websocket.get_system_data import get_system_data
 from core.server.websocket.get_network_data import get_network_data
 
-
-# Constants
-MAX_CONNECTIONS = 20
 
 active_connections = set()
 
@@ -56,12 +54,18 @@ class WebsocketHandler(WebSocketHandler):
 
         Args:
             application (Application): The Tornado Application instance.
-            request (HTTPServerRequest): The HTTPServerRequest object for this WebSocket connection.
+            request (HTTPServerRequest): The HTTPServerRequest obj for this WebSocket connection.
             **kwargs: Additional keyword arguments to pass to the base class initializer.
         """
 
         self.loop = IOLoop.current()
         self.worker_ref = None
+
+        self.max_connections = get_setting(
+            key="max_ws_connections",
+            default=DEFAULT_MAX_WS_CONNECTIONS
+        )
+
         super().__init__(application, request, **kwargs)
 
 
@@ -85,7 +89,7 @@ class WebsocketHandler(WebSocketHandler):
         argument, sets the worker for this handler, and starts the monitoring coroutine.
         """
 
-        if len(active_connections) >= MAX_CONNECTIONS:
+        if len(active_connections) >= self.max_connections:
             self.write_message('Server is at full capacity. Please try again later.')
             self.close()
             return

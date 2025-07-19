@@ -50,7 +50,7 @@ class PSMonitorAppSettingsHandler:
         self.logging_enabled = tk.BooleanVar(value=DEFAULT_LOG_ENABLED)
         self.log_level = tk.StringVar(value=DEFAULT_LOG_LEVEL)
         self.port_number = tk.IntVar(value=DEFAULT_PORT)
-        self.max_connections = tk.IntVar(value=10)
+        self.max_ws_connections = tk.IntVar(value=10)
 
         # Load saved settings
         self._load_settings_from_file()
@@ -89,7 +89,7 @@ class PSMonitorAppSettingsHandler:
             "logging_enabled": self.logging_enabled.get(),
             "log_level": self.log_level.get(),
             "port_number": self.port_number.get(),
-            "max_connections": self.max_connections.get()
+            "max_ws_connections": self.max_ws_connections.get()
         }
 
 
@@ -178,8 +178,7 @@ class PSMonitorAppSettingsHandler:
         ttk.Label(server_frame, text="Max Connections:").pack(anchor="w")
         ttk.Entry(
             server_frame,
-            textvariable=self.max_connections,
-            state="disabled"
+            textvariable=self.max_ws_connections,
         ).pack(anchor="w", fill="x", pady=(0, 5))
 
         ttk.Label(
@@ -311,7 +310,7 @@ class PSMonitorAppSettingsHandler:
             self.logging_enabled.set(data.get("logging_enabled", DEFAULT_LOG_ENABLED))
             self.log_level.set(data.get("log_level", DEFAULT_LOG_LEVEL))
             self.port_number.set(data.get("port_number", DEFAULT_PORT))
-            self.max_connections.set(data.get("max_connections", 10))
+            self.max_ws_connections.set(data.get("max_ws_connections", 10))
 
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
             self._manager.logger.error("Failed to load settings from file: %s", e)
