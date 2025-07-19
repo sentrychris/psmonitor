@@ -25,8 +25,8 @@ from gui.settings_handler import PSMonitorSettings
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
-    from tornado.httpserver import HTTPServer
-    from gui.log_handler import PSMonitorAppLogger
+    from ..manager import TornadoServerManager
+    from logger import ThreadSafeLogger
 
 
 # Constants
@@ -43,8 +43,8 @@ class PSMonitorApp(tk.Tk):
     def __init__(
             self,
             data: dict,
-            server: 'HTTPServer' = None,
-            logger: 'PSMonitorAppLogger' = None,
+            server: 'TornadoServerManager' = None,
+            logger: 'ThreadSafeLogger' = None,
         ) -> None:
         """
         Initializes the app with initial data.
@@ -113,7 +113,7 @@ class PSMonitorApp(tk.Tk):
             self.client.setup_connection()
         else:
             self.client.on_closing()
-            sys.exit(0)
+            sys.exit(1)
 
         self.protocol("WM_DELETE_WINDOW", self.client.on_closing)
 

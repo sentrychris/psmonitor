@@ -54,7 +54,6 @@ class PSMonitorSettings:
 
         # Load saved settings
         self._load_settings_from_file()
-        self.set_logging_settings()
 
 
     def open_window(self) -> None:

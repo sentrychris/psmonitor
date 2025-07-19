@@ -197,5 +197,8 @@ class PSMonitorAppClient():
         if self._ws_client_thread:
             self._ws_client_thread.join()
 
+        self._manager.server.stop()
+        self._manager.logger.stop()
         IOLoop.current().add_callback(IOLoop.current().stop)
+
         self._manager.destroy()
