@@ -59,5 +59,7 @@ def get_setting(key: str, settings: Optional[dict] = None, default: Optional[str
     if settings is None:
         settings = read_settings_file()
 
+    if isinstance(settings, dict):
+        return settings.get(key, default)
 
-    return settings.get(key, default)
+    return default
