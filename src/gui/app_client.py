@@ -11,6 +11,7 @@ License: MIT
 import json
 import socket
 import sys
+import time
 import threading
 from typing import TYPE_CHECKING
 
@@ -49,17 +50,29 @@ class PSMonitorAppClient():
         self._worker_id = None
 
 
-    def safe_connect(self) -> None:
+    def safe_connect(self, max_attempts: int = 3, base_delay: float = 1.0) -> None:
         """
         Initialize the connection if the server is reachable.
         """
 
-        if self.check_server_reachable():
-            self._setup_connection()
-        else:
-            # TODO implement retry methods
-            self._manager.shutdown()
-            sys.exit(1)
+        attempt = 0
+        while attempt < max_attempts:
+            if self.check_server_reachable():
+                self._setup_connection()
+                return
+
+            delay = base_delay * (2 ** attempt)
+            self._manager.logger.warning(
+                f"Server unreachable. Retrying in {delay:.1f} seconds... (attempt {attempt + 1})"
+            )
+            time.sleep(delay)
+            attempt += 1
+
+        self._manager.logger.error(
+            f"Failed to connect after {max_attempts} attempts. Shutting down."
+        )
+        self._manager.shutdown()
+        sys.exit(1)
 
 
     def set_address_and_port(self, address: str, port: str) -> None:
