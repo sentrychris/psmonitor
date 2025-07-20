@@ -57,16 +57,16 @@ def prepend_header_to_file(filepath: str) -> None:
     if HEADER_PATTERN.match(contents):
         # Replace the old header with the current header
         new_contents = header + "\n" + HEADER_PATTERN.sub('', contents, count=1).lstrip()
-        action = "Docstring header replaced in"
+        action = "[✓] Docstring header replaced in"
     else:
         # Prepend the header
         new_contents = header + "\n" + contents
-        action = "Docstring header added to"
+        action = "[+] Docstring header added to"
 
     with open(filepath, "w", encoding="utf-8") as file:
         file.write(new_contents)
 
-    print(f"[✓] {action}: {filepath}")
+    print(f"{action}: {filepath}")
 
 
 def process_directory(root: str) -> None:
