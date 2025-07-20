@@ -3,7 +3,7 @@
 
 [![CodeQL](https://github.com/sentrychris/psmonitor/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/sentrychris/psmonitor/actions/workflows/github-code-scanning/codeql)
 
-A simple system and network monitoring app with a headless server for remote monitoring capabilities.
+A system and network monitoring app with a headless server for remote monitoring capabilities.
 
 ![app](./readme.png)
 
