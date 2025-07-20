@@ -197,7 +197,7 @@ class PSMonitorAppSettingsHandler:
         # Description label
         ttk.Label(
             server_frame,
-            text="Configure the embedded server for remote monitoring."
+            text="Configure the embedded server and websocket settings."
         ).pack(anchor="w", pady=(0, 10))
 
         # Port
