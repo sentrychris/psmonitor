@@ -65,7 +65,7 @@ def get_wifi_data_windows() -> Optional[dict]:
             "quality": re.compile(r"^\s*Signal\s*:\s*(\d+)%$"),
             "channel": re.compile(r"^\s*Channel\s*:\s*(\d+)$"),
             "encryption": re.compile(r"^\s*Authentication\s*:\s*(.+)$"),
-            "address": re.compile(r"^\s*BSSID\s*:\s*(.+)$"),
+            "address": re.compile(r"^\s*(?:AP\s+)?BSSID\s*:\s*(.+)$"),
             "signal": re.compile(r"^\s*Signal\s*:\s*(\d+)%$")
         }
 
@@ -79,7 +79,12 @@ def get_wifi_data_windows() -> Optional[dict]:
 
     except subprocess.CalledProcessError:
         return {
-            "error": "Failed to fetch Wi-Fi data. Location services probably needs to be enabled"
+            "error": {
+                "message": "Failed to fetch Wi-Fi information.",
+                "information": "Location services probably needs to be enabled. "
+                    "Turn on Location services on the Location page in "
+                    "Privacy & security settings."
+            },
         }
 
 
