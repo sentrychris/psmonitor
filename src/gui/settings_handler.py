@@ -74,7 +74,7 @@ class PSMonitorAppSettingsHandler:
 
         self._window = tk.Toplevel(self._manager)
         self._window.title(self._window_title)
-        self._window.geometry("450x510")
+        self._window.geometry("450x630")
         self._window.resizable(False, False)
         self._window.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -114,7 +114,7 @@ class PSMonitorAppSettingsHandler:
         # Logging enabled checkbox
         ttk.Checkbutton(
             logging_frame,
-            text="Enable Logging",
+            text="Enable logging",
             variable=self.logging_enabled
         ).pack(anchor="w")
 
@@ -124,7 +124,7 @@ class PSMonitorAppSettingsHandler:
         ).pack(anchor="w", pady=(2, 10))
 
         # Log level dropdown
-        ttk.Label(logging_frame, text="Minimum Log Level:").pack(anchor="w")
+        ttk.Label(logging_frame, text="Minimum log level:").pack(anchor="w")
         ttk.Combobox(
             logging_frame,
             textvariable=self.log_level,
@@ -201,7 +201,7 @@ class PSMonitorAppSettingsHandler:
         ).pack(anchor="w", pady=(0, 10))
 
         # Port
-        ttk.Label(server_frame, text="Port Number:").pack(anchor="w")
+        ttk.Label(server_frame, text="Port number:").pack(anchor="w")
         ttk.Entry(
             server_frame,
             textvariable=self.port_number,
@@ -209,13 +209,13 @@ class PSMonitorAppSettingsHandler:
 
         ttk.Label(
             server_frame,
-            text="Sets the port for the embedded server to listen on for incoming connections.",
+            text="Sets the port for the server to listen on for incoming connections.",
             wraplength=400,
             style="Help.TLabel"
-        ).pack(anchor="w", pady=(1, 15))
+        ).pack(anchor="w", pady=(0, 5))
 
         # Max connections
-        ttk.Label(server_frame, text="Max Connections:").pack(anchor="w")
+        ttk.Label(server_frame, text="Max allowed connections:").pack(anchor="w")
         ttk.Entry(
             server_frame,
             textvariable=self.max_ws_connections,
@@ -223,10 +223,38 @@ class PSMonitorAppSettingsHandler:
 
         ttk.Label(
             server_frame,
-            text="Sets the max number of allowed websocket connections to the embedded server.",
+            text="Sets the max number of allowed websocket connections to the server.",
             wraplength=400,
             style="Help.TLabel"
-        ).pack(anchor="w", pady=(1, 5))
+        ).pack(anchor="w", pady=(0, 5))
+
+        # Max reconnect attempts
+        ttk.Label(server_frame, text="Max reconnect attempts:").pack(anchor="w")
+        ttk.Entry(
+            server_frame,
+            textvariable=self.max_reconnect_attempts,
+        ).pack(anchor="w", fill="x", pady=(0, 5))
+
+        ttk.Label(
+            server_frame,
+            text="Sets the max number of reconnection attempts to the server.",
+            wraplength=400,
+            style="Help.TLabel"
+        ).pack(anchor="w", pady=(0, 5))
+
+        # Max reconnect attempts
+        ttk.Label(server_frame, text="Reconnect attempt delay:").pack(anchor="w")
+        ttk.Entry(
+            server_frame,
+            textvariable=self.reconnect_base_delay,
+        ).pack(anchor="w", fill="x", pady=(0, 5))
+
+        ttk.Label(
+            server_frame,
+            text="Sets the base delay used in exponential backoff when reconnecting.",
+            wraplength=400,
+            style="Help.TLabel"
+        ).pack(anchor="w", pady=(0, 5))
 
         # Buttons
         server_button_frame = ttk.Frame(server_frame)
