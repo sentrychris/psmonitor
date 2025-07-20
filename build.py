@@ -9,11 +9,12 @@ Usage:
     python build.py [gui|headless] [--clean] [--upx VERSION]
 
 Arguments:
-    --build TYPE           Specify the build type: "gui" or "headless"
-    --upx VERSION          Specify the UPX version to download and use (default: 5.0.1)
-    --clean                Optional flag to clean build and dist directories before building
-    --insert-docstrings    Insert docstrings into .py source files (does not build EXEs)
-    --third-party-licenses Generate third-party licenses file (does not build EXEs)
+    --build TYPE            Specify the build type: "gui" or "headless"
+    --upx VERSION           Specify the UPX version to download and use (default: 5.0.1)
+    --upx-clean             Download a clean copy of UPX before building
+    --clean                 Optional flag to clean build and dist directories before building
+    --insert-docstrings     Insert docstrings into .py source files (does not build EXEs)
+    --third-party-licenses  Generate third-party licenses file (does not build EXEs)
 
 The script handles platform differences for UPX download URLs and extraction.
 """
@@ -104,6 +105,7 @@ def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> No
 def main(
         build_type: str,
         clean_build: bool,
+        clean_upx: bool,
         upx_ver: str,
         insert_docstrings_only: bool = False,
         third_party_licenses_only: bool = False
@@ -113,7 +115,8 @@ def main(
 
     Args:
         build (str): The type to build for e.g. 'gui' or 'headless'.
-        clean_build (str): Clean `build` and `dist directories before build.
+        clean_build (bool): Clean `build` and `dist` directories before build.
+        clean_upx (bool): Download a clean copy of UPX before build.
         upx_ver (str): The version of UPX to use to compress the executable.
         insert_docstrings_only (bool): Insert docstrings into source files instead.
         third_party_licenses_only (bool): Generate third-party licenses instead.
@@ -129,17 +132,23 @@ def main(
         generate_third_party_licenses()
         return
 
+    if build_type not in ["gui", "headless"]:
+        raise ValueError("Invalid build type. Must be: `gui` or `headless`.")
+
     cwd = os.getcwd()
     dist_dir = os.path.join(cwd, "output", "dist", build_type)
     build_dir = os.path.join(cwd, "output", "build", build_type)
     build_resources = os.path.join(cwd, "build_resources")
     build_spec = os.path.join(build_resources, build_type, "psmonitor.spec")
 
+    if not os.path.exists(build_spec):
+        raise FileNotFoundError(f".spec file not found: {build_spec}")
+
     if os.name == 'nt':
         upx_pkg = f"upx-{upx_ver}-win64"
         upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.zip"
     else:
-        upx_pkg = f"upx-{upx_ver}-amd64_linux.tar"
+        upx_pkg = f"upx-{upx_ver}-amd64_linux"
         upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.tar.xz"
 
     if clean_build:
@@ -151,7 +160,8 @@ def main(
 
     build_exe(build_spec, upx_dir, dist_dir, build_dir)
 
-    clean_dir(upx_dir)
+    if clean_upx:
+        clean_dir(upx_dir)
 
 
 if __name__ == "__main__":
@@ -178,6 +188,12 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--upx-clean",
+        action="store_true",
+        help="Clean copy of UPX before building"
+    )
+
+    parser.add_argument(
         "--insert-docstrings",
         action="store_true",
         help="Insert docstrings into source files instead of building"
@@ -194,6 +210,7 @@ if __name__ == "__main__":
     main(
         build_type=args.build,
         clean_build=args.clean,
+        clean_upx=args.upx_clean,
         upx_ver=args.upx,
         insert_docstrings_only=args.insert_docstrings,
         third_party_licenses_only=args.third_party_licenses
