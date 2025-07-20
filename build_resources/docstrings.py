@@ -16,7 +16,7 @@ HEADER_TEMPLATE = '''"""
 PSMonitor - System and network monitoring utility
 
 File: {filename}
-Author: Chris Rowles
+Author: Chris Rowles <christopher.rowles@outlook.com>
 Copyright: © {year} Chris Rowles. All rights reserved.
 Version: 1.5.0.2413
 License: MIT
