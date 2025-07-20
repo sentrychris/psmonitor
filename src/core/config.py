@@ -10,16 +10,16 @@ License: MIT
 # Standard library imports
 import json
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
 
 
-# Default settings path and full filepath (including filename).
-DEFAULT_SETTINGS_FILEPATH = os.path.join(os.path.expanduser('~'), '.psmonitor')
-DEFAULT_SETTINGS_FILE = os.path.join(DEFAULT_SETTINGS_FILEPATH, "settings.json")
+# Settings path and full filepath (including filename).
+SETTINGS_DIR = os.path.join(os.path.expanduser('~'), '.psmonitor')
+SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
 
 # Default server address and port
 DEFAULT_ADDRESS = "localhost"
@@ -35,26 +35,37 @@ DEFAULT_REFRESH_INTERVAL = 1000
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_ENABLED = True
 
+default_settings = {
+    "logging_enabled": DEFAULT_LOG_ENABLED,
+    "log_level": DEFAULT_LOG_LEVEL,
+    "address": DEFAULT_ADDRESS,
+    "port_number": DEFAULT_PORT,
+    "max_ws_connections": DEFAULT_MAX_WS_CONNECTIONS,
+    "refresh_interval": DEFAULT_REFRESH_INTERVAL
+}
 
-def read_settings_file(logger: 'PSMonitorLogger' = None) -> Union[dict, bool]:
+
+def read_settings_file(logger: 'PSMonitorLogger' = None) -> dict:
     """
     Read settings from file.
     """
 
     try:
-        settings_file = os.path.join(
-            os.path.join(os.path.expanduser('~'), '.psmonitor'),
-            "settings.json"
-        )
+        if not os.path.exists(SETTINGS_FILE):
+            os.makedirs(SETTINGS_DIR, exist_ok=True)
+            with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+                json.dump(default_settings, f, indent=4)
+            if logger:
+                logger.info("Created settings file at %s", SETTINGS_FILE)
+            return default_settings
 
-        with open(settings_file, "r", encoding="utf-8") as f:
+        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-
         return data
-    except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
+    except (PermissionError, IsADirectoryError, json.JSONDecodeError) as e:
         if logger:
-            logger.error("Failed to load settings from file: %s", e)
-        return False
+            logger.error("Failed to load or create settings file: %s", e)
+        return default_settings
 
 
 def get_setting(key: str, settings: Optional[dict] = None, default: Optional[str] = None):

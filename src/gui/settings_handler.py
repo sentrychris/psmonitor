@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 # Local application imports
 from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, \
     DEFAULT_ADDRESS, DEFAULT_PORT, DEFAULT_MAX_WS_CONNECTIONS, \
-        DEFAULT_REFRESH_INTERVAL, DEFAULT_SETTINGS_FILE, \
+        DEFAULT_REFRESH_INTERVAL, SETTINGS_FILE, \
             read_settings_file
 
 # Typing (type hints only, no runtime dependency)
@@ -46,7 +46,6 @@ class PSMonitorAppSettingsHandler:
         self._tooltip = None
 
         self._manager = manager
-        self._settings_path = DEFAULT_SETTINGS_FILE
 
         # Default settings
         self.logging_enabled = tk.BooleanVar(value=DEFAULT_LOG_ENABLED)
@@ -372,30 +371,29 @@ class PSMonitorAppSettingsHandler:
         Load settings from file if it exists.
         """
 
-        if not os.path.exists(self._settings_path):
-            self._manager.logger.error(f"Settings file does not exist at: {self._settings_path}")
+        if not os.path.exists(SETTINGS_FILE):
+            self._manager.logger.error(f"Settings file does not exist at: {SETTINGS_FILE}")
             return
 
         settings = read_settings_file(self._manager.logger)
-        if isinstance(settings, dict):
-            self.logging_enabled.set(
-                value=settings.get("logging_enabled", DEFAULT_LOG_ENABLED)
-            )
-            self.log_level.set(
-                value=settings.get("log_level", DEFAULT_LOG_LEVEL)
-            )
-            self.address.set(
-                value=settings.get("address", DEFAULT_ADDRESS)
-            )
-            self.port_number.set(
-                value=settings.get("port_number", DEFAULT_PORT)
-            )
-            self.max_ws_connections.set(
-                value=settings.get("max_ws_connections", DEFAULT_MAX_WS_CONNECTIONS)
-            )
-            self.refresh_interval.set(
-                value=settings.get("refresh_interval", DEFAULT_REFRESH_INTERVAL)
-            )
+        self.logging_enabled.set(
+            value=settings.get("logging_enabled", DEFAULT_LOG_ENABLED)
+        )
+        self.log_level.set(
+            value=settings.get("log_level", DEFAULT_LOG_LEVEL)
+        )
+        self.address.set(
+            value=settings.get("address", DEFAULT_ADDRESS)
+        )
+        self.port_number.set(
+            value=settings.get("port_number", DEFAULT_PORT)
+        )
+        self.max_ws_connections.set(
+            value=settings.get("max_ws_connections", DEFAULT_MAX_WS_CONNECTIONS)
+        )
+        self.refresh_interval.set(
+            value=settings.get("refresh_interval", DEFAULT_REFRESH_INTERVAL)
+        )
 
 
     def _save_settings_to_file(self) -> bool:
@@ -404,7 +402,7 @@ class PSMonitorAppSettingsHandler:
         """
 
         try:
-            with open(self._settings_path, "w", encoding="utf-8") as f:
+            with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
                 json.dump(self.get_current_settings(), f, indent=4)
             return True
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:

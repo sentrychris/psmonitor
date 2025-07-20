@@ -200,9 +200,8 @@ class PSMonitorLogger:
         """
 
         stored_settings = read_settings_file(self._logger)
-        if isinstance(stored_settings, dict):
-            self.set_level(stored_settings.get("log_level", DEFAULT_LOG_LEVEL))
-            self.set_enabled(stored_settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
+        self.set_level(stored_settings.get("log_level", DEFAULT_LOG_LEVEL))
+        self.set_enabled(stored_settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
 
 
     def stop(self) -> None:

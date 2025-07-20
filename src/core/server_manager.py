@@ -164,6 +164,5 @@ class PSMonitorServerManager:
         """
 
         stored_settings = read_settings_file(self._logger)
-        if isinstance(stored_settings, dict):
-            self.port = stored_settings.get("port_number", DEFAULT_PORT)
-            self.address = stored_settings.get("port_address", DEFAULT_ADDRESS)
+        self.port = stored_settings.get("port_number", DEFAULT_PORT)
+        self.address = stored_settings.get("port_address", DEFAULT_ADDRESS)
