@@ -1,5 +1,5 @@
 
-# psmonitor
+# PSMonitor
 
 [![CodeQL](https://github.com/sentrychris/psmonitor/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/sentrychris/psmonitor/actions/workflows/github-code-scanning/codeql)
 
@@ -68,9 +68,9 @@ Retrieves system monitoring information
 - **Processes** Top 10 processes by memory usage
 
 
-> A small note on CPU temperature monitoring on Windows: reading temperature sensors requires elevated privileges, in order to display your CPU temperature on Windows, you'll need to run psmonitor as an administrator.
+> A small note on CPU temperature monitoring on Windows: reading temperature sensors requires elevated privileges, in order to display your CPU temperature on Windows, you'll need to run PSMonitor as an administrator.
 > 
-> psmonitor uses a tiny binary executable called [**libwincputemp**](./lib/libwincputemp/), which is part of this project.
+> PSMonitor uses a tiny binary executable called [**libwincputemp**](./lib/libwincputemp/), which is part of this project.
 
 #### **GET `/network`**:
 
@@ -121,7 +121,7 @@ Please find documentation for developers below.
 
 ### Building from Source
 
-To build psmonitor from source.
+To build PSMonitor from source.
 
 Step 1: Clone the repository
 ```sh
@@ -173,7 +173,7 @@ Most of the code is either documented or self-explanatory, however, some key poi
 
 - Workers act as per-client session handlers that are created whenever a websocket connection is requested. The `WebSocketHandler` binds to a specific `worker` instance associated with that client, enabling individual data streams and cleanup.
 
-- Workers that are unclaimed within 3 seconds are removed from the executor thread pool and destroyed.
+- Workers that are unclaimed within 5 seconds are removed from the executor thread pool and destroyed.
 
 - Separate threads are used to achieve non-blocking behaviour for blocking calls (e.g. `get_cpu()`, `get_memory()`) by offloading them to the executor thread pool.
 
@@ -182,7 +182,7 @@ Most of the code is either documented or self-explanatory, however, some key poi
 
 ### Threading
 
-psmonitor uses three threading models:
+PSMonitor uses three threading models:
 
 - Tornado's `IOLOOp` async concurrency for non-blocking coroutine execution.
 
@@ -200,7 +200,7 @@ psmonitor uses three threading models:
 #### Thread safety with shared data
 The core application state, especially the `self.data` dictionary holding system metrics, is shared between the main GUI thread and the websocket client thread.
 
-To avoid data corruption and race conditions when multiple threads access or update `self.data`, psmonitor uses a thread lock:
+To avoid data corruption and race conditions when multiple threads access or update `self.data`, PSMonitor uses a thread lock:
 
 - Before a thread reads or modifies `self.data`, it acquires the lock.
 - This prevents other threads from accessing `self.data` concurrently.

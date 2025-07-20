@@ -1,5 +1,5 @@
 [Unit]
-Description=psmonitor system monitoring - headless server
+Description=PSMonitor system monitoring - headless server
 After=network.target
 
 [Service]

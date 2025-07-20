@@ -36,13 +36,13 @@
     <div class="container py-4 px-5">
         <div class="row">
             <div class="col d-flex align-items-center gap-3">
-                <h3>psmonitor - <span class="text-muted">Web Dashboard</span></h3>
+                <h3>PSMonitor - <span class="text-muted">Web Dashboard</span></h3>
             </div>
         </div>
 
         <div class="row">
             <div class="col-8 border-end">
-                <h4 class="fw-normal">Websocket Data</h4>
+                <h4 class="fw-normal">System Data</h4>
                 <hr />
                 <div class="row mt-1 small">
                     <div class="col">
@@ -68,17 +68,17 @@
                 </div>
             </div>
             <div class="col-4">
-                <h4 class="fw-normal">HTTP Data</h4>
+                <h4 class="fw-normal">Network Data</h4>
                 <hr />
                 <div class="row mt-1 small">
                     <div class="col-md-6">
-                        <p class="lead mb-2">Interfaces:</p>
+                        <p class="lead mb-2">NICs:</p>
                         <div id="net-interfaces">
                             <p class="text-secondary"><em>Request `/network` endpoint to display data...</em></p>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <p class="lead mb-2">Wifi:</p>
+                        <p class="lead mb-2">Wi-Fi:</p>
                         <p>Name: <span id="wifi-name">--</span></p>
                         <p>Quality: <span id="wifi-quality">--</span></p>
                         <p>Channel: <span id="wifi-channel">--</span></p>
@@ -215,7 +215,7 @@
                         
                         if (nicContainer) {
                             nicContainer.innerHTML = ''
-                            for (nic of interfaces) {
+                            for (const nic of interfaces) {
                                 const node = document.createElement('p')
                                 node.innerHTML = nic
                                 nicContainer.appendChild(node)
@@ -232,9 +232,7 @@
 
             document.querySelector('#endpoint-system').addEventListener('click', () => {
                 fetch(`${window.location.origin}/system`)
-                    .then((response) => {
-                        return response.json()
-                    })
+                    .then((response) => response.json())
                     .then((data) => {
                         for (const key in data.cpu) {
                             system.set('cpu', key, data.cpu[key])

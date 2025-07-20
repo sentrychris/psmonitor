@@ -91,7 +91,7 @@ class PSMonitorApp(tk.Tk):
         self.max_process_rows = 10
         self.cached_processes = [("", "", "", "") for _ in range(self.max_process_rows)]
 
-        self.title("psmonitor - A system monitor")
+        self.title("PSMonitor - System monitoring")
         self.geometry("460x480")
         self.resizable(True, True)
         self.image_cache = {}
@@ -472,7 +472,7 @@ class PSMonitorApp(tk.Tk):
 
         label_version = ttk.Label(
             about_window,
-            text="psmonitor - A simple system monitor.",
+            text="PSMonitor - System monitoring.",
             font=("Arial", 10, "bold")
         )
         label_version.pack(pady=3)

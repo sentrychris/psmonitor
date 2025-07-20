@@ -55,8 +55,8 @@ class HttpHandler(BaseHandler):
         """
 
         worker_id = None
-        message = None
         connect_url = None
+        message = None
 
         try:
             # Create a new worker to pair HTTP connection with websocket session

@@ -1,8 +1,8 @@
 """
-Build script for psmonitor application.
+Build script for PSMonitor application.
 
 This script automates the process of downloading UPX (if needed),
-cleaning previous build artifacts, and building the psmonitor
+cleaning previous build artifacts, and building the PSMonitor
 executable for the specified build type (GUI or headless).
 
 Usage:
@@ -80,7 +80,7 @@ def clean_dir(directory: str) -> None:
 
 def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> None:
     """
-    Builds the psmonitor application using PyInstaller.
+    Builds the PSMonitor application using PyInstaller.
 
     Args:
         spec_file (str): The path to the PyInstaller spec file.
@@ -89,7 +89,7 @@ def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> No
         build_dir (str): Directory for PyInstaller's build artifacts.
     """
 
-    print("Building psmonitor...")
+    print("Building PSMonitor...")
     subprocess.run([
         "pyinstaller",
         spec_file,
@@ -101,7 +101,7 @@ def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> No
 
 def main(build_type: str, clean_build: bool, upx_ver: str, insert_only: bool = False) -> None:
     """
-    Main function that orchestrates the build process for psmonitor.
+    Main function that orchestrates the build process for PSMonitor.
 
     Args:
         build (str): The type to build for e.g. 'gui' or 'headless'.
