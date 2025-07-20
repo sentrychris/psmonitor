@@ -293,7 +293,7 @@ class PSMonitorApp(tk.Tk):
         self.graph_handler.update_active_graphs()
 
         self.after(
-            ms=self.settings_handler.refresh_interval.get(),
+            ms=self.settings_handler.gui_refresh_interval.get(),
             func=self.update_gui_sections
         )
 

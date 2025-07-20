@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING
 # Local application imports
 from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, \
     DEFAULT_ADDRESS, DEFAULT_PORT, DEFAULT_MAX_WS_CONNECTIONS, \
-        DEFAULT_REFRESH_INTERVAL, SETTINGS_FILE, \
-            read_settings_file
+        DEFAULT_MAX_RECONNECT_ATTEMPTS, DEFAULT_RECONNECT_BASE_DELAY, \
+            DEFAULT_GUI_REFRESH_INTERVAL, SETTINGS_FILE, read_settings_file
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -53,7 +53,9 @@ class PSMonitorAppSettingsHandler:
         self.address = tk.StringVar(value=DEFAULT_ADDRESS)
         self.port_number = tk.IntVar(value=DEFAULT_PORT)
         self.max_ws_connections = tk.IntVar(value=DEFAULT_MAX_WS_CONNECTIONS)
-        self.refresh_interval = tk.IntVar(value=DEFAULT_REFRESH_INTERVAL)
+        self.max_reconnect_attempts = tk.IntVar(value=DEFAULT_MAX_RECONNECT_ATTEMPTS)
+        self.reconnect_base_delay = tk.DoubleVar(value=DEFAULT_RECONNECT_BASE_DELAY)
+        self.gui_refresh_interval = tk.IntVar(value=DEFAULT_GUI_REFRESH_INTERVAL)
 
         # Load saved settings
         self._load_settings_from_file()
@@ -95,7 +97,9 @@ class PSMonitorAppSettingsHandler:
             "address": self.address.get(),
             "port_number": self.port_number.get(),
             "max_ws_connections": self.max_ws_connections.get(),
-            "refresh_interval": self.refresh_interval.get()
+            "max_reconnect_attempts": self.max_reconnect_attempts.get(),
+            "reconnect_base_delay": self.reconnect_base_delay.get(),
+            "gui_refresh_interval": self.gui_refresh_interval.get()
         }
 
 
@@ -391,8 +395,14 @@ class PSMonitorAppSettingsHandler:
         self.max_ws_connections.set(
             value=settings.get("max_ws_connections", DEFAULT_MAX_WS_CONNECTIONS)
         )
-        self.refresh_interval.set(
-            value=settings.get("refresh_interval", DEFAULT_REFRESH_INTERVAL)
+        self.max_reconnect_attempts.set(
+            value=settings.get("max_reconnect_attempts", DEFAULT_MAX_RECONNECT_ATTEMPTS)
+        )
+        self.reconnect_base_delay.set(
+            value=settings.get("reconnect_base_delay", DEFAULT_RECONNECT_BASE_DELAY)
+        )
+        self.gui_refresh_interval.set(
+            value=settings.get("gui_refresh_interval", DEFAULT_GUI_REFRESH_INTERVAL)
         )
 
 

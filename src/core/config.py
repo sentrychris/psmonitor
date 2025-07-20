@@ -28,8 +28,12 @@ DEFAULT_PORT = 4500
 # Default max allowed websocket connections
 DEFAULT_MAX_WS_CONNECTIONS = 20
 
+# Default reconnection settings
+DEFAULT_MAX_RECONNECT_ATTEMPTS = 3
+DEFAULT_RECONNECT_BASE_DELAY = 1.0
+
 # Default GUI widget update interval
-DEFAULT_REFRESH_INTERVAL = 1000
+DEFAULT_GUI_REFRESH_INTERVAL = 1000
 
 # Default logging level and enabled state
 DEFAULT_LOG_LEVEL = "INFO"
@@ -41,7 +45,9 @@ default_settings = {
     "address": DEFAULT_ADDRESS,
     "port_number": DEFAULT_PORT,
     "max_ws_connections": DEFAULT_MAX_WS_CONNECTIONS,
-    "refresh_interval": DEFAULT_REFRESH_INTERVAL
+    "max_reconnect_attempts": DEFAULT_MAX_RECONNECT_ATTEMPTS,
+    "reconnect_base_delay": DEFAULT_RECONNECT_BASE_DELAY,
+    "gui_refresh_interval": DEFAULT_GUI_REFRESH_INTERVAL
 }
 
 

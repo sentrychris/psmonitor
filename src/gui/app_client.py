@@ -50,10 +50,15 @@ class PSMonitorAppClient():
         self._worker_id = None
 
 
-    def safe_connect(self, max_attempts: int = 3, base_delay: float = 1.0) -> None:
+    def safe_connect(self, max_attempts: int = None, base_delay: float = None) -> None:
         """
         Initialize the connection if the server is reachable.
         """
+
+        if max_attempts is None:
+            max_attempts = self._manager.settings_handler.max_reconnect_attempts.get()
+        if base_delay is None:
+            base_delay = self._manager.settings_handler.reconnect_base_delay.get()
 
         attempt = 0
         while attempt < max_attempts:
