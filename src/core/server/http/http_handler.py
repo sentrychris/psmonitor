@@ -30,8 +30,8 @@ class HttpHandler(BaseHandler):
         """
 
         worker = Worker()
-        # If no websocket claims the worker within 3 seconds, then remove it
-        IOLoop.current().call_later(3, recycle, worker)
+        # If no websocket claims the worker within 5 seconds, then remove it
+        IOLoop.current().call_later(5, recycle, worker)
 
         return worker
 
@@ -47,26 +47,35 @@ class HttpHandler(BaseHandler):
     async def post(self):
         """
         Handles POST requests. Attempts to establish a connection and returns the
-        worker ID and status.
+        worker ID for pairing the websocket connection, websocket connect URL,
+        and message.
 
         Returns:
-            dict: A dictionary containing `id` (worker ID) and `status` (status message).
+            dict: A dictionary containing id, url and message.
         """
 
         worker_id = None
-        status = None
+        message = None
+        connect_url = None
 
         try:
             # Create a new worker to pair HTTP connection with websocket session
             worker = self.create_worker()
         except Exception:
-            status = "Error: failed to create worker."
+            message = "There was an error creating the websocket worker."
         else:
             # Add the worker to the worker registry
             worker_id = worker.id
             workers[worker_id] = worker
+            # Construct URL for the paired websocket connection
+            connect_url = f"ws://{self.request.host}/connect?id={worker_id}"
+            message = "Websocket connection ready (Worker expires in 5 seconds if unclaimed)."
 
-        self.write({"id": worker_id, "status": status})
+        self.write({
+            "id": worker_id,
+            "url": connect_url,
+            "message": message
+        })
 
 
 class HttpSystemHandler(BaseHandler):
