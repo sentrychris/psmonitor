@@ -1,11 +1,15 @@
 """
 --------------------------------------------------------------------------
-PSMonitor - A simple system monitoring utility
-Author: <Author Name>
+PSMonitor - System and network monitoring utility
+
+File: <file>
+Author: Chris Rowles
 Copyright: © 2025 Chris Rowles. All rights reserved.
+Version: <version>
 License: MIT
 --------------------------------------------------------------------------
 """
+
 
 import tkinter as tk
 # from tkinter import ttk
