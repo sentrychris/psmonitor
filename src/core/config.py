@@ -17,10 +17,6 @@ if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
 
 
-# Settings path and full filepath (including filename).
-SETTINGS_DIR = os.path.join(os.path.expanduser('~'), '.psmonitor')
-SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
-
 # Default server address and port
 DEFAULT_ADDRESS = "localhost"
 DEFAULT_PORT = 4500
@@ -38,6 +34,11 @@ DEFAULT_GUI_REFRESH_INTERVAL = 1000
 # Default logging level and enabled state
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_ENABLED = True
+
+# Settings path and full filepath (including filename).
+SETTINGS_DIR = os.path.join(os.path.expanduser('~'), '.psmonitor')
+SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
+
 
 default_settings = {
     "logging_enabled": DEFAULT_LOG_ENABLED,

@@ -42,8 +42,14 @@ def get_wifi_data_windows() -> Optional[dict]:
     try:
         result = subprocess.check_output(
             ["netsh", "wlan", "show", "interfaces"],
-            universal_newlines=True
+            universal_newlines=True,
+            stderr=subprocess.STDOUT
         )
+
+        if "location permission" in result.lower() or "error 5" in result.lower():
+            return {
+                "error": "Location services are disabled. Enable them to access Wi-Fi details."
+            }
 
         output = {
             "name": "",
@@ -71,9 +77,10 @@ def get_wifi_data_windows() -> Optional[dict]:
 
         return output
 
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to retrieve Wi-Fi information: {e}")
-        return None
+    except subprocess.CalledProcessError:
+        return {
+            "error": "Failed to fetch Wi-Fi data. Location services probably needs to be enabled"
+        }
 
 
 def get_wifi_data_linux() -> dict:
