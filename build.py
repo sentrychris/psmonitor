@@ -9,10 +9,11 @@ Usage:
     python build.py [gui|headless] [--clean] [--upx VERSION]
 
 Arguments:
-    --build TYPE         Specify the build type: "gui" or "headless"
-    --upx VERSION        Specify the UPX version to download and use (default: 5.0.1)
-    --clean              Optional flag to clean build and dist directories before building
-    --insert-docstrings  Insert docstrings into .py source files (does not build EXEs)
+    --build TYPE           Specify the build type: "gui" or "headless"
+    --upx VERSION          Specify the UPX version to download and use (default: 5.0.1)
+    --clean                Optional flag to clean build and dist directories before building
+    --insert-docstrings    Insert docstrings into .py source files (does not build EXEs)
+    --third-party-licenses Generate third-party licenses file (does not build EXEs)
 
 The script handles platform differences for UPX download URLs and extraction.
 """
@@ -25,7 +26,8 @@ import zipfile
 import tarfile
 import argparse
 
-from build_resources.docstrings import insert_docstrings
+from build_resources.generate_docstrings import insert_docstrings
+from build_resources.generate_third_party_licenses import generate_third_party_licenses
 
 DEFAULT_UPX_VER="5.0.1"
 
@@ -99,7 +101,13 @@ def build_exe(spec_file: str, upx_dir: str, dist_dir: str, build_dir: str) -> No
     ], check=True)
 
 
-def main(build_type: str, clean_build: bool, upx_ver: str, insert_only: bool = False) -> None:
+def main(
+        build_type: str,
+        clean_build: bool,
+        upx_ver: str,
+        insert_docstrings_only: bool = False,
+        third_party_licenses_only: bool = False
+    ) -> None:
     """
     Main function that orchestrates the build process for PSMonitor.
 
@@ -107,14 +115,18 @@ def main(build_type: str, clean_build: bool, upx_ver: str, insert_only: bool = F
         build (str): The type to build for e.g. 'gui' or 'headless'.
         clean_build (str): Clean `build` and `dist directories before build.
         upx_ver (str): The version of UPX to use to compress the executable.
-
-    This function sets up the build environment, downloads UPX if necessary,
-    cleans the build and dist directories, and then builds the application.
+        insert_docstrings_only (bool): Insert docstrings into source files instead.
+        third_party_licenses_only (bool): Generate third-party licenses instead.
     """
 
-    if insert_only:
+    if insert_docstrings_only:
         print("Inserting docstrings into source .py files...")
         insert_docstrings()
+        return
+
+    if third_party_licenses_only:
+        print("Generating third-party licenses file...")
+        generate_third_party_licenses()
         return
 
     cwd = os.getcwd()
@@ -171,11 +183,18 @@ if __name__ == "__main__":
         help="Insert docstrings into source files instead of building"
     )
 
+    parser.add_argument(
+        "--third-party-licenses",
+        action="store_true",
+        help="Generate third-party licenses file instead of building"
+    )
+
     args = parser.parse_args()
 
     main(
         build_type=args.build,
         clean_build=args.clean,
         upx_ver=args.upx,
-        insert_only=args.insert_docstrings
+        insert_docstrings_only=args.insert_docstrings,
+        third_party_licenses_only=args.third_party_licenses
     )

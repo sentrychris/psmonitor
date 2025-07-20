@@ -1,9 +1,6 @@
 """
-Script to prepend a copyright header to all .py files in a directory tree.
-
-Skips files inside __pycache__ directories and avoids adding duplicate headers.
+Prepend docstrings headers to all .py files in a directory tree.
 """
-
 import datetime
 import os
 import re
@@ -69,7 +66,7 @@ def prepend_header_to_file(filepath: str) -> None:
     with open(filepath, "w", encoding="utf-8") as file:
         file.write(new_contents)
 
-    print(f"{action}: {filepath}")
+    print(f"[✓] {action}: {filepath}")
 
 
 def process_directory(root: str) -> None:
