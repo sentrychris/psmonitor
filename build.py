@@ -10,9 +10,9 @@ Usage:
 
 Arguments:
     --build TYPE            Specify the build type: "gui" or "headless"
+    --clean                 Delete previous build and dist directories before building
     --upx VERSION           Specify the UPX version to download and use (default: 5.0.1)
-    --upx-clean             Download a clean copy of UPX before building
-    --clean                 Optional flag to clean build and dist directories before building
+    --upx-clean             Delete the UPX directory in build_resources after building
     --insert-docstrings     Insert docstrings into .py source files (does not build EXEs)
     --third-party-licenses  Generate third-party licenses file (does not build EXEs)
 
@@ -116,7 +116,7 @@ def main(
     Args:
         build (str): The type to build for e.g. 'gui' or 'headless'.
         clean_build (bool): Clean `build` and `dist` directories before build.
-        clean_upx (bool): Download a clean copy of UPX before build.
+        clean_upx (bool): Delete the UPX directory after building
         upx_ver (str): The version of UPX to use to compress the executable.
         insert_docstrings_only (bool): Insert docstrings into source files instead.
         third_party_licenses_only (bool): Generate third-party licenses instead.
