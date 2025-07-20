@@ -211,14 +211,14 @@
                         }
 
                         const { interfaces } = data;
-                        const inetContainer = document.querySelector('#net-interfaces');
+                        const nicContainer = document.querySelector('#net-interfaces');
                         
-                        if (inetContainer) {
-                            inetContainer.innerHTML = ''
-                            for (inet of interfaces) {
+                        if (nicContainer) {
+                            nicContainer.innerHTML = ''
+                            for (nic of interfaces) {
                                 const node = document.createElement('p')
-                                node.innerHTML = inet
-                                inetContainer.appendChild(node)
+                                node.innerHTML = nic
+                                nicContainer.appendChild(node)
                             }
                         }
 

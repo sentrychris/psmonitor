@@ -12,48 +12,37 @@ import asyncio
 import psutil
 
 
-async def get_avg_in_out(inet="wlan0", interval=5, sample_rate=0.1) -> dict:
+async def get_avg_in_out(nic="wlan0", interval=5) -> dict:
     """
-    Asynchronously calculates average network statistics for a given network interface
-    over a specified interval.
+    Calculates average network statistics for a given network interface over a
+    specified interval.
 
     Args:
-        inet (str): The network interface to monitor (default is "wlan0").
-        interval (int): The duration in seconds over which to average the network statistics.
-        sample_rate (float): The sampling rate in seconds.
+        nic (str): The network interface controller to monitor (default is "wlan0").
+        interval (int): The duration in seconds over which to measure.
 
     Returns:
         dict: A dictionary containing the following network statistics:
-            - "interface": The network interface being monitored.
+            - "interface": The network interface being measured.
             - "in": Average amount of data received in MB per second.
             - "out": Average amount of data sent in MB per second.
     """
 
-    samples = int(interval / sample_rate)
-    total_net_in = 0
-    total_net_out = 0
+    stat_1 = psutil.net_io_counters(pernic=True, nowrap=True)[nic]
+    in_1, out_1 = stat_1.bytes_recv, stat_1.bytes_sent
 
-    for _ in range(samples):
-        net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inet]
-        net_in_1 = net_stat.bytes_recv
-        net_out_1 = net_stat.bytes_sent
+    await asyncio.sleep(interval)
 
-        await asyncio.sleep(sample_rate)
+    stat_2 = psutil.net_io_counters(pernic=True, nowrap=True)[nic]
+    in_2, out_2 = stat_2.bytes_recv, stat_2.bytes_sent
 
-        net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inet]
-        net_in_2 = net_stat.bytes_recv
-        net_out_2 = net_stat.bytes_sent
-
-        total_net_in += (net_in_2 - net_in_1)
-        total_net_out += (net_out_2 - net_out_1)
-
-    avg_net_in = round((total_net_in / interval) / 1024 / 1024, 3)
-    avg_net_out = round((total_net_out / interval) / 1024 / 1024, 3)
+    avg_in = round((in_2 - in_1) / interval / 1024 / 1024, 3)
+    avg_out = round((out_2 - out_1) / interval / 1024 / 1024, 3)
 
     return {
-        "interface": inet,
-        "in": avg_net_in,
-        "out": avg_net_out
+        "interface": nic,
+        "in": avg_in,
+        "out": avg_out
     }
 
 

@@ -47,9 +47,7 @@ def get_wifi_data_windows() -> Optional[dict]:
         )
 
         if "location permission" in result.lower() or "error 5" in result.lower():
-            return {
-                "error": "Location services are disabled. Enable them to access Wi-Fi details."
-            }
+            raise ValueError()
 
         output = {
             "name": "",
@@ -77,7 +75,7 @@ def get_wifi_data_windows() -> Optional[dict]:
 
         return output
 
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, ValueError):
         return {
             "error": {
                 "message": "Failed to fetch Wi-Fi information.",
