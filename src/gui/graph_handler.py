@@ -154,7 +154,7 @@ class PSMonitorGraph:
         Close graph window.
         """
 
-        if hasattr(self, '_window') and self._window.winfo_exists():
+        if self.is_active():
             self.on_close()
 
 

@@ -451,12 +451,19 @@ class PSMonitorAppSettingsHandler:
             return False
 
 
+    def is_active(self):
+        """
+        Check if the settings window is active
+        """
+        return hasattr(self, '_window') and self._window.winfo_exists()
+
+
     def close_window(self) -> None:
         """
         Close window.
         """
 
-        if hasattr(self, '_window') and self._window.winfo_exists():
+        if self.is_active():
             self.on_close()
 
 
