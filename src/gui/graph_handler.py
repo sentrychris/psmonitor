@@ -13,7 +13,7 @@ License: MIT
 # Standard library imports
 import tkinter as tk
 from tkinter import ttk
-from typing import Callable, Union, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 # Third party imports
 import numpy as np
@@ -191,7 +191,7 @@ class PSMonitorGraph:
         self._data_filled = self._data_filled or self._index >= self._max_points
 
 
-    def _sample_data(self) -> Union[float, None]:
+    def _sample_data(self) -> float | None:
         """
         Sample the latest data and store it in the ring buffer.
         """

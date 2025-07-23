@@ -13,7 +13,6 @@ License: MIT
 # Standard library imports
 import uuid
 import sys
-from typing import Union
 
 # Third-party imports
 from tornado.ioloop import IOLoop
@@ -55,7 +54,7 @@ def create_server(server_path: str) -> HTTPServer:
     }))
 
 
-def create_app(settings: dict) -> Union[Application, bool]:
+def create_app(settings: dict) -> Application | bool:
     """
     Creates and returns an application instance with specified settings.
 
