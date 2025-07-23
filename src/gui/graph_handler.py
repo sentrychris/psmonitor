@@ -54,6 +54,7 @@ class PSMonitorGraph:
         self._data_key = data_key
         self._data_metric = data_metric
         self._y_label = y_label
+        self._label_suffix = "°C" if self._data_metric == "temp" else "%"
 
         self._window = None
         self._window_title = window_title
@@ -135,8 +136,7 @@ class PSMonitorGraph:
 
         if curr_value is not None:
             try:
-                suffix = "°C" if self._data_metric == "temp" else "%"
-                title = f"{self._window_title} - ({curr_value:.1f} {suffix})"
+                title = f"{self._window_title} - ({curr_value:.1f} {self._label_suffix})"
                 self._window.title(title)
             except Exception:
                 pass
