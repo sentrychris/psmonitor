@@ -16,6 +16,7 @@ import sys
 
 # Local application imports
 from core import signal_handler
+from core.config import init_data
 from core.logging_manager import PSMonitorLogger
 from core.server_manager import PSMonitorServerManager
 from gui.app_manager import PSMonitorApp
@@ -37,17 +38,6 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)
-
-    # Create placeholder data to intialise GUI widgets
-    init_data = {
-        "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
-        "mem": {"total": 0, "used": 0, "free": 0, "percent": 0},
-        "disk": {"total": 0, "used": 0, "free": 0, "percent": 0},
-        "user": "",
-        "platform": {"distro": "", "kernel": "", "uptime": ""},
-        "uptime": "",
-        "processes": []
-    }
 
     app = PSMonitorApp(init_data, server_manager, logger)
     app.mainloop()

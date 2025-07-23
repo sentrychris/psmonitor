@@ -55,6 +55,17 @@ default_settings = {
 }
 
 
+init_data = {
+    "cpu": {"usage": 0.0, "temp": 0, "freq": 0},
+    "mem": {"total": 0, "used": 0, "free": 0, "percent": 0},
+    "disk": {"total": 0, "used": 0, "free": 0, "percent": 0},
+    "user": "",
+    "platform": {"distro": "", "kernel": "", "uptime": ""},
+    "uptime": "",
+    "processes": []
+}
+
+
 def read_settings_file(logger: 'PSMonitorLogger' = None) -> dict:
     """
     Read settings from file.
