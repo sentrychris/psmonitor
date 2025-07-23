@@ -15,7 +15,7 @@ PSMonitor - System and network monitoring utility
 File: {filename}
 Author: Chris Rowles <christopher.rowles@outlook.com>
 Copyright: © {year} Chris Rowles. All rights reserved.
-Version: 1.5.0.2413
+Version: 1.6.0.1001
 License: MIT
 --------------------------------------------------------------------------
 """
