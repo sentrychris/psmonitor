@@ -72,14 +72,17 @@ def read_settings_file(logger: 'PSMonitorLogger' = None) -> dict:
     """
 
     try:
+        # If settings file doesn't exist, create it.
         if not os.path.exists(SETTINGS_FILE):
             os.makedirs(SETTINGS_DIR, exist_ok=True)
             with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
                 json.dump(default_settings, f, indent=4)
             if logger:
                 logger.info("Created settings file at %s", SETTINGS_FILE)
+            # Return default created settings
             return default_settings
 
+        # Read settings file and return settings
         with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
         return data
