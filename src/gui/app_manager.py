@@ -142,13 +142,13 @@ class PSMonitorApp(tk.Tk):
         self.config(menu=menu_bar)
 
         help_menu = tk.Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="About...", command=self.open_about_window)
+        help_menu.add_command(label="About", command=self.open_about_window)
 
         file_menu = tk.Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="Open web UI...", command=self.open_web_ui)
-        file_menu.add_command(label="Open app log...", command=self.logger.open_log)
+        file_menu.add_command(label="Open Web UI...", command=self.open_web_ui)
+        file_menu.add_command(label="Open Log...", command=self.logger.open_log)
         file_menu.add_separator()
-        file_menu.add_command(label="Open Settings", command=self.settings_handler.open_window)
+        file_menu.add_command(label="Settings", command=self.settings_handler.open_window)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.shutdown)
 
