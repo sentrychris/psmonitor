@@ -13,7 +13,7 @@ License: MIT
 # Standard library imports
 import tkinter as tk
 from tkinter import ttk
-from typing import Callable, TYPE_CHECKING
+from typing import Callable, Union, TYPE_CHECKING
 
 # Third party imports
 import numpy as np
@@ -130,8 +130,16 @@ class PSMonitorGraph:
         if not hasattr(self, '_window') or not self._window.winfo_exists():
             return  # Stop if window is closed
 
-        self._sample_data()
+        curr_value = self._sample_data()
         self._update_plot()
+
+        if curr_value is not None:
+            try:
+                suffix = "°C" if self._data_metric == "temp" else "%"
+                title = f"{self._window_title} - ({curr_value:.1f} {suffix})"
+                self._window.title(title)
+            except Exception:
+                pass
 
 
     def is_active(self):
@@ -183,7 +191,7 @@ class PSMonitorGraph:
         self._data_filled = self._data_filled or self._index >= self._max_points
 
 
-    def _sample_data(self) -> None:
+    def _sample_data(self) -> Union[float, None]:
         """
         Sample the latest data and store it in the ring buffer.
         """
@@ -194,8 +202,12 @@ class PSMonitorGraph:
                 # metric = round(random.uniform(30, 50), 1)
                 metric = data[self._data_key][self._data_metric]
                 self._insert_buffer(metric)
+
+                return float(metric)
             except (ValueError, TypeError, KeyError):
-                pass
+                return None
+
+        return None
 
 
     def _update_plot(self) -> None:
