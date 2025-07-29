@@ -12,7 +12,6 @@ License: MIT
 
 # Standard library imports
 import json
-import keyring
 import socket
 import sys
 import time
@@ -24,7 +23,7 @@ import requests
 import websocket
 
 # Local application imports
-from core.config import get_service_name
+from core.auth import get_credentials
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -109,26 +108,12 @@ class PSMonitorAppClient():
         self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
 
 
-    def _get_credentials(self) -> tuple[str, str]:
-        """
-        Get stored credentials from the system keyring.
-        """
-
-        username = get_service_name()
-        password = keyring.get_password(get_service_name("Auth"), username)
-
-        if password is None:
-            raise RuntimeError("No stored credentials found. First-run setup may have failed.")
-
-        return username, password
-
-
     def _authenticate(self) -> None:
         """
         Authenticate against the embedded server.
         """
 
-        username, password = self._get_credentials()
+        username, password = get_credentials()
 
         response = requests.post(
             f'{self.http_url}/authenticate',

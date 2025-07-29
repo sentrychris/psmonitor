@@ -15,11 +15,13 @@ from datetime import datetime, timedelta, timezone
 
 # Third-party imports
 import bcrypt
+import keyring
 import jwt
 
 # Local application imports
 from core.database import get_connection, close_connection
-from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALGORITHM, JWT_SECRET
+from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALGORITHM, JWT_SECRET, \
+    get_service_name
 
 
 def query_user(username: str) -> dict[str, str] | None:
@@ -64,3 +66,17 @@ def generate_token(user_id) -> dict[str, str]:
     return {
         "token": token
     }
+
+
+def get_credentials() -> tuple[str, str]:
+    """
+    Get stored credentials from the system keyring.
+    """
+
+    username = get_service_name()
+    password = keyring.get_password(get_service_name("Auth"), username)
+
+    if password is None:
+        raise RuntimeError("No stored credentials found. First-run setup may have failed.")
+
+    return username, password
