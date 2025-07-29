@@ -11,11 +11,13 @@ License: MIT
 """
 
 # Third-party imports
-from tornado.ioloop import IOLoop
+import jwt
+import tornado
 
 # Local application imports
 from core.worker import Worker
 from core.server.base_handler import BaseHandler, workers, recycle
+from core.server.auth import generate_tokens, refresh_access_token
 from core.server.http.get_system_data import get_system_data
 from core.server.http.get_network_data import get_network_data
 
@@ -34,7 +36,7 @@ class HttpHandler(BaseHandler):
 
         worker = Worker()
         # If no websocket claims the worker within 5 seconds, then remove it
-        IOLoop.current().call_later(5, recycle, worker)
+        tornado.ioloop.IOLoop.current().call_later(5, recycle, worker)
 
         return worker
 
@@ -44,7 +46,7 @@ class HttpHandler(BaseHandler):
         Get the simple web UI.
         """
 
-        self.render('web.html')
+        self.render("web.html")
 
 
     async def post(self):
@@ -109,3 +111,56 @@ class HttpNetworkHandler(BaseHandler):
 
         self.set_header("Content-Type", "application/json")
         self.write(await get_network_data())
+
+
+class HttpAccessTokenHandler(BaseHandler):
+    """
+    sadsad
+    """
+
+    async def post(self):
+        """
+        sadasd
+        """
+
+        try:
+            data = tornado.escape.json_decode(self.request.body)
+            username = data.get("username")
+            password = data.get("password")
+            print(username, password)
+
+            user_id = 1 # todo sqlite implementation for users
+            tokens = generate_tokens(user_id)
+
+            print(tokens)
+
+            self.write(tokens)
+        except Exception as e:
+            raise tornado.web.HTTPError(400, f"Bad request, {e}") from e
+
+
+class HttpRefreshTokenHandler(BaseHandler):
+    """
+    sadsad
+    """
+
+    async def post(self):
+        """
+        Post
+        """
+        auth_header = self.request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            raise tornado.web.HTTPError(400, "Missing or invalid Authorization header")
+
+        refresh_token = auth_header.removeprefix("Bearer ").strip()
+        print(refresh_token)
+
+        try:
+            tokens = refresh_access_token(refresh_token)
+            self.write(tokens)
+        except jwt.ExpiredSignatureError as e:
+            raise tornado.web.HTTPError(401, f"Refresh token expired, {e}") from e
+        except jwt.InvalidTokenError as e:
+            raise tornado.web.HTTPError(401, f"Invalid refresh token, {e}") from e
+        except Exception as e:
+            raise tornado.web.HTTPError(400, f"Bad request, {e}") from e

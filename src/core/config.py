@@ -39,8 +39,14 @@ DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_ENABLED = True
 
 # Settings path and full filepath (including filename).
-SETTINGS_DIR = os.path.join(os.path.expanduser('~'), '.psmonitor')
+SETTINGS_DIR = os.path.join(os.path.expanduser("~"), ".psmonitor")
 SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
+
+# Auth
+JWT_SECRET = "secret123"
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
 default_settings = {
