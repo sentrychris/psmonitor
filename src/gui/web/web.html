@@ -92,7 +92,19 @@
 
         <hr />
 
-        <div class="d-flex align-items-center justify-content-start gap-5">
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <p class="lead">Authentication</p>
+                <div class="input-group input-group-sm mb-2">
+                    <input type="text" id="auth-username" class="form-control" placeholder="Username">
+                    <input type="password" id="auth-password" class="form-control" placeholder="Password">
+                    <button class="btn btn-success" id="auth-login">Authorize</button>
+                </div>
+                <p class="text-muted small" id="auth-status">Not authorized</p>
+            </div>
+        </div>
+
+        <div class="mt-3 d-flex align-items-center justify-content-start gap-5">
             <div class="me-5">
                 <p class="lead">Websocket Connection</p>
                 <div class="row mt-1">
@@ -203,53 +215,57 @@
             }
 
             document.querySelector('#endpoint-network').addEventListener('click', () => {
-                fetch(`${window.location.origin}/network`)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        for (const key in wifi) {
-                            wifi.set(key, data.wireless[key])
-                        }
+                fetch(`${window.location.origin}/network`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    for (const key in wifi) {
+                        wifi.set(key, data.wireless[key])
+                    }
 
-                        const { interfaces } = data;
-                        const nicContainer = document.querySelector('#net-interfaces');
-                        
-                        if (nicContainer) {
-                            nicContainer.innerHTML = ''
-                            for (const nic of interfaces) {
-                                const node = document.createElement('p')
-                                node.innerHTML = nic
-                                nicContainer.appendChild(node)
-                            }
+                    const { interfaces } = data;
+                    const nicContainer = document.querySelector('#net-interfaces');
+                    
+                    if (nicContainer) {
+                        nicContainer.innerHTML = ''
+                        for (const nic of interfaces) {
+                            const node = document.createElement('p')
+                            node.innerHTML = nic
+                            nicContainer.appendChild(node)
                         }
+                    }
 
-                        log.write('event', `Fetched network information from HTTP network/ endpoint`)
-                        log.write('output', JSON.stringify(data) + '\n\n')
-                    })
-                    .catch(() => {
-                        log.write('event', 'ERROR! Unable to fetch network information from the HTTP network/ endpoint')
-                    })
+                    log.write('event', `Fetched network information from HTTP network/ endpoint`)
+                    log.write('output', JSON.stringify(data) + '\n\n')
+                })
+                .catch(() => {
+                    log.write('event', 'ERROR! Unable to fetch network information from the HTTP network/ endpoint')
+                })
             })
 
             document.querySelector('#endpoint-system').addEventListener('click', () => {
-                fetch(`${window.location.origin}/system`)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        for (const key in data.cpu) {
-                            system.set('cpu', key, data.cpu[key])
-                        }
-                        for (const key in data.mem) {
-                            system.set('mem', key, data.mem[key])
-                        }
-                        for (const key in data.disk) {
-                            system.set('disk', key, data.disk[key])
-                        }
-                        log.write('event', `Fetched system information from HTTP system/ endpoint`)
-                        log.write('output', JSON.stringify(data) + '\n\n')
-                    })
-                    .catch((error) => {
-                        console.log(error)
-                        log.write('event', 'ERROR! Unable to fetch system information from the HTTP system/ endpoint')
-                    })
+                fetch(`${window.location.origin}/system`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    for (const key in data.cpu) {
+                        system.set('cpu', key, data.cpu[key])
+                    }
+                    for (const key in data.mem) {
+                        system.set('mem', key, data.mem[key])
+                    }
+                    for (const key in data.disk) {
+                        system.set('disk', key, data.disk[key])
+                    }
+                    log.write('event', `Fetched system information from HTTP system/ endpoint`)
+                    log.write('output', JSON.stringify(data) + '\n\n')
+                })
+                .catch((error) => {
+                    console.log(error)
+                    log.write('event', 'ERROR! Unable to fetch system information from the HTTP system/ endpoint')
+                })
             })
             
             let connection = null
@@ -305,7 +321,44 @@
                 }
             })
 
-            document.querySelector('#output-clear').addEventListener('click', log.clear)
+            document.querySelector('#output-clear').addEventListener('click', log.clear);
+
+            let accessToken = null;
+
+            const updateAuthStatus = (msg, success = false) => {
+                const statusEl = document.querySelector('#auth-status');
+                statusEl.innerText = msg;
+                statusEl.className = success ? 'text-success small' : 'text-danger small';
+            };
+
+            document.querySelector('#auth-login').addEventListener('click', () => {
+                const username = document.querySelector('#auth-username').value.trim();
+                const password = document.querySelector('#auth-password').value.trim();
+                if (!username || !password) {
+                    updateAuthStatus('Missing username or password');
+                    return;
+                }
+
+                fetch(`${window.location.origin}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Login failed');
+                    return res.json();
+                })
+                .then(data => {
+                    accessToken = data.access_token;
+                    updateAuthStatus('Authenticated', true);
+                    log.write('event', 'Access token obtained and stored');
+                })
+                .catch(err => {
+                    accessToken = null;
+                    updateAuthStatus('Login failed');
+                    log.write('event', 'ERROR: Failed to authenticate');
+                });
+            });
         })
     </script>
 </body>

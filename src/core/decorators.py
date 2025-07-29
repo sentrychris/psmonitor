@@ -16,7 +16,16 @@ from functools import wraps
 
 def jwt_required(method):
     """
-    JWT auth decorator.
+    Tornado handler method decorator that enforces JWT access token validation.
+
+    Assumes the decorated method belongs to a subclass of `BaseHandler` which
+    implements the `get_request_user()` method.
+
+    Args:
+        method (coroutine): The original asynchronous request handler method.
+
+    Returns:
+        coroutine: A wrapped method that validates the JWT before execution.
     """
 
     @wraps(method)

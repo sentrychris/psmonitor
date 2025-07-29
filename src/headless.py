@@ -20,8 +20,8 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import create_server, signal_handler
-from core.database import init_db
 from core.config import DEFAULT_PORT
+from core.database import init_db
 
 
 # Define command-line options
