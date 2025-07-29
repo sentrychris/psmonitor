@@ -17,9 +17,9 @@ import tornado
 # Local application imports
 from core.worker import Worker
 from core.server.base_handler import BaseHandler, workers, recycle
-from core.server.auth import generate_tokens, refresh_access_token
 from core.server.http.get_system_data import get_system_data
 from core.server.http.get_network_data import get_network_data
+from core.auth import get_user, verify_password, generate_tokens, refresh_access_token
 
 
 class HttpHandler(BaseHandler):
@@ -113,33 +113,35 @@ class HttpNetworkHandler(BaseHandler):
         self.write(await get_network_data())
 
 
-class HttpAccessTokenHandler(BaseHandler):
+class HttpAuthLoginHandler(BaseHandler):
     """
-    sadsad
+    Handles login.
     """
 
     async def post(self):
         """
-        sadasd
+        Dfault POST handler
         """
 
         try:
             data = tornado.escape.json_decode(self.request.body)
             username = data.get("username")
             password = data.get("password")
-            print(username, password)
 
-            user_id = 1 # todo sqlite implementation for users
-            tokens = generate_tokens(user_id)
+            user = get_user(username)
+            authenticated = verify_password(password=password, hashed=user["password"])
 
-            print(tokens)
+            if not user or not authenticated:
+                raise tornado.web.HTTPError(401, "Invalid credentials")
 
+            tokens = generate_tokens(user["id"])
             self.write(tokens)
         except Exception as e:
+            # todo remove exposure through exception trace
             raise tornado.web.HTTPError(400, f"Bad request, {e}") from e
 
 
-class HttpRefreshTokenHandler(BaseHandler):
+class HttpAuthRefreshHandler(BaseHandler):
     """
     sadsad
     """

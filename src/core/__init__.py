@@ -21,7 +21,7 @@ from tornado.httpserver import HTTPServer
 
 # Local application imports
 from core.server.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler, \
-    HttpAccessTokenHandler, HttpRefreshTokenHandler
+    HttpAuthLoginHandler, HttpAuthRefreshHandler
 from core.server.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
 
@@ -79,8 +79,8 @@ def create_app(settings: dict) -> Application | bool:
     """
 
     auth_routes = [
-        (r'/login', HttpAccessTokenHandler),
-        (r'/refresh', HttpRefreshTokenHandler),
+        (r'/login', HttpAuthLoginHandler),
+        (r'/refresh', HttpAuthRefreshHandler),
     ]
 
 

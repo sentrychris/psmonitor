@@ -26,7 +26,7 @@ else:
 DB_PATH = os.path.join(BUNDLE_DIR, "auth.db")
 
 
-def init_db():
+def init_db() -> None:
     """
     Initialize the database on first run
     """

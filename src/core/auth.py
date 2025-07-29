@@ -11,15 +11,46 @@ License: MIT
 """
 
 # Standard library imports
+import sqlite3
 from datetime import datetime, timedelta, timezone
 
 # Third-party imports
+import bcrypt
 import jwt
 import tornado
 
 # Local application imports
+from core.database import DB_PATH
 from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, \
     JWT_ALGORITHM, JWT_SECRET
+
+
+def get_user(username: str) -> dict|None:
+    """
+    Get user
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT id, password FROM users WHERE username = ?", (username,))
+    row  = cur.fetchone()
+    conn.close()
+
+    if row:
+        return {
+            "id": row[0],
+            "password": row[1]
+        }
+
+    return None
+
+
+def verify_password(password: str, hashed: str) -> bool:
+    """
+    Verify the user's given password.
+    """
+
+    return bcrypt.checkpw(password.encode(), hashed)
 
 
 def generate_tokens(user_id):
@@ -57,7 +88,7 @@ def refresh_access_token(refresh_token):
             raise ValueError("Invalid token type")
 
         return generate_tokens(payload["sub"])
-    except jwt.ExpiredSignatureError:
-        raise tornado.web.HTTPError(401, "Refresh token expired")
+    except jwt.ExpiredSignatureError as e:
+        raise tornado.web.HTTPError(401, "Refresh token expired") from e
     except jwt.InvalidTokenError:
-        raise tornado.web.HTTPError(401, "Invalid refresh token")
+        raise tornado.web.HTTPError(401, "Invalid refresh token") from e
