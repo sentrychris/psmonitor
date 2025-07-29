@@ -17,7 +17,7 @@ import sys
 # Local application imports
 from core import signal_handler
 from core.config import init_data
-from core.database import init_db
+from core.database_manager import init_db
 from core.logging_manager import PSMonitorLogger
 from core.server_manager import PSMonitorServerManager
 from gui.app_manager import PSMonitorApp
