@@ -20,6 +20,7 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import create_server, signal_handler
+from core.database import init_db
 from core.config import DEFAULT_PORT
 
 
@@ -33,6 +34,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, signal_handler)
 
     parse_command_line()
+
+    init_db()
 
     http = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
     http.listen(port=options.port, address=options.address)
