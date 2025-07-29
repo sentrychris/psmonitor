@@ -12,7 +12,6 @@ License: MIT
 
 # Standard libary imports
 import os
-import sys
 import secrets
 import sqlite3
 import uuid
@@ -23,21 +22,11 @@ import bcrypt
 import keyring
 
 # Local application imports
-from core.config import get_service_name
+from core.config import DB_PATH, get_service_name
 
 # Type checking
 if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
-
-
-if getattr(sys, 'frozen', False):
-    # Running as a bundled PyInstaller executable
-    BUNDLE_DIR = getattr(sys, '_MEIPASS')
-else:
-    # Running in normal Python environment
-    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
-
-DB_PATH = os.path.join(BUNDLE_DIR, "auth.db")
 
 
 def init_db(logger: 'PSMonitorLogger') -> None:

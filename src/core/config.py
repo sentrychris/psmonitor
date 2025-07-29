@@ -11,8 +11,9 @@ License: MIT
 """
 
 # Standard library imports
-import json
 import os
+import sys
+import json
 import secrets
 from typing import TYPE_CHECKING, Optional
 
@@ -72,6 +73,16 @@ init_data = {
     "uptime": "",
     "processes": []
 }
+
+if getattr(sys, 'frozen', False):
+    # Running as a bundled PyInstaller executable
+    BUNDLE_DIR = getattr(sys, '_MEIPASS')
+else:
+    # Running in normal Python environment
+    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
+
+# Path to SQLite database file
+DB_PATH = os.path.join(BUNDLE_DIR, "auth.db")
 
 
 def get_service_name(name: str|None = None) -> str:

@@ -21,21 +21,15 @@ from collections import defaultdict
 # Third-party imports
 import psutil
 
+# Local application imports
+from core.config import BUNDLE_DIR
+
 # Platform-specific imports
 if sys.platform == "win32":
     import ctypes
     import getpass
 elif sys.platform == 'linux':
     import pwd # pylint: disable=import-error
-
-
-# Determine if the script is running in a bundle created by PyInstaller
-if getattr(sys, 'frozen', False):
-    # The script is running in a bundled executable
-    BUNDLE_DIR = getattr(sys, '_MEIPASS')
-else:
-    # The script is running in a normal Python environment
-    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
 
 
 def convert_bytes(x: int, pre: int = 2) -> float:
