@@ -15,9 +15,14 @@ import os
 import sys
 import sqlite3
 import uuid
+from typing import TYPE_CHECKING
 
 # Third-party imports
 import bcrypt
+
+# Type checking
+if TYPE_CHECKING:
+    from core.logging_manager import PSMonitorLogger
 
 
 if getattr(sys, 'frozen', False):
@@ -30,7 +35,7 @@ else:
 DB_PATH = os.path.join(BUNDLE_DIR, "auth.db")
 
 
-def init_db() -> None:
+def init_db(logger: 'PSMonitorLogger') -> None:
     """
     Initialize the database on first run
     """
@@ -62,9 +67,9 @@ def init_db() -> None:
 
         conn.commit()
         conn.close()
-        print("Database initialized.")
+        logger.debug("SQLite database has been initialized")
     else:
-        print("Database already exists, skipping initialization.")
+        logger.debug("SQLite database already exists, skipping initialization")
 
 
 def get_connection():

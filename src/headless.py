@@ -22,6 +22,7 @@ from tornado.ioloop import IOLoop
 from core import create_server, signal_handler
 from core.config import DEFAULT_PORT
 from core.database import init_db
+from core.logging_manager import PSMonitorLogger
 
 
 # Define command-line options
@@ -35,7 +36,11 @@ if __name__ == '__main__':
 
     parse_command_line()
 
-    init_db()
+    # Create logger and clear log for new session
+    logger = PSMonitorLogger("app.log")
+    logger.clear_log()
+
+    init_db(logger)
 
     http = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
     http.listen(port=options.port, address=options.address)

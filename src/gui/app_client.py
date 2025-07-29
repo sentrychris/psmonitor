@@ -50,6 +50,9 @@ class PSMonitorAppClient():
         self._ws = None
         self._ws_client_thread = None
 
+        self._access_token = None
+        self._refresh_token = None
+
         self._worker_id = None
 
 
@@ -66,6 +69,13 @@ class PSMonitorAppClient():
         attempt = 0
         while attempt < max_attempts:
             if self.check_server_reachable():
+                self._authenticate()
+
+                if not self._access_token:
+                    self._manager.logger.error("Authentication failed, shutting down.")
+                    self._manager.shutdown()
+                    sys.exit(1)
+
                 self._setup_connection()
                 return
 
@@ -95,13 +105,35 @@ class PSMonitorAppClient():
         self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
 
 
+    def _authenticate(self) -> None:
+        """
+        Authenticate against the embedded server.
+        """
+
+        response = requests.post(
+            f'{self.http_url}/auth/login',
+            json={"username": "psmonitor", "password": "secret123"},
+            timeout=5
+        )
+
+        data = response.json()
+        self._access_token = data.get("access_token")
+        self._refresh_token = data.get("access_token")
+
+        self._manager.logger.info("User has successfully authenticated")
+
+
     def _setup_connection(self) -> None:
         """
         Initialize the connection.
         """
 
         try:
-            response = requests.get(f'{self.http_url}/system', timeout=5)
+            response = requests.get(
+                url=f'{self.http_url}/system',
+                headers={'Authorization': f'Bearer {self._access_token}'},
+                timeout=5
+            )
             self._manager.data.update(response.json())
             self._manager.update_gui_sections()
             self._start_websocket_connection()
@@ -115,7 +147,11 @@ class PSMonitorAppClient():
         """
 
         try:
-            response = requests.post(self.http_url, json={'connection': 'monitor'}, timeout=5)
+            response = requests.post(
+                url=self.http_url,
+                headers={'Authorization': f'Bearer {self._access_token}'},
+                timeout=5
+            )
             worker = response.json()
             self._worker_id = worker['id']
             self._connect_websocket(self._worker_id)

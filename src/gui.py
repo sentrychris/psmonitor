@@ -17,6 +17,7 @@ import sys
 # Local application imports
 from core import signal_handler
 from core.config import init_data
+from core.database import init_db
 from core.logging_manager import PSMonitorLogger
 from core.server_manager import PSMonitorServerManager
 from gui.app_manager import PSMonitorApp
@@ -29,6 +30,9 @@ if __name__ == "__main__":
     # Create logger and clear log for new session
     logger = PSMonitorLogger("app.log")
     logger.clear_log()
+
+    # Initialize DB if it hasn't already been initialized
+    init_db(logger)
 
     # Create server manager to handle threaded server
     server_manager = PSMonitorServerManager(logger)
