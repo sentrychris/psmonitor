@@ -273,7 +273,7 @@
                 log.write('event', 'Connecting to websocket')
                 const client = await fetch(location.pathname, {
                     method: 'POST',
-                    body: { connection: 'monitor' }
+                    headers: { Authorization: `Bearer ${accessToken}` }
                 })
                 const worker = await client.json()
 

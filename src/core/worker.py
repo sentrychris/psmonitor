@@ -10,6 +10,9 @@ License: MIT
 --------------------------------------------------------------------------
 """
 
+# Standard library imports
+import secrets
+
 # Third-party imports
 from tornado.ioloop import IOLoop
 
@@ -41,7 +44,7 @@ class Worker():
         """
 
         self.loop = IOLoop.current()
-        self.id = str(id(self))
+        self.id = str(secrets.token_urlsafe(32))
         self.handler = None
         self.mode = IOLoop.READ
 
