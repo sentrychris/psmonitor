@@ -65,3 +65,20 @@ def init_db() -> None:
         print("Database initialized.")
     else:
         print("Database already exists, skipping initialization.")
+
+
+def get_connection():
+    """
+    Open database connection.
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+    return conn.cursor()
+
+
+def close_connection(conn: sqlite3.Connection):
+    """
+    Close database connection.
+    """
+
+    conn.close()

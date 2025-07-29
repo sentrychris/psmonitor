@@ -11,7 +11,6 @@ License: MIT
 """
 
 # Standard library imports
-import sqlite3
 from datetime import datetime, timedelta, timezone
 
 # Third-party imports
@@ -20,21 +19,19 @@ import jwt
 import tornado
 
 # Local application imports
-from core.database import DB_PATH
-from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, \
-    JWT_ALGORITHM, JWT_SECRET
+import core.database as db
+import core.config as cfg
 
 
-def get_user(username: str) -> dict[str, str] | None:
+def query_user(username: str) -> dict[str, str] | None:
     """
     Get user
     """
 
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("SELECT id, password FROM users WHERE username = ?", (username,))
-    row  = cur.fetchone()
-    conn.close()
+    cursor = db.get_connection()
+    cursor.execute("SELECT id, password FROM users WHERE username = ?", (username,))
+    row  = cursor.fetchone()
+    db.close_connection(cursor)
 
     if row:
         return {
@@ -62,21 +59,18 @@ def generate_tokens(user_id) -> dict[str, str]:
 
     access_payload = {
         "sub": str(user_id),
-        "exp": int((now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
+        "exp": int((now + timedelta(minutes=cfg.ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
         "type": "access"
     }
 
     refresh_payload = {
         "sub": str(user_id),
-        "exp": int((now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)).timestamp()),
+        "exp": int((now + timedelta(days=cfg.REFRESH_TOKEN_EXPIRE_DAYS)).timestamp()),
         "type": "refresh" 
     }
 
-    access_token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-    refresh_token = jwt.encode(refresh_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-
-    # jwt.decode(access_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  # Should NOT raise
-    # jwt.decode(refresh_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  # Should NOT raise
+    access_token = jwt.encode(access_payload, cfg.JWT_SECRET, algorithm=cfg.JWT_ALGORITHM)
+    refresh_token = jwt.encode(refresh_payload, cfg.JWT_SECRET, algorithm=cfg.JWT_ALGORITHM)
 
     return {
         "access_token": access_token,
@@ -90,7 +84,7 @@ def refresh_access_token(refresh_token) -> dict[str, str]:
     """
 
     try:
-        payload = jwt.decode(refresh_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(refresh_token, cfg.JWT_SECRET, algorithms=[cfg.JWT_ALGORITHM])
         if payload["type"] != "refresh":
             raise ValueError("Invalid token type")
 

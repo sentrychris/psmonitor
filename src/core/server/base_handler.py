@@ -15,7 +15,7 @@ import jwt
 from tornado.web import RequestHandler, HTTPError
 
 # Local application imports
-from core.auth import JWT_ALGORITHM, JWT_SECRET
+from core.config import JWT_ALGORITHM, JWT_SECRET
 
 # Dictionary to store active workers
 workers = {}
@@ -44,7 +44,7 @@ class BaseHandler(RequestHandler):
     BaseHandler class for handling HTTP requests. CORS headers are set by default.
     """
 
-    def get_user(self):
+    def get_request_user(self):
         """
         Parses and validates the Authorization header, returning user info.
         Raises HTTPError if invalid or missing.
@@ -55,9 +55,9 @@ class BaseHandler(RequestHandler):
             raise HTTPError(401, "Missing or invalid Authorization header")
 
         token = auth_header.removeprefix("Bearer ").strip()
-        print(token)
+
         try:
-            payload = jwt.decode(token.encode("utf-8"), JWT_SECRET, algorithms=["HS256"])
+            payload = jwt.decode(token.encode("utf-8"), JWT_SECRET, algorithms=[JWT_ALGORITHM])
             return payload
         except jwt.ExpiredSignatureError as e:
             raise HTTPError(401, "Access token expired") from e

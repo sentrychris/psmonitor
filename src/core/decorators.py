@@ -21,7 +21,7 @@ def jwt_required(method):
 
     @wraps(method)
     async def wrapper(self, *args, **kwargs):
-        self.user = self.get_user()
+        self.current_user = self.get_request_user()
         return await method(self, *args, **kwargs)
 
     return wrapper
