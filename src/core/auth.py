@@ -25,7 +25,7 @@ from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, 
     JWT_ALGORITHM, JWT_SECRET
 
 
-def get_user(username: str) -> dict|None:
+def get_user(username: str) -> dict[str, str] | None:
     """
     Get user
     """
@@ -53,35 +53,42 @@ def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed)
 
 
-def generate_tokens(user_id):
+def generate_tokens(user_id) -> dict[str, str]:
     """
-    askjdhaslkj
+    Generate user access and refresh tokens.
     """
+
     now = datetime.now(timezone.utc)
 
     access_payload = {
-        "sub": user_id,
-        "exp": now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+        "sub": str(user_id),
+        "exp": int((now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
         "type": "access"
     }
 
     refresh_payload = {
-        "sub": user_id,
-        "exp": now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+        "sub": str(user_id),
+        "exp": int((now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)).timestamp()),
         "type": "refresh" 
     }
 
+    access_token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    refresh_token = jwt.encode(refresh_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    # jwt.decode(access_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  # Should NOT raise
+    # jwt.decode(refresh_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  # Should NOT raise
+
     return {
-        "access_token": jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM),
-        "refresh_token": jwt.encode(refresh_payload, JWT_SECRET, algorithm=JWT_ALGORITHM),
+        "access_token": access_token,
+        "refresh_token": refresh_token
     }
 
 
+def refresh_access_token(refresh_token) -> dict[str, str]:
+    """
+    Issue a new access token using the user's refresh token.
+    """
 
-def refresh_access_token(refresh_token):
-    """
-    Refresh access token
-    """
     try:
         payload = jwt.decode(refresh_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         if payload["type"] != "refresh":

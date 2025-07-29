@@ -20,6 +20,7 @@ from core.server.base_handler import BaseHandler, workers, recycle
 from core.server.http.get_system_data import get_system_data
 from core.server.http.get_network_data import get_network_data
 from core.auth import get_user, verify_password, generate_tokens, refresh_access_token
+from core.decorators import jwt_required
 
 
 class HttpHandler(BaseHandler):
@@ -49,6 +50,7 @@ class HttpHandler(BaseHandler):
         self.render("web.html")
 
 
+    @jwt_required
     async def post(self):
         """
         Handles POST requests. Attempts to establish a connection and returns the
@@ -89,12 +91,14 @@ class HttpSystemHandler(BaseHandler):
     via HTTP GET and serves system data. 
     """
 
+    @jwt_required
     async def get(self):
         """
         Default GET handler
         """
 
         self.set_header("Content-Type", "application/json")
+        print(self.current_user)
         self.write(get_system_data())
 
 
@@ -104,6 +108,7 @@ class HttpNetworkHandler(BaseHandler):
     via HTTP GET and serves system data. 
     """
 
+    @jwt_required
     async def get(self):
         """
         Default GET handler

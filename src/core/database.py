@@ -10,9 +10,13 @@ License: MIT
 --------------------------------------------------------------------------
 """
 
+# Standard libary imports
 import os
 import sys
 import sqlite3
+import uuid
+
+# Third-party imports
 import bcrypt
 
 
@@ -38,7 +42,7 @@ def init_db() -> None:
         # create schema
         cur.execute("""
         CREATE TABLE users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id TEXT PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -46,10 +50,14 @@ def init_db() -> None:
         """)
 
         # Create initial user for GUI
+        gui_user_id = str(uuid.uuid4())
+        gui_username = "psmonitor"
         gui_password = "secret123"
-        hashed = bcrypt.hashpw(gui_password.encode(), bcrypt.gensalt())
+        hashed_password = bcrypt.hashpw(gui_password.encode(), bcrypt.gensalt())
+
         cur.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)", ("psmonitor", hashed)
+            "INSERT INTO users (id, username, password) VALUES (?, ?, ?)",
+            (gui_user_id, gui_username, hashed_password)
         )
 
         conn.commit()

@@ -78,15 +78,10 @@ def create_app(settings: dict) -> Application | bool:
         app = create_app(settings)
     """
 
-    auth_routes = [
-        (r'/login', HttpAuthLoginHandler),
-        (r'/refresh', HttpAuthRefreshHandler),
-    ]
-
-
     handlers = [
         (r'/', HttpHandler),
-        *[(f'/auth{path}', handler) for path, handler in auth_routes],
+        (r'/auth/login', HttpAuthLoginHandler),
+        (r'/auth/refresh', HttpAuthRefreshHandler),
         (r'/system', HttpSystemHandler),
         (r'/network', HttpNetworkHandler),
         (r'/connect', WebsocketHandler),
