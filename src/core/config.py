@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
 
+# App and service name
+APP_NAME = "PSMonitor"
 
 # Default server address and port
 DEFAULT_ADDRESS = "localhost"
@@ -46,7 +48,7 @@ SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
 # Auth
 JWT_ALGORITHM = "HS256"
 JWT_SECRET = secrets.token_urlsafe(64)
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 
 default_settings = {
@@ -70,6 +72,17 @@ init_data = {
     "uptime": "",
     "processes": []
 }
+
+
+def get_service_name(name: str|None = None) -> str:
+    """
+    Return service name.
+    """
+
+    if name is None:
+        return APP_NAME
+
+    return f"{APP_NAME} {name}"
 
 
 def read_settings_file(logger: 'PSMonitorLogger' = None) -> dict:

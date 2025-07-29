@@ -13,12 +13,17 @@ License: MIT
 # Standard libary imports
 import os
 import sys
+import secrets
 import sqlite3
 import uuid
 from typing import TYPE_CHECKING
 
 # Third-party imports
 import bcrypt
+import keyring
+
+# Local application imports
+from core.config import get_service_name
 
 # Type checking
 if TYPE_CHECKING:
@@ -56,13 +61,20 @@ def init_db(logger: 'PSMonitorLogger') -> None:
 
         # Create initial user for GUI
         gui_user_id = str(uuid.uuid4())
-        gui_username = "psmonitor"
-        gui_password = "secret123"
+        gui_username = get_service_name()
+        gui_password = secrets.token_urlsafe(32)
         hashed_password = bcrypt.hashpw(gui_password.encode(), bcrypt.gensalt())
 
         cur.execute(
             "INSERT INTO users (id, username, password) VALUES (?, ?, ?)",
             (gui_user_id, gui_username, hashed_password)
+        )
+
+        # Store the password in the system keyring
+        keyring.set_password(
+            get_service_name('Auth'),
+            username=gui_username,
+            password=gui_password
         )
 
         conn.commit()

@@ -12,6 +12,7 @@ License: MIT
 
 # Standard library imports
 import json
+import keyring
 import socket
 import sys
 import time
@@ -21,6 +22,9 @@ from typing import TYPE_CHECKING
 # Third-party imports
 import requests
 import websocket
+
+# Local application imports
+from core.config import get_service_name
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -68,10 +72,11 @@ class PSMonitorAppClient():
         attempt = 0
         while attempt < max_attempts:
             if self.check_server_reachable():
-                self._authenticate()
 
-                if not self._auth_token:
-                    self._manager.logger.error("Authentication failed, shutting down.")
+                try:
+                    self._authenticate()
+                except Exception:
+                    self._manager.logger.error("Failed to authenticate, shutting down")
                     self._manager.shutdown()
                     sys.exit(1)
 
@@ -104,21 +109,36 @@ class PSMonitorAppClient():
         self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
 
 
+    def _get_credentials(self) -> tuple[str, str]:
+        """
+        Get stored credentials from the system keyring.
+        """
+
+        username = get_service_name()
+        password = keyring.get_password(get_service_name("Auth"), username)
+
+        if password is None:
+            raise RuntimeError("No stored credentials found. First-run setup may have failed.")
+
+        return username, password
+
+
     def _authenticate(self) -> None:
         """
         Authenticate against the embedded server.
         """
 
+        username, password = self._get_credentials()
+
         response = requests.post(
             f'{self.http_url}/authenticate',
-            json={"username": "psmonitor", "password": "secret123"},
+            json={"username": username, "password": password},
             timeout=5
         )
 
         data = response.json()
         self._auth_token = data.get("token")
         self._manager.logger.info("User has successfully authenticated")
-        self._manager.logger.debug(f"Token: {self._auth_token}")
 
 
     def _setup_connection(self) -> None:
