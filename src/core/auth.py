@@ -19,20 +19,19 @@ import keyring
 import jwt
 
 # Local application imports
-from core.database import get_connection, close_connection
-from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALGORITHM, JWT_SECRET, \
-    get_service_name
+import core.database as db
+import core.config as cfg
 
 
 def query_user(username: str) -> dict[str, str] | None:
     """
-    Get user
+    Query the database for a given user.
     """
 
-    db = get_connection()
-    db.execute("SELECT id, password FROM users WHERE username = ?", (username,))
-    row  = db.fetchone()
-    close_connection(db)
+    cursor = db.get_connection()
+    cursor.execute("SELECT id, password FROM users WHERE username = ?", (username,))
+    row  = cursor.fetchone()
+    db.close_connection(cursor)
 
     if row:
         return {
@@ -59,9 +58,9 @@ def generate_token(user_id) -> dict[str, str]:
     now = datetime.now(timezone.utc)
     token = jwt.encode({
         "sub": str(user_id),
-        "exp": int((now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
+        "exp": int((now + timedelta(minutes=cfg.ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
         "type": "access"
-    }, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    }, cfg.JWT_SECRET, algorithm=cfg.JWT_ALGORITHM)
 
     return {
         "token": token
@@ -73,8 +72,8 @@ def get_credentials() -> tuple[str, str]:
     Get stored credentials from the system keyring.
     """
 
-    username = get_service_name()
-    password = keyring.get_password(get_service_name("Auth"), username)
+    username = cfg.get_service_name()
+    password = keyring.get_password(cfg.get_service_name("Auth"), username)
 
     if password is None:
         raise RuntimeError("No stored credentials found. First-run setup may have failed.")

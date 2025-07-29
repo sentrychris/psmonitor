@@ -19,7 +19,7 @@ import subprocess
 import sys
 
 # Local application imports
-from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, read_settings_file
+import core.config as cfg
 
 
 class PSMonitorLogger:
@@ -202,9 +202,9 @@ class PSMonitorLogger:
         Read settings to apply outside of the GUI context
         """
 
-        stored_settings = read_settings_file(self._logger)
-        self.set_level(stored_settings.get("log_level", DEFAULT_LOG_LEVEL))
-        self.set_enabled(stored_settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
+        stored_settings = cfg.read_settings_file(self._logger)
+        self.set_level(stored_settings.get("log_level", cfg.DEFAULT_LOG_LEVEL))
+        self.set_enabled(stored_settings.get("logging_enabled", cfg.DEFAULT_LOG_ENABLED))
 
 
     def stop(self) -> None:

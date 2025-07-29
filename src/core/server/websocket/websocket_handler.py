@@ -21,7 +21,7 @@ from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 # Local application imports
-from core.config import DEFAULT_MAX_WS_CONNECTIONS, get_setting
+import core.config as cfg
 from core.server.base_handler import workers
 from core.server.websocket.get_system_data import get_system_data
 from core.server.websocket.get_network_data import get_network_data
@@ -64,9 +64,9 @@ class WebsocketHandler(WebSocketHandler):
         self.loop = IOLoop.current()
         self.worker_ref = None
 
-        self.max_connections = get_setting(
+        self.max_connections = cfg.get_setting(
             key="max_ws_connections",
-            default=DEFAULT_MAX_WS_CONNECTIONS
+            default=cfg.DEFAULT_MAX_WS_CONNECTIONS
         )
 
         super().__init__(application, request, **kwargs)

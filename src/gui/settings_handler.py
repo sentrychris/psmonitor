@@ -18,10 +18,7 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 # Local application imports
-from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, \
-    DEFAULT_ADDRESS, DEFAULT_PORT, DEFAULT_MAX_WS_CONNECTIONS, \
-        DEFAULT_MAX_RECONNECT_ATTEMPTS, DEFAULT_RECONNECT_BASE_DELAY, \
-            DEFAULT_GUI_REFRESH_INTERVAL, SETTINGS_FILE, read_settings_file
+import core.config as cfg
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -51,14 +48,14 @@ class PSMonitorAppSettingsHandler:
         self._manager = manager
 
         # Default settings
-        self.logging_enabled = tk.BooleanVar(value=DEFAULT_LOG_ENABLED)
-        self.log_level = tk.StringVar(value=DEFAULT_LOG_LEVEL)
-        self.address = tk.StringVar(value=DEFAULT_ADDRESS)
-        self.port_number = tk.IntVar(value=DEFAULT_PORT)
-        self.max_ws_connections = tk.IntVar(value=DEFAULT_MAX_WS_CONNECTIONS)
-        self.max_reconnect_attempts = tk.IntVar(value=DEFAULT_MAX_RECONNECT_ATTEMPTS)
-        self.reconnect_base_delay = tk.DoubleVar(value=DEFAULT_RECONNECT_BASE_DELAY)
-        self.gui_refresh_interval = tk.IntVar(value=DEFAULT_GUI_REFRESH_INTERVAL)
+        self.logging_enabled = tk.BooleanVar(value=cfg.DEFAULT_LOG_ENABLED)
+        self.log_level = tk.StringVar(value=cfg.DEFAULT_LOG_LEVEL)
+        self.address = tk.StringVar(value=cfg.DEFAULT_ADDRESS)
+        self.port_number = tk.IntVar(value=cfg.DEFAULT_PORT)
+        self.max_ws_connections = tk.IntVar(value=cfg.DEFAULT_MAX_WS_CONNECTIONS)
+        self.max_reconnect_attempts = tk.IntVar(value=cfg.DEFAULT_MAX_RECONNECT_ATTEMPTS)
+        self.reconnect_base_delay = tk.DoubleVar(value=cfg.DEFAULT_RECONNECT_BASE_DELAY)
+        self.gui_refresh_interval = tk.IntVar(value=cfg.DEFAULT_GUI_REFRESH_INTERVAL)
 
         # Load saved settings
         self._load_settings_from_file()
@@ -406,34 +403,34 @@ class PSMonitorAppSettingsHandler:
         Load settings from file if it exists.
         """
 
-        if not os.path.exists(SETTINGS_FILE):
-            self._manager.logger.error(f"Settings file does not exist at: {SETTINGS_FILE}")
+        if not os.path.exists(cfg.SETTINGS_FILE):
+            self._manager.logger.error(f"Settings file does not exist at: {cfg.SETTINGS_FILE}")
             return
 
-        settings = read_settings_file(self._manager.logger)
+        settings = cfg.read_settings_file(self._manager.logger)
         self.logging_enabled.set(
-            value=settings.get("logging_enabled", DEFAULT_LOG_ENABLED)
+            value=settings.get("logging_enabled", cfg.DEFAULT_LOG_ENABLED)
         )
         self.log_level.set(
-            value=settings.get("log_level", DEFAULT_LOG_LEVEL)
+            value=settings.get("log_level", cfg.DEFAULT_LOG_LEVEL)
         )
         self.address.set(
-            value=settings.get("address", DEFAULT_ADDRESS)
+            value=settings.get("address", cfg.DEFAULT_ADDRESS)
         )
         self.port_number.set(
-            value=settings.get("port_number", DEFAULT_PORT)
+            value=settings.get("port_number", cfg.DEFAULT_PORT)
         )
         self.max_ws_connections.set(
-            value=settings.get("max_ws_connections", DEFAULT_MAX_WS_CONNECTIONS)
+            value=settings.get("max_ws_connections", cfg.DEFAULT_MAX_WS_CONNECTIONS)
         )
         self.max_reconnect_attempts.set(
-            value=settings.get("max_reconnect_attempts", DEFAULT_MAX_RECONNECT_ATTEMPTS)
+            value=settings.get("max_reconnect_attempts", cfg.DEFAULT_MAX_RECONNECT_ATTEMPTS)
         )
         self.reconnect_base_delay.set(
-            value=settings.get("reconnect_base_delay", DEFAULT_RECONNECT_BASE_DELAY)
+            value=settings.get("reconnect_base_delay", cfg.DEFAULT_RECONNECT_BASE_DELAY)
         )
         self.gui_refresh_interval.set(
-            value=settings.get("gui_refresh_interval", DEFAULT_GUI_REFRESH_INTERVAL)
+            value=settings.get("gui_refresh_interval", cfg.DEFAULT_GUI_REFRESH_INTERVAL)
         )
 
 
@@ -443,7 +440,7 @@ class PSMonitorAppSettingsHandler:
         """
 
         try:
-            with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+            with open(cfg.SETTINGS_FILE, "w", encoding="utf-8") as f:
                 json.dump(self.get_current_settings(), f, indent=4)
             return True
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:

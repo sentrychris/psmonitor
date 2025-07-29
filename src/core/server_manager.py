@@ -20,8 +20,8 @@ from typing import TYPE_CHECKING
 from tornado.ioloop import IOLoop
 
 # Local application imports
+import core.config as cfg
 from core import create_server
-from core.config import DEFAULT_ADDRESS, DEFAULT_PORT, read_settings_file
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -40,8 +40,8 @@ class PSMonitorServerManager:
 
         self._logger = logger
 
-        self.port = DEFAULT_PORT
-        self.address = DEFAULT_ADDRESS
+        self.port = cfg.DEFAULT_PORT
+        self.address = cfg.DEFAULT_ADDRESS
 
         self.load_settings()
 
@@ -166,6 +166,6 @@ class PSMonitorServerManager:
         Read settings to apply outside of the GUI context
         """
 
-        stored_settings = read_settings_file(self._logger)
-        self.port = stored_settings.get("port_number", DEFAULT_PORT)
-        self.address = stored_settings.get("port_address", DEFAULT_ADDRESS)
+        stored_settings = cfg.read_settings_file(self._logger)
+        self.port = stored_settings.get("port_number", cfg.DEFAULT_PORT)
+        self.address = stored_settings.get("port_address", cfg.DEFAULT_ADDRESS)
