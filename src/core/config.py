@@ -46,10 +46,20 @@ DEFAULT_LOG_ENABLED = True
 SETTINGS_DIR = os.path.join(os.path.expanduser("~"), ".psmonitor")
 SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
 
-# Auth
+# JWT authentication
 JWT_ALGORITHM = "HS256"
 JWT_SECRET = secrets.token_urlsafe(64)
 ACCESS_TOKEN_EXPIRE_MINUTES = 1
+
+# SQLite database
+DB_PATH = os.path.join(SETTINGS_DIR, "app.db")
+
+if getattr(sys, 'frozen', False):
+    # Running as a bundled PyInstaller executable
+    BUNDLE_DIR = getattr(sys, '_MEIPASS')
+else:
+    # Running in normal Python environment
+    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
 
 
 default_settings = {
@@ -73,16 +83,6 @@ init_data = {
     "uptime": "",
     "processes": []
 }
-
-if getattr(sys, 'frozen', False):
-    # Running as a bundled PyInstaller executable
-    BUNDLE_DIR = getattr(sys, '_MEIPASS')
-else:
-    # Running in normal Python environment
-    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
-
-# Path to SQLite database file
-DB_PATH = os.path.join(BUNDLE_DIR, "auth.db")
 
 
 def get_service_name(name: str|None = None) -> str:
