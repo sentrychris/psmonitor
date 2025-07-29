@@ -44,7 +44,7 @@ class BaseHandler(RequestHandler):
     BaseHandler class for handling HTTP requests. CORS headers are set by default.
     """
 
-    def get_request_user(self):
+    def authenticate_token(self):
         """
         Parses and validates the Authorization header, returning user info.
         Raises HTTPError if invalid or missing.

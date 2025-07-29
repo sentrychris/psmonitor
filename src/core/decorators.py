@@ -19,7 +19,7 @@ def jwt_required(method):
     Tornado handler method decorator that enforces JWT access token validation.
 
     Assumes the decorated method belongs to a subclass of `BaseHandler` which
-    implements the `get_request_user()` method.
+    implements the `authenticate_token()` method.
 
     Args:
         method (coroutine): The original asynchronous request handler method.
@@ -30,7 +30,7 @@ def jwt_required(method):
 
     @wraps(method)
     async def wrapper(self, *args, **kwargs):
-        self.current_user = self.get_request_user()
+        self.current_user = self.authenticate_token()
         return await method(self, *args, **kwargs)
 
     return wrapper
