@@ -216,7 +216,7 @@
 
             document.querySelector('#endpoint-network').addEventListener('click', () => {
                 fetch(`${window.location.origin}/network`, {
-                    headers: { Authorization: `Bearer ${accessToken}` }
+                    headers: { Authorization: `Bearer ${authToken}` }
                 })
                 .then((response) => response.json())
                 .then((data) => {
@@ -246,7 +246,7 @@
 
             document.querySelector('#endpoint-system').addEventListener('click', () => {
                 fetch(`${window.location.origin}/system`, {
-                    headers: { Authorization: `Bearer ${accessToken}` }
+                    headers: { Authorization: `Bearer ${authToken}` }
                 })
                 .then((response) => response.json())
                 .then((data) => {
@@ -273,7 +273,7 @@
                 log.write('event', 'Connecting to websocket')
                 const client = await fetch(location.pathname, {
                     method: 'POST',
-                    headers: { Authorization: `Bearer ${accessToken}` }
+                    headers: { Authorization: `Bearer ${authToken}` }
                 })
                 const worker = await client.json()
 
@@ -323,7 +323,7 @@
 
             document.querySelector('#output-clear').addEventListener('click', log.clear);
 
-            let accessToken = null;
+            let authToken = null;
 
             const updateAuthStatus = (msg, success = false) => {
                 const statusEl = document.querySelector('#auth-status');
@@ -349,12 +349,12 @@
                     return res.json();
                 })
                 .then(data => {
-                    accessToken = data.access_token;
+                    authToken = data.token;
                     updateAuthStatus('Authenticated', true);
                     log.write('event', 'Access token obtained and stored');
                 })
                 .catch(err => {
-                    accessToken = null;
+                    authToken = null;
                     updateAuthStatus('Login failed');
                     log.write('event', 'ERROR: Failed to authenticate');
                 });
