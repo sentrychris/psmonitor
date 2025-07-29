@@ -13,6 +13,7 @@ License: MIT
 # Standard library imports
 import json
 import os
+import secrets
 from typing import TYPE_CHECKING, Optional
 
 # Typing (type hints only, no runtime dependency)
@@ -43,10 +44,9 @@ SETTINGS_DIR = os.path.join(os.path.expanduser("~"), ".psmonitor")
 SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
 
 # Auth
-JWT_SECRET = "secret123"
 JWT_ALGORITHM = "HS256"
+JWT_SECRET = secrets.token_urlsafe(64)
 ACCESS_TOKEN_EXPIRE_MINUTES = 15
-REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
 default_settings = {

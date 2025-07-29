@@ -50,8 +50,7 @@ class PSMonitorAppClient():
         self._ws = None
         self._ws_client_thread = None
 
-        self._access_token = None
-        self._refresh_token = None
+        self._auth_token = None
 
         self._worker_id = None
 
@@ -71,7 +70,7 @@ class PSMonitorAppClient():
             if self.check_server_reachable():
                 self._authenticate()
 
-                if not self._access_token:
+                if not self._auth_token:
                     self._manager.logger.error("Authentication failed, shutting down.")
                     self._manager.shutdown()
                     sys.exit(1)
@@ -111,16 +110,15 @@ class PSMonitorAppClient():
         """
 
         response = requests.post(
-            f'{self.http_url}/auth/login',
+            f'{self.http_url}/authenticate',
             json={"username": "psmonitor", "password": "secret123"},
             timeout=5
         )
 
         data = response.json()
-        self._access_token = data.get("access_token")
-        self._refresh_token = data.get("access_token")
-
+        self._auth_token = data.get("token")
         self._manager.logger.info("User has successfully authenticated")
+        self._manager.logger.debug(f"Token: {self._auth_token}")
 
 
     def _setup_connection(self) -> None:
@@ -131,7 +129,7 @@ class PSMonitorAppClient():
         try:
             response = requests.get(
                 url=f'{self.http_url}/system',
-                headers={'Authorization': f'Bearer {self._access_token}'},
+                headers={'Authorization': f'Bearer {self._auth_token}'},
                 timeout=5
             )
             self._manager.data.update(response.json())
@@ -149,7 +147,7 @@ class PSMonitorAppClient():
         try:
             response = requests.post(
                 url=self.http_url,
-                headers={'Authorization': f'Bearer {self._access_token}'},
+                headers={'Authorization': f'Bearer {self._auth_token}'},
                 timeout=5
             )
             worker = response.json()

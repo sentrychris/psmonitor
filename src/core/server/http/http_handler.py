@@ -11,7 +11,6 @@ License: MIT
 """
 
 # Third-party imports
-import jwt
 import tornado
 
 # Local application imports
@@ -19,7 +18,7 @@ from core.worker import Worker
 from core.server.base_handler import BaseHandler, workers, recycle
 from core.server.http.get_system_data import get_system_data
 from core.server.http.get_network_data import get_network_data
-from core.auth import query_user, verify_password, generate_tokens, refresh_access_token
+from core.auth import query_user, verify_password, generate_token
 from core.decorators import jwt_required
 
 
@@ -117,7 +116,7 @@ class HttpNetworkHandler(BaseHandler):
         self.write(await get_network_data())
 
 
-class HttpAuthLoginHandler(BaseHandler):
+class HttpAuthHandler(BaseHandler):
     """
     Handles login.
     """
@@ -138,33 +137,6 @@ class HttpAuthLoginHandler(BaseHandler):
             if not user or not authenticated:
                 raise tornado.web.HTTPError(401, "Invalid credentials")
 
-            tokens = generate_tokens(user["id"])
-            self.write(tokens)
-        except Exception as e:
-            raise tornado.web.HTTPError(400, f"Bad request, {e}") from e
-
-
-class HttpAuthRefreshHandler(BaseHandler):
-    """
-    sadsad
-    """
-
-    async def post(self):
-        """
-        Post
-        """
-        auth_header = self.request.headers.get("Authorization", "")
-        if not auth_header.startswith("Bearer "):
-            raise tornado.web.HTTPError(400, "Missing or invalid Authorization header")
-
-        refresh_token = auth_header.removeprefix("Bearer ").strip()
-
-        try:
-            tokens = refresh_access_token(refresh_token)
-            self.write(tokens)
-        except jwt.ExpiredSignatureError as e:
-            raise tornado.web.HTTPError(401, f"Refresh token expired, {e}") from e
-        except jwt.InvalidTokenError as e:
-            raise tornado.web.HTTPError(401, f"Invalid refresh token, {e}") from e
+            self.write(generate_token(user["id"]))
         except Exception as e:
             raise tornado.web.HTTPError(400, f"Bad request, {e}") from e

@@ -339,7 +339,7 @@
                     return;
                 }
 
-                fetch(`${window.location.origin}/auth/login`, {
+                fetch(`${window.location.origin}/authenticate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })

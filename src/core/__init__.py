@@ -20,8 +20,8 @@ from tornado.web import Application
 from tornado.httpserver import HTTPServer
 
 # Local application imports
-from core.server.http.http_handler import HttpHandler, HttpSystemHandler, HttpNetworkHandler, \
-    HttpAuthLoginHandler, HttpAuthRefreshHandler
+from core.server.http.http_handler import HttpSystemHandler, HttpNetworkHandler, \
+    HttpAuthHandler, HttpHandler
 from core.server.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
 
@@ -80,8 +80,7 @@ def create_app(settings: dict) -> Application | bool:
 
     handlers = [
         (r'/', HttpHandler),
-        (r'/auth/login', HttpAuthLoginHandler),
-        (r'/auth/refresh', HttpAuthRefreshHandler),
+        (r'/authenticate', HttpAuthHandler),
         (r'/system', HttpSystemHandler),
         (r'/network', HttpNetworkHandler),
         (r'/connect', WebsocketHandler),

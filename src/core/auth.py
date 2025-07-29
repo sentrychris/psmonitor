@@ -16,12 +16,10 @@ from datetime import datetime, timedelta, timezone
 # Third-party imports
 import bcrypt
 import jwt
-import tornado
 
 # Local application imports
 from core.database import get_connection, close_connection
-from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, \
-    JWT_ALGORITHM, JWT_SECRET
+from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALGORITHM, JWT_SECRET
 
 
 def query_user(username: str) -> dict[str, str] | None:
@@ -37,7 +35,7 @@ def query_user(username: str) -> dict[str, str] | None:
     if row:
         return {
             "id": row[0],
-            "password": row[1]
+            "password": row[1] # hashed
         }
 
     return None
@@ -51,46 +49,18 @@ def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed)
 
 
-def generate_tokens(user_id) -> dict[str, str]:
+def generate_token(user_id) -> dict[str, str]:
     """
-    Generate user access and refresh tokens.
+    Generate user access token.
     """
 
     now = datetime.now(timezone.utc)
-
-    access_payload = {
+    token = jwt.encode({
         "sub": str(user_id),
         "exp": int((now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
         "type": "access"
-    }
-
-    refresh_payload = {
-        "sub": str(user_id),
-        "exp": int((now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)).timestamp()),
-        "type": "refresh" 
-    }
-
-    access_token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-    refresh_token = jwt.encode(refresh_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    }, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
     return {
-        "access_token": access_token,
-        "refresh_token": refresh_token
+        "token": token
     }
-
-
-def refresh_access_token(refresh_token) -> dict[str, str]:
-    """
-    Issue a new access token using the user's refresh token.
-    """
-
-    try:
-        payload = jwt.decode(refresh_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        if payload["type"] != "refresh":
-            raise ValueError("Invalid token type")
-
-        return generate_tokens(payload["sub"])
-    except jwt.ExpiredSignatureError as e:
-        raise tornado.web.HTTPError(401, "Refresh token expired") from e
-    except jwt.InvalidTokenError:
-        raise tornado.web.HTTPError(401, "Invalid refresh token") from e
