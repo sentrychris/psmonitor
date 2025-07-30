@@ -11,6 +11,7 @@ License: MIT
 """
 
 # Standard library imports
+import json
 import signal
 
 # Third-party imports
@@ -19,7 +20,7 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import signal_handler, create_server
-from core.config import DEFAULT_PORT, set_launch_mode
+from core.config import DEFAULT_PORT, CREDENTIALS_FILE, set_launch_mode
 from core.auth import get_credentials
 from core.logging_manager import PSMonitorLogger
 from core.database_manager import PSMonitorDatabaseManager
@@ -28,6 +29,7 @@ from core.database_manager import PSMonitorDatabaseManager
 # Define command-line options
 define('address', default='localhost', help='Listen address for the application')
 define('port', default=DEFAULT_PORT, help='Listen port for the application', type=int)
+define('export-credentials', default=False, help='Export connection credentials to file', type=bool)
 
 
 if __name__ == "__main__":
@@ -46,16 +48,19 @@ if __name__ == "__main__":
     db = PSMonitorDatabaseManager(logger)
     db.initialize()
 
-    username, password = get_credentials()
+    # Export connection credentials for the user
+    if options.export_credentials:
+        username, password = get_credentials()
+        with open(CREDENTIALS_FILE, "w", encoding="utf-8") as f:
+            json.dump({
+                "username": username,
+                "password": password
+            }, f, indent=4)
 
-    print(
-        f"Access credentials:\n"
-        f"Username: {username}\n"
-        f"Password: {password}\n"
-    )
+        logger.info(f"Connection credentials have been written to {CREDENTIALS_FILE}")
 
     http = create_server(db, logger)
     http.listen(port=options.port, address=options.address)
 
-    print(f"Listening on http://{options.address}:{options.port}")
+    logger.info(f"Listening on http://{options.address}:{options.port}")
     IOLoop.current().start()
