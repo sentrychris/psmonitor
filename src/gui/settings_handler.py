@@ -313,16 +313,29 @@ class PSMonitorAppSettingsHandler:
 
         creds_window = tk.Toplevel(self._window)
         creds_window.title("Connection Credentials")
-        creds_window.geometry("550x150")
+        creds_window.geometry("550x250")
         creds_window.resizable(False, False)
 
         frame = ttk.Frame(creds_window, padding=15)
         frame.pack(fill="both", expand=True)
 
-        text_area = tk.Text(frame, height=3, wrap="word")
+        text_area = tk.Text(frame, height=4, wrap="word")
         text_area.insert("1.0", json.dumps(creds, indent=2))
         text_area.configure(state="disabled", background="#f9f9f9")
         text_area.pack(fill="both", expand=True)
+
+        ttk.Label(
+            frame,
+            text=(
+                "These credentials are used to authenticate against "
+                "the /authenticate endpoint of the remote server.\n\n"
+                "They must be included in the request body as JSON: {\n"
+                '  "username": "...",\n'
+                '  "password": "..."\n'
+                "}\n"
+            ),
+            foreground="gray"
+        ).pack(fill="x", pady=(5, 0))
 
         close_button = ttk.Button(frame, text="Close", command=creds_window.destroy)
         close_button.pack(pady=(10, 0), anchor="e")
