@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING
 
 # Local application imports
 import core.config as cfg
+from core.auth import get_credentials
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
@@ -267,7 +268,13 @@ class PSMonitorAppSettingsHandler:
             server_button_frame,
             text="Save & Apply",
             command=self._on_save_and_restart_server_settings
-        ).pack(anchor="e", pady=(10, 0))
+        ).pack(side="right", pady=(10, 0), padx=(5, 0))
+
+        ttk.Button(
+            server_button_frame,
+            text="Display Credentials",
+            command=self._on_display_credentials_window
+        ).pack(side="right", pady=(10, 0))
 
 
     def _on_save_and_restart_server_settings(self) -> None:
@@ -286,6 +293,39 @@ class PSMonitorAppSettingsHandler:
         self._manager.client.safe_connect()
 
         self._show_server_actions_status("✔ Settings applied and server restarted", "green", 2000)
+
+
+    def _on_display_credentials_window(self) -> None:
+        """
+        Show connection credentials in a read-only popup.
+        """
+
+        try:
+            username, password = get_credentials()
+        except Exception as e:
+            self._manager.logger.error("Failed to load credentials: %s", e)
+            return
+
+        creds = {
+            "username": username,
+            "password": password
+        }
+
+        creds_window = tk.Toplevel(self._window)
+        creds_window.title("Connection Credentials")
+        creds_window.geometry("550x150")
+        creds_window.resizable(False, False)
+
+        frame = ttk.Frame(creds_window, padding=15)
+        frame.pack(fill="both", expand=True)
+
+        text_area = tk.Text(frame, height=3, wrap="word")
+        text_area.insert("1.0", json.dumps(creds, indent=2))
+        text_area.configure(state="disabled", background="#f9f9f9")
+        text_area.pack(fill="both", expand=True)
+
+        close_button = ttk.Button(frame, text="Close", command=creds_window.destroy)
+        close_button.pack(pady=(10, 0), anchor="e")
 
 
     def _build_save_close_buttons_section(self, parent):
