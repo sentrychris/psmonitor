@@ -15,11 +15,12 @@ import tornado
 from typing import TYPE_CHECKING
 
 # Local application imports
+from core.config import get_launch_mode
 from core.worker import Worker
 from core.server.base_handler import BaseHandler, workers, recycle
 from core.server.http.get_system_data import get_system_data
 from core.server.http.get_network_data import get_network_data
-from core.auth import verify_password, generate_token
+from core.auth import verify_password, generate_token, delete_credentials_file
 from core.decorators import jwt_required
 
 # Type checking
@@ -140,6 +141,9 @@ class HttpAuthHandler(BaseHandler):
 
             if not user or not authenticated:
                 raise tornado.web.HTTPError(401, "Invalid credentials")
+            
+            if get_launch_mode() == 'headless':
+                delete_credentials_file()
 
             self.write(generate_token(user["id"]))
         except Exception as e:

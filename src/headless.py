@@ -53,6 +53,7 @@ if __name__ == "__main__":
         if not credentials_file:
             logger.error(f"Failed to write credentials file")
         logger.info(f"Connection credentials have been written to {credentials_file}")
+        logger.info("Note: This file will be deleted automatically after the first successful connection.")
 
     http = create_server(db, logger)
     http.listen(port=options.port, address=options.address)

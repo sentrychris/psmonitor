@@ -11,6 +11,7 @@ License: MIT
 """
 
 # Standard library imports
+import os
 import json
 from datetime import datetime, timedelta, timezone
 
@@ -79,3 +80,19 @@ def write_credentials_file() -> str | None:
         return cfg.CREDENTIALS_FILE
     except Exception:
         return None
+
+
+def delete_credentials_file() -> bool:
+    """
+    Delete the credentials file if it exists.
+
+    Returns:
+        bool: True if the file was deleted, False otherwise.
+    """
+    try:
+        if os.path.exists(cfg.CREDENTIALS_FILE):
+            os.remove(cfg.CREDENTIALS_FILE)
+            return True
+        return False
+    except Exception:
+        return False
