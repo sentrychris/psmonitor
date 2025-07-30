@@ -215,7 +215,7 @@ PSMonitor uses secure authentication to protect access to monitoring endpoints.
 - The plaintext password is:
   - Stored securely in the system keyring, scoped to the current user account.
   - (For headless mode only) Returned via the CLI.
-- Authentication is handled via time-limited [JWT](https://jwt.io/) access tokens (valid for 1 minute by default).
+- Authentication is handled via time-limited [JWT](https://jwt.io/) access tokens (valid for 10 seconds by default).
 - Tokens must be included in the `Authorization: Bearer <token>` header for any authenticated endpoints.
 
 ### Threading

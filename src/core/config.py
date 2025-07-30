@@ -49,7 +49,7 @@ SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
 # JWT authentication
 JWT_ALGORITHM = "HS256"
 JWT_SECRET = secrets.token_urlsafe(64)
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_SECONDS = 10.0
 
 # SQLite database
 DB_PATH = os.path.join(SETTINGS_DIR, "app.db")

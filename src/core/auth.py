@@ -58,7 +58,7 @@ def generate_token(user_id) -> dict[str, str]:
     now = datetime.now(timezone.utc)
     token = jwt.encode({
         "sub": str(user_id),
-        "exp": int((now + timedelta(minutes=cfg.ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
+        "exp": int((now + timedelta(seconds=cfg.ACCESS_TOKEN_EXPIRE_SECONDS)).timestamp()),
         "type": "access"
     }, cfg.JWT_SECRET, algorithm=cfg.JWT_ALGORITHM)
 
