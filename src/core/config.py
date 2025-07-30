@@ -84,6 +84,31 @@ init_data = {
     "processes": []
 }
 
+# Launch mode
+_launch_mode = None
+
+def set_launch_mode(mode: str):
+    """
+    Sets the launch mode for the application.
+    """
+
+    global _launch_mode
+    if _launch_mode is not None:
+        raise RuntimeError("Launch mode already set")
+    if mode not in ("gui", "headless"):
+        raise ValueError(f"Invalid launch mode: {mode}")
+    _launch_mode = mode
+
+
+def get_launch_mode() -> str:
+    """
+    Gets the launch mode for the application.
+    """
+
+    if _launch_mode is None:
+        raise RuntimeError("Launch mode not set")
+    return _launch_mode
+
 
 def get_service_name(name: str|None = None) -> str:
     """

@@ -18,8 +18,8 @@ from tornado.options import define, options, parse_command_line
 from tornado.ioloop import IOLoop
 
 # Local application imports
-from core import create_server, signal_handler
-from core.config import DEFAULT_PORT
+from core import signal_handler, create_server
+from core.config import DEFAULT_PORT, set_launch_mode
 from core.database import init_db
 from core.logging_manager import PSMonitorLogger
 
@@ -29,9 +29,11 @@ define('address', default='localhost', help='Listen address for the application'
 define('port', default=DEFAULT_PORT, help='Listen port for the application', type=int)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    set_launch_mode("headless")
 
     parse_command_line()
 

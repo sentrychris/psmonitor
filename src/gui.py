@@ -16,7 +16,7 @@ import sys
 
 # Local application imports
 from core import signal_handler
-from core.config import init_data
+from core.config import init_data, set_launch_mode
 from core.database import init_db
 from core.logging_manager import PSMonitorLogger
 from core.server_manager import PSMonitorServerManager
@@ -26,6 +26,8 @@ from gui.app_manager import PSMonitorApp
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    set_launch_mode("gui")
 
     # Create logger and clear log for new session
     logger = PSMonitorLogger("app.log")
