@@ -63,7 +63,8 @@ def generate_token(user_id) -> dict[str, str]:
     }, cfg.JWT_SECRET, algorithm=cfg.JWT_ALGORITHM)
 
     return {
-        "token": token
+        "token": token,
+        "user_id": user_id,
     }
 
 

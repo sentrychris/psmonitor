@@ -36,8 +36,13 @@ class HttpWorkerHandler(BaseHandler):
             Worker: A worker instance for managing the paired connection.
         """
 
-        worker = Worker()
-        # If no websocket claims the worker within 5 seconds, then remove it
+        subscriber = self.current_user.get("sub")
+        if not subscriber:
+            raise RuntimeError("Invalid subscriber for this worker instance.")
+
+        worker = Worker(subscriber=self.current_user.get("sub"))
+        # Schedule BaseHandler recycle to run after 5 seconds, if worker's
+        # handler is not set then it is unclaimed and it will be removed.
         tornado.ioloop.IOLoop.current().call_later(5, recycle, worker)
 
         return worker

@@ -48,13 +48,13 @@ class PSMonitorAppClient():
         self.address = self._manager.server.address
 
         self.http_url = f"http://{self.address}:{self.port}"
-        self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
+        self.ws_url = f"ws://{self.address}:{self.port}/connect"
 
         self._ws = None
         self._ws_client_thread = None
 
         self._auth_token = None
-
+        self._user_id = None
         self._worker_id = None
 
 
@@ -105,7 +105,7 @@ class PSMonitorAppClient():
         self.port = port
 
         self.http_url = f"http://{self.address}:{self.port}"
-        self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
+        self.ws_url = f"ws://{self.address}:{self.port}/connect"
 
 
     def _authenticate(self) -> None:
@@ -123,6 +123,7 @@ class PSMonitorAppClient():
 
         data = response.json()
         self._auth_token = data.get("token")
+        self._user_id = data.get("user_id")
         self._manager.logger.info("User has successfully authenticated")
 
 
@@ -174,7 +175,7 @@ class PSMonitorAppClient():
         websocket.enableTrace(False)
 
         self._ws = websocket.WebSocketApp(
-            f"{self.ws_url}{worker_id}",
+            f"{self.ws_url}?id={worker_id}&subscriber={self._user_id}",
             on_message=self.on_message,
             on_error=self.on_error,
             on_close=self.on_close,

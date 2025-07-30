@@ -101,9 +101,14 @@ class WebsocketHandler(WebSocketHandler):
 
         # Check worker ID exists in registry, if so then remove from shared pool
         worker = workers.pop(self.get_argument('id'), None)
-
         if not worker:
             self.close(reason='Invalid worker id')
+            return
+
+        # Check the subscriber for this worker is valid
+        subscriber = self.get_argument('subscriber', None)
+        if not subscriber or subscriber != worker.subscriber:
+            self.close(reason='Invalid subscriber')
             return
 
         self.set_nodelay(True)
