@@ -241,7 +241,7 @@ class PSMonitorAppGraphHandler():
     Graph handler.
     """
 
-    def __init__(self, manager: 'PSMonitorApp' = None):
+    def __init__(self, manager: 'PSMonitorApp'):
         """
         Initialize the graph handler.
         """

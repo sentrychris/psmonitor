@@ -35,7 +35,7 @@ class PSMonitorAppClient():
     App client for connection to the tornado server.
     """
 
-    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+    def __init__(self, manager: 'PSMonitorApp') -> None:
         """
         Initializes the app client.
         """

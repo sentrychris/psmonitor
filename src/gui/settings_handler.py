@@ -32,7 +32,7 @@ class PSMonitorAppSettingsHandler:
 
     LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
 
-    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+    def __init__(self, manager: 'PSMonitorApp') -> None:
         """
         Initializes the handler.
         """

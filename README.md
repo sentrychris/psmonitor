@@ -315,7 +315,7 @@ class PSMonitorChildHandlerTemplate:
     Handler template.
     """
 
-    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+    def __init__(self, manager: 'PSMonitorApp') -> None:
         """
         Initializes the handler.
         """
