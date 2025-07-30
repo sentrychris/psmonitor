@@ -20,6 +20,7 @@ from tornado.ioloop import IOLoop
 # Local application imports
 from core import signal_handler, create_server
 from core.config import DEFAULT_PORT, set_launch_mode
+from core.auth import get_credentials
 from core.database import init_db
 from core.logging_manager import PSMonitorLogger
 
@@ -42,6 +43,14 @@ if __name__ == "__main__":
     logger.clear_log()
 
     init_db(logger)
+
+    username, password = get_credentials()
+
+    logger.info(
+        f"Access credentials:\n"
+        f"Username: {username}\n"
+        f"Password: {password}\n"
+    )
 
     http = create_server()
     http.listen(port=options.port, address=options.address)

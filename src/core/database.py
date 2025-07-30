@@ -15,6 +15,7 @@ import os
 import secrets
 import sqlite3
 import uuid
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 # Third-party imports
@@ -22,11 +23,26 @@ import bcrypt
 import keyring
 
 # Local application imports
-from core.config import DB_PATH, get_service_name
+from core.config import DB_PATH, get_service_name, get_launch_mode
 
 # Type checking
 if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
+
+@dataclass
+class UserDetails:
+    id: str
+    username: str
+    password: str
+    hashed_password: str
+
+
+def create_user_details() -> UserDetails:
+    username = get_service_name()
+    password = secrets.token_urlsafe(32)
+    hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+    return UserDetails(str(uuid.uuid4()), username, password, hashed)
 
 
 def init_db(logger: 'PSMonitorLogger') -> None:
@@ -48,22 +64,18 @@ def init_db(logger: 'PSMonitorLogger') -> None:
         );
         """)
 
-        # Create initial user for GUI
-        gui_user_id = str(uuid.uuid4())
-        gui_username = get_service_name()
-        gui_password = secrets.token_urlsafe(32)
-        hashed_password = bcrypt.hashpw(gui_password.encode(), bcrypt.gensalt())
-
+        # Create initial user
+        user = create_user_details()
         cur.execute(
             "INSERT INTO users (id, username, password) VALUES (?, ?, ?)",
-            (gui_user_id, gui_username, hashed_password)
+            (user.id, user.username, user.hashed_password)
         )
 
         # Store the password in the system keyring
         keyring.set_password(
             get_service_name('Auth'),
-            username=gui_username,
-            password=gui_password
+            username=user.username,
+            password=user.password
         )
 
         conn.commit()
