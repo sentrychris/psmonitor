@@ -11,7 +11,6 @@ License: MIT
 """
 
 # Standard library imports
-import os
 import queue
 import threading
 from typing import TYPE_CHECKING

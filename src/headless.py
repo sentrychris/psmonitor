@@ -11,7 +11,6 @@ License: MIT
 """
 
 # Standard library imports
-import os
 import signal
 
 # Third-party imports

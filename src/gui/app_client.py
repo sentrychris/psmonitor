@@ -151,12 +151,13 @@ class PSMonitorAppClient():
 
         try:
             response = requests.post(
-                url=self.http_url,
+                url=f"{self.http_url}/worker",
                 headers={'Authorization': f'Bearer {self._auth_token}'},
                 timeout=5
             )
             worker = response.json()
             self._worker_id = worker['id']
+            self._manager.logger.debug(f"Worker obtained: {self._worker_id}")
             self._connect_websocket(self._worker_id)
         except requests.RequestException as e:
             self._manager.logger.error(f"Error obtaining worker for websocket connection: {e}")

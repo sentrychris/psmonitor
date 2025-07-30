@@ -22,9 +22,9 @@ from core.auth_manager import query_user, verify_password, generate_token
 from core.decorators import jwt_required
 
 
-class HttpHandler(BaseHandler):
+class HttpWorkerHandler(BaseHandler):
     """
-    HTTPHandler class for managing connections and serving requests for data. This
+    HTTPWorkerHandler class for managing connections and serving requests for data. This
     handler processes connection requests via HTTP POST.
     """
 
