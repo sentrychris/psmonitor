@@ -11,6 +11,7 @@ License: MIT
 """
 
 # Standard library imports
+import json
 from datetime import datetime, timedelta, timezone
 
 # Third-party imports
@@ -60,3 +61,21 @@ def get_credentials() -> tuple[str, str]:
         raise RuntimeError("No stored credentials found. First-run setup may have failed.")
 
     return username, password
+
+
+def write_credentials_file() -> str | None:
+    """
+    Write credentials to file.
+    """
+
+    try:
+        username, password = get_credentials()
+        with open(cfg.CREDENTIALS_FILE, "w", encoding="utf-8") as f:
+            json.dump({
+                "username": username,
+                "password": password
+            }, f, indent=4)
+        
+        return cfg.CREDENTIALS_FILE
+    except Exception:
+        return None

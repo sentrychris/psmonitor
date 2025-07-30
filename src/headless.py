@@ -11,7 +11,6 @@ License: MIT
 """
 
 # Standard library imports
-import json
 import signal
 
 # Third-party imports
@@ -20,8 +19,8 @@ from tornado.ioloop import IOLoop
 
 # Local application imports
 from core import signal_handler, create_server
-from core.config import DEFAULT_PORT, CREDENTIALS_FILE, set_launch_mode
-from core.auth import get_credentials
+from core.config import DEFAULT_PORT, set_launch_mode
+from core.auth import write_credentials_file
 from core.logging_manager import PSMonitorLogger
 from core.database_manager import PSMonitorDatabaseManager
 
@@ -50,14 +49,10 @@ if __name__ == "__main__":
 
     # Export connection credentials for the user
     if options.export_credentials:
-        username, password = get_credentials()
-        with open(CREDENTIALS_FILE, "w", encoding="utf-8") as f:
-            json.dump({
-                "username": username,
-                "password": password
-            }, f, indent=4)
-
-        logger.info(f"Connection credentials have been written to {CREDENTIALS_FILE}")
+        credentials_path = write_credentials_file()
+        if not credentials_path:
+            logger.error(f"Failed to write credentials file")
+        logger.info(f"Connection credentials have been written to {credentials_path}")
 
     http = create_server(db, logger)
     http.listen(port=options.port, address=options.address)
