@@ -362,9 +362,6 @@ To connect to the server, you can use any client or language.
 
     asyncio.run(connect())
     ```
-
-You can use the quick dashboard located at `src/gui/web/web.html`  for further testing and exploration.
-
 I hope you like it!
 
 ## License

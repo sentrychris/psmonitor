@@ -41,14 +41,12 @@ def signal_handler(_sig, _frame):
     sys.exit(0)
 
 
-def create_server(server_path: str) -> HTTPServer:
+def create_server() -> HTTPServer:
     """
     Create a server
     """
 
     return HTTPServer(create_app({
-        'template_path': server_path,
-        'static_path': server_path,
         'cookie_secret': uuid.uuid1().hex,
         'xsrf_cookies': False,
         'debug': False

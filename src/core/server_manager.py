@@ -66,8 +66,7 @@ class PSMonitorServerManager:
 
         self._ioloop = IOLoop()
 
-        base_dir = os.path.dirname(os.path.dirname(__file__))
-        self._server = create_server(os.path.join(base_dir, 'gui', 'web'))
+        self._server = create_server()
         self._server.listen(port, address=self.address)
 
         queue_.put(self._server)

@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     init_db(logger)
 
-    http = create_server(os.path.join(os.path.dirname(__file__), 'gui', 'web'))
+    http = create_server()
     http.listen(port=options.port, address=options.address)
 
     print(f"Listening on http://{options.address}:{options.port}")

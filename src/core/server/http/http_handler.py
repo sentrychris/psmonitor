@@ -24,14 +24,16 @@ from core.decorators import jwt_required
 
 class HttpHandler(BaseHandler):
     """
-    HTTPHandler class for managing connections and serving requests for data. This handler processes
-    connection requests via HTTP POST and serves the connection index page and data via HTTP GET. 
+    HTTPHandler class for managing connections and serving requests for data. This
+    handler processes connection requests via HTTP POST.
     """
 
-
-    def create_worker(self):
+    def create_worker(self) -> Worker:
         """
         Creates a worker to pair a HTTP connection to a Websocket session.
+
+        Returns:
+            Worker: A worker instance for managing the paired connection.
         """
 
         worker = Worker()
@@ -41,23 +43,12 @@ class HttpHandler(BaseHandler):
         return worker
 
 
-    async def get(self):
-        """
-        Get the simple web UI.
-        """
-
-        self.render("web.html")
-
-
     @jwt_required
     async def post(self):
         """
         Handles POST requests. Attempts to establish a connection and returns the
         worker ID for pairing the websocket connection, websocket connect URL,
         and message.
-
-        Returns:
-            dict: A dictionary containing id, url and message.
         """
 
         worker_id = None
@@ -86,14 +77,14 @@ class HttpHandler(BaseHandler):
 
 class HttpSystemHandler(BaseHandler):
     """
-    HttpSystemHandler class for handling http requests for data. This handler processes requests
-    via HTTP GET and serves system data. 
+    HttpSystemHandler class for handling http requests for data. This handler processes 
+    requests via HTTP GET and serves system data. 
     """
 
     @jwt_required
     async def get(self):
         """
-        Default GET handler
+        Get system data.
         """
 
         self.set_header("Content-Type", "application/json")
@@ -102,14 +93,14 @@ class HttpSystemHandler(BaseHandler):
 
 class HttpNetworkHandler(BaseHandler):
     """
-    HttpNetworkHandler class for handling http requests for data. This handler processes requests
-    via HTTP GET and serves system data. 
+    HttpNetworkHandler class for handling http requests for data. This handler processes
+    requests via HTTP GET and serves network data. 
     """
 
     @jwt_required
     async def get(self):
         """
-        Default GET handler
+        Get network data.
         """
 
         self.set_header("Content-Type", "application/json")
@@ -118,12 +109,13 @@ class HttpNetworkHandler(BaseHandler):
 
 class HttpAuthHandler(BaseHandler):
     """
-    Handles login.
+    HttpAuthHandler class for handling http requests for authentication. This handler
+    processes requests via HTTP POST and issues access tokens.
     """
 
     async def post(self):
         """
-        Dfault POST handler
+        Login.
         """
 
         try:
