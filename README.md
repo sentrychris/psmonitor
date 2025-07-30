@@ -20,7 +20,8 @@ View an example [web client dashboard for remote monitoring here](https://github
   - [Running the Headless Server as a Managed Process](#running-the-headless-server-as-a-managed-process)  
 - [Developers](#developers)  
   - [Building from Source](#building-from-source)  
-  - [Key points](#key-points)  
+  - [Key points](#key-points)
+  - [Authentication](#authentication)
   - [Threading](#threading)  
   - [Developing Custom GUI Windows](#developing-custom-gui-windows)  
 - [Connecting to the Headless Server from Your Own App](#connecting-to-the-headless-server-from-your-own-app)  
@@ -35,6 +36,7 @@ View an example [web client dashboard for remote monitoring here](https://github
 - **System Statistics**: Provides CPU, memory, and disk usage, uptime, and top processes.
 - **Network Statistics**: Monitors data sent and received on network interfaces.
 - **Websocket Server**: For remote monitoring on your local network or through port forwarding.
+- **Authentication**: For secure access to monitoring endpoints.
 
 
 ## GUI Application
@@ -54,9 +56,28 @@ While the server is embedded in the desktop GUI application, a [headless version
 
 ### HTTP
 
-Three standard HTTP endpoints are provided:
+Four standard HTTP endpoints are available:
+
+#### **POST `/authenticate`**:
+Authenticates a user and returns a time-limited access token.
+
+- Required JSON body:
+  ```json
+  {
+    "username": "your-username",
+    "password": "your-password"
+  }
+  ```
+
+#### **POST `/worker`**:
+
+Requires a valid bearer token in the Authorization header.
+
+Creates a worker to pair HTTP connections to websocket sessions and responds with a worker ID, which is then used in the request to the websocket `/connect` endpoint.
 
 #### **GET `/system`**:
+
+Requires a valid bearer token in the Authorization header.
 
 Retrieves system monitoring information
 
@@ -74,25 +95,24 @@ Retrieves system monitoring information
 
 #### **GET `/network`**:
 
+Requires a valid bearer token in the Authorization header.
+
 Retrieves network monitoring information:
+
 - **Interfaces**: Visible network interfaces
 - **Wireless**: Name, Quality, Channel, Encryption, Address, Signal
 - **Statistics**: For each interface: MB sent, MB received, packets sent, packets received, errors receiving packets, error sending packets, dropout rate.
 
-#### **GET `/`**:
-Renders a simple dashboard to check or test the server.
-
-#### **POST `/`**:
-Creates a worker to pair HTTP connections to websocket sessions and manage execution of monitoring scripts. This endpoint responds with a worker ID which is then used in the request to the websocket `/connect` endpoint.
-
-
 ### Websocket
 
-A single websocket endpoint is provided.
+A single websocket endpoint is available.
 
-#### WS `/connect?id={<worker_id>}`
+#### WS `/connect?id={<worker_id>}&subscriber={<user_id>}`
 
-- Creates and connects to the websocket connection, data immediately begins being sent through the connection.
+- Requires a valid worker ID
+- Requires a valid user ID (subscriber) tied to the worker.
+- Creates and initializes the websocket connection.
+- Data immediately begins being sent through the tunnel.
 
 ### Running the headless server as a managed process
 
@@ -173,12 +193,25 @@ Most of the code is either documented or self-explanatory, however, some key poi
 
 - Workers act as per-client session handlers that are created whenever a websocket connection is requested. The `WebSocketHandler` binds to a specific `worker` instance associated with that client, enabling individual data streams and cleanup.
 
+- Workers require authentication in order to be created. Once created, the user ID decoded from the JWT access token is assigned to the worker's `subscriber` attribute, which is then checked against the parameter supplied in the request to establish a websocket connection through the `/connect` endpoint.
+
 - Workers that are unclaimed within 5 seconds are removed from the executor thread pool and destroyed.
 
 - Separate threads are used to achieve non-blocking behaviour for blocking calls (e.g. `get_cpu()`, `get_memory()`) by offloading them to the executor thread pool.
 
 - During the packing process, UPX is used to compress the executable, resulting in a file size that is ~10MB smaller.
 
+### Authentication
+
+PSMonitor uses secure authentication to protect access to both HTTP and WebSocket endpoints.
+
+- On first run, a user account is automatically generated.
+- A strong password is randomly created, securely hashed, and stored in the embedded database.
+- The plaintext password is:
+  - Returned via the CLI for headless mode, and
+  - Stored securely in the system keyring, scoped to the current user account. for both headless and GUI mode.
+- Authentication is handled via time-limited [JWT](https://jwt.io/) access tokens (valid for 1 minute by default).
+- Tokens must be included in the `Authorization: Bearer <token>` header for any authenticated endpoints.
 
 ### Threading
 
