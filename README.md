@@ -50,9 +50,9 @@ The desktop application is built with [Tkinter](https://docs.python.org/3/librar
 
 The server manages:
 
-- Authentication and
-- Pairing of client and websocket connections, and
-- The execution of the monitoring scripts
+- Authentication
+- Pairing of client and websocket connections
+- Execution of the monitoring scripts
 
 Using multiple threads managed through an executor. This allows PSMonitor to retrieve data asynchronously and mitigate blocking operations.
 
