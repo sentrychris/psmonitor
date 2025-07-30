@@ -49,10 +49,10 @@ if __name__ == "__main__":
 
     # Export connection credentials for the user
     if options.export_credentials:
-        credentials_path = write_credentials_file()
-        if not credentials_path:
+        credentials_file = write_credentials_file()
+        if not credentials_file:
             logger.error(f"Failed to write credentials file")
-        logger.info(f"Connection credentials have been written to {credentials_path}")
+        logger.info(f"Connection credentials have been written to {credentials_file}")
 
     http = create_server(db, logger)
     http.listen(port=options.port, address=options.address)
