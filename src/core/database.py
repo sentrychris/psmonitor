@@ -23,7 +23,7 @@ import bcrypt
 import keyring
 
 # Local application imports
-from core.config import DB_PATH, get_service_name, get_launch_mode
+from core.config import DB_PATH, get_service_name
 
 # Type checking
 if TYPE_CHECKING:

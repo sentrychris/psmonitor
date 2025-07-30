@@ -289,4 +289,6 @@ class PSMonitorAppClient():
             ws (websocket.WebSocketApp): The websocket instance.
         """
 
-        self._manager.logger.info(f"Websocket connection is open ({ws.url})")
+        self._manager.logger.info(f"Websocket connection is open")
+        self._manager.logger.debug(f"Websocket URL: {ws.url}")
+
