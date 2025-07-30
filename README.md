@@ -48,9 +48,7 @@ The desktop application is built with [Tkinter](https://docs.python.org/3/librar
 
 ## Headless Server
 
-The server manages the execution of the monitoring scripts, using multiple threads managed through an executor to retrieve data asynchronously and mitigate blocking operations from calls to read system data.
-
-The server is built with [Tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections.
+The server manages the execution of the monitoring scripts, using multiple threads managed through an executor to retrieve data asynchronously and mitigate blocking operations.
 
 While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.6.0.1001/psmonitor-headless.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on the local network or through port forwarding.
 
@@ -59,7 +57,8 @@ While the server is embedded in the desktop GUI application, a [headless version
 Four standard HTTP endpoints are available:
 
 #### **POST `/authenticate`**:
-Authenticates a user and returns a time-limited access token.
+
+Authenticates a user and returns a time-limited JWT bearer token.
 
 - Required JSON body:
   ```json
@@ -71,13 +70,13 @@ Authenticates a user and returns a time-limited access token.
 
 #### **POST `/worker`**:
 
-Requires a valid bearer token in the Authorization header.
+> Requires a valid bearer token in the **Authorization** header.
 
 Creates a worker to pair HTTP connections to websocket sessions and responds with a worker ID, which is then used in the request to the websocket `/connect` endpoint.
 
 #### **GET `/system`**:
 
-Requires a valid bearer token in the Authorization header.
+> Requires a valid bearer token in the **Authorization** header.
 
 Retrieves system monitoring information
 
@@ -95,7 +94,7 @@ Retrieves system monitoring information
 
 #### **GET `/network`**:
 
-Requires a valid bearer token in the Authorization header.
+> Requires a valid bearer token in the **Authorization** header.
 
 Retrieves network monitoring information:
 
@@ -105,7 +104,7 @@ Retrieves network monitoring information:
 
 ### Websocket
 
-A single websocket endpoint is available.
+A single websocket endpoint is available:
 
 #### WS `/connect?id={<worker_id>}&subscriber={<user_id>}`
 
