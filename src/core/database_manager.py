@@ -153,7 +153,7 @@ class PSMonitorDatabaseManager:
             self._logger.debug("SQLite database has been initialized")
 
 
-    def get_user(self, username: str):
+    def get_user(self, username: str) -> tuple[str, str] | None:
         """
         Retrieve a user record from the database by username.
 
@@ -163,14 +163,22 @@ class PSMonitorDatabaseManager:
         Returns:
             tuple[str, str] | None: A tuple of (id, hashed_password) if found; otherwise None.
         """
-
+        
+        self.connect()
         cur = self.cursor()
-
         cur.execute(
             "SELECT id, password FROM users WHERE username = ?", (username,)
         )
-        
-        return cur.fetchone()
+        user = cur.fetchone()
+        self.close()
+
+        if user:
+            return {
+                "id": user[0],
+                "password": user[1] # hashed
+            }
+
+        return None
 
 
     def store_user(self, user: UserDetails) -> None:

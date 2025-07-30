@@ -19,29 +19,7 @@ import keyring
 import jwt
 
 # Local application imports
-from core.database_manager import PSMonitorDatabaseManager
 import core.config as cfg
-
-
-def query_user(username: str) -> dict[str, str] | None:
-    """
-    Query the database for a given user.
-    """
-
-    db = PSMonitorDatabaseManager()
-    db.connect()
-    user = db.get_user(username)
-    db.close()
-
-    print(f"user {user}")
-
-    if user:
-        return {
-            "id": user[0],
-            "password": user[1] # hashed
-        }
-
-    return None
 
 
 def verify_password(password: str, hashed: str) -> bool:

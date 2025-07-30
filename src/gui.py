@@ -38,7 +38,7 @@ if __name__ == "__main__":
     db.initialize()
 
     # Create server manager to handle threaded server
-    server_manager = PSMonitorServerManager(logger)
+    server_manager = PSMonitorServerManager(db, logger)
 
     try:
         server_manager.start()

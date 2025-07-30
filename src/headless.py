@@ -54,7 +54,7 @@ if __name__ == "__main__":
         f"Password: {password}\n"
     )
 
-    http = create_server()
+    http = create_server(db, logger)
     http.listen(port=options.port, address=options.address)
 
     print(f"Listening on http://{options.address}:{options.port}")

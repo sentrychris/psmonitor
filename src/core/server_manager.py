@@ -24,6 +24,7 @@ from core import create_server
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
+    from core.database_manager import PSMonitorDatabaseManager
     from core.logging_manager import PSMonitorLogger
 
 
@@ -32,11 +33,12 @@ class PSMonitorServerManager:
     Manages a Tornado HTTP server running in a background thread.
     """
 
-    def __init__(self, logger: 'PSMonitorLogger' = None):
+    def __init__(self, db: 'PSMonitorDatabaseManager', logger: 'PSMonitorLogger' = None):
         """
         Initializes the server manager with default state.
         """
 
+        self._db = db
         self._logger = logger
 
         self.port = cfg.DEFAULT_PORT
@@ -65,7 +67,7 @@ class PSMonitorServerManager:
 
         self._ioloop = IOLoop()
 
-        self._server = create_server()
+        self._server = create_server(self._db, self._logger)
         self._server.listen(port, address=self.address)
 
         queue_.put(self._server)

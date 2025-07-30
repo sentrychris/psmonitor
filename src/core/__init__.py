@@ -13,6 +13,7 @@ License: MIT
 # Standard library imports
 import uuid
 import sys
+from typing import TYPE_CHECKING
 
 # Third-party imports
 from tornado.ioloop import IOLoop
@@ -24,6 +25,11 @@ from core.server.http.http_handler import HttpAuthHandler, HttpWorkerHandler, \
     HttpSystemHandler, HttpNetworkHandler
 from core.server.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
+
+# Type checking
+if TYPE_CHECKING:
+    from core.database_manager import PSMonitorDatabaseManager
+    from core.logging_manager import PSMonitorLogger
 
 
 def signal_handler(_sig, _frame):
@@ -41,7 +47,7 @@ def signal_handler(_sig, _frame):
     sys.exit(0)
 
 
-def create_server() -> HTTPServer:
+def create_server(db: 'PSMonitorDatabaseManager', logger: 'PSMonitorLogger') -> HTTPServer:
     """
     Create a server
     """
@@ -49,7 +55,9 @@ def create_server() -> HTTPServer:
     return HTTPServer(create_app({
         'cookie_secret': uuid.uuid1().hex,
         'xsrf_cookies': False,
-        'debug': False
+        'debug': False,
+        'db': db,
+        'logger': logger
     }))
 
 

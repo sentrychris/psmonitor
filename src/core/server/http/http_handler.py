@@ -12,14 +12,19 @@ License: MIT
 
 # Third-party imports
 import tornado
+from typing import TYPE_CHECKING
 
 # Local application imports
 from core.worker import Worker
 from core.server.base_handler import BaseHandler, workers, recycle
 from core.server.http.get_system_data import get_system_data
 from core.server.http.get_network_data import get_network_data
-from core.auth import query_user, verify_password, generate_token
+from core.auth import verify_password, generate_token
 from core.decorators import jwt_required
+
+# Type checking
+if TYPE_CHECKING:
+    from core.database_manager import PSMonitorDatabaseManager
 
 
 class HttpWorkerHandler(BaseHandler):
@@ -125,11 +130,12 @@ class HttpAuthHandler(BaseHandler):
         """
 
         try:
+            db: 'PSMonitorDatabaseManager' = self.application.settings.get("db")
             data = tornado.escape.json_decode(self.request.body)
             username = data.get("username")
             password = data.get("password")
 
-            user = query_user(username)
+            user = db.get_user(username)
             authenticated = verify_password(password=password, hashed=user["password"])
 
             if not user or not authenticated:
