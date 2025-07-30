@@ -268,13 +268,13 @@ class PSMonitorAppSettingsHandler:
             server_button_frame,
             text="Save & Apply",
             command=self._on_save_and_restart_server_settings
-        ).pack(side="right", pady=(10, 0), padx=(5, 0))
+        ).pack(side="right", padx=(5, 0))
 
         ttk.Button(
             server_button_frame,
-            text="Display Credentials",
+            text="View Credentials",
             command=self._on_display_credentials_window
-        ).pack(side="right", pady=(10, 0))
+        ).pack(side="right")
 
 
     def _on_save_and_restart_server_settings(self) -> None:
@@ -292,7 +292,7 @@ class PSMonitorAppSettingsHandler:
         self._manager.server.restart(port)
         self._manager.client.safe_connect()
 
-        self._show_server_actions_status("✔ Settings applied and server restarted", "green", 2000)
+        self._show_server_actions_status("✔ Saved! Server restarted", "green", 2000)
 
 
     def _on_display_credentials_window(self) -> None:
@@ -313,7 +313,7 @@ class PSMonitorAppSettingsHandler:
 
         creds_window = tk.Toplevel(self._window)
         creds_window.title("Connection Credentials")
-        creds_window.geometry("550x175")
+        creds_window.geometry("550x170")
         creds_window.resizable(False, False)
 
         frame = ttk.Frame(creds_window, padding=15)
@@ -333,7 +333,7 @@ class PSMonitorAppSettingsHandler:
         ).pack(fill="x", pady=(5, 0))
 
         close_button = ttk.Button(frame, text="Close", command=creds_window.destroy)
-        close_button.pack(pady=(10, 0), anchor="e")
+        close_button.pack(pady=(5, 0), anchor="e")
 
 
     def _build_save_close_buttons_section(self, parent):
