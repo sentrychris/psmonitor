@@ -48,13 +48,15 @@ The desktop application is built with [Tkinter](https://docs.python.org/3/librar
 
 ## Headless Server
 
+The server is built with [Tornado](https://www.tornadoweb.org/en/stable/), a scalable, non-blocking web server designed to handle a large number of concurrent connections.
+
 The server manages:
 
 - Authentication
 - Pairing of client and websocket connections
 - Execution of the monitoring scripts
 
-Using multiple threads managed through an executor. This allows PSMonitor to retrieve data asynchronously and mitigate blocking operations.
+It manages this using multiple threads through an executor. This allows PSMonitor to retrieve data asynchronously and mitigate blocking operations.
 
 While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.6.0.1001/psmonitor-headless.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on their local network or through port forwarding.
 
