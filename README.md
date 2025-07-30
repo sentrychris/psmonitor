@@ -58,6 +58,23 @@ Using multiple threads managed through an executor. This allows PSMonitor to ret
 
 While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.6.0.1001/psmonitor-headless.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on their local network or through port forwarding.
 
+### Running the Headless Server
+
+To run the headless server, invoke it from the CLI:, for example, in Windows:
+
+```sh
+.\psmonitor-headless.exe --port=<port> --address=<address> --export-credentials
+```
+
+All options are optional:
+
+- `--port`: Sets the port number the server will listen on (default: 4500).
+
+- `--address`: Sets the address the server will listen on (default: localhost).
+
+- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json
+    > Note: please keep your credentials secure.
+
 ### HTTP
 
 Four standard HTTP endpoints are available:
@@ -192,6 +209,30 @@ Step 6: Run the `build.py` script to generate a single-file executable:
 - Pass `--clean` if you want to clean the previous build directories.
 
 
+#### Running through the Interpreter
+
+To run the GUI app through the Python interpreter, simply invoke the GUI main script:
+
+```sh
+python src/gui.py
+```
+
+To run the headless app, invoke the headless server main script:
+
+```sh
+python src/headless.py --port=<port> --address=<address> --export-credentials
+```
+
+All options are optional:
+
+- `--port`: Sets the port number the server will listen on (default: 4500).
+
+- `--address`: Sets the address the server will listen on (default: localhost).
+
+- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json
+    > Note: please keep your credentials secure.
+
+
 ### Key points
 
 Most of the code is either documented or self-explanatory, however, some key points:
@@ -214,7 +255,7 @@ PSMonitor uses secure authentication to protect access to monitoring endpoints.
 - A strong password is randomly created, securely hashed, and stored in the database.
 - The plaintext password is:
   - Stored securely in the system keyring, scoped to the current user account.
-  - (For headless mode only) Returned via the CLI.
+  - Optionally and for headless mode only, written to a credentials file in the user's home directory.
 - Authentication is handled via time-limited [JWT](https://jwt.io/) access tokens (valid for 10 seconds by default).
 - Tokens must be included in the `Authorization: Bearer <token>` header for any authenticated endpoints.
 
