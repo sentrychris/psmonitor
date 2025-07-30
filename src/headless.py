@@ -21,8 +21,8 @@ from tornado.ioloop import IOLoop
 from core import signal_handler, create_server
 from core.config import DEFAULT_PORT, set_launch_mode
 from core.auth import get_credentials
-from core.database import init_db
 from core.logging_manager import PSMonitorLogger
+from core.database_manager import PSMonitorDatabaseManager
 
 
 # Define command-line options
@@ -42,7 +42,9 @@ if __name__ == "__main__":
     logger = PSMonitorLogger("app.log")
     logger.clear_log()
 
-    init_db(logger)
+    # Initialize DB if it hasn't already been initialized
+    db = PSMonitorDatabaseManager(logger)
+    db.initialize()
 
     username, password = get_credentials()
 

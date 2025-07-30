@@ -19,7 +19,7 @@ import keyring
 import jwt
 
 # Local application imports
-import core.database as db
+from core.database_manager import PSMonitorDatabaseManager
 import core.config as cfg
 
 
@@ -28,15 +28,17 @@ def query_user(username: str) -> dict[str, str] | None:
     Query the database for a given user.
     """
 
-    cursor = db.get_connection()
-    cursor.execute("SELECT id, password FROM users WHERE username = ?", (username,))
-    row  = cursor.fetchone()
-    db.close_connection(cursor)
+    db = PSMonitorDatabaseManager()
+    db.connect()
+    user = db.get_user(username)
+    db.close()
 
-    if row:
+    print(f"user {user}")
+
+    if user:
         return {
-            "id": row[0],
-            "password": row[1] # hashed
+            "id": user[0],
+            "password": user[1] # hashed
         }
 
     return None
