@@ -76,7 +76,7 @@ def write_credentials_file() -> str | None:
                 "username": username,
                 "password": password
             }, f, indent=4)
-        
+
         return cfg.CREDENTIALS_FILE
     except Exception:
         return None

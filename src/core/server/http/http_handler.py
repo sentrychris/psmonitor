@@ -10,9 +10,11 @@ License: MIT
 --------------------------------------------------------------------------
 """
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Third-party imports
 import tornado
-from typing import TYPE_CHECKING
 
 # Local application imports
 from core.config import get_launch_mode
@@ -141,7 +143,7 @@ class HttpAuthHandler(BaseHandler):
 
             if not user or not authenticated:
                 raise tornado.web.HTTPError(401, "Invalid credentials")
-            
+
             if get_launch_mode() == 'headless':
                 delete_credentials_file()
 

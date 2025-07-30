@@ -51,9 +51,9 @@ if __name__ == "__main__":
     if options.export_credentials:
         credentials_file = write_credentials_file()
         if not credentials_file:
-            logger.error(f"Failed to write credentials file")
+            logger.error("Failed to write credentials file")
         logger.info(f"Connection credentials have been written to {credentials_file}")
-        logger.info("Note: This file will be deleted automatically after the first successful connection.")
+        logger.info("Note: File will be deleted automatically after first connection.")
 
     http = create_server(db, logger)
     http.listen(port=options.port, address=options.address)

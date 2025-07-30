@@ -32,6 +32,9 @@ if TYPE_CHECKING:
 
 @dataclass
 class UserDetails:
+    """
+    Represents user details.
+    """
     id: str
     username: str
     password: str
@@ -39,6 +42,9 @@ class UserDetails:
 
 
 def create_user_details() -> UserDetails:
+    """
+    Creates user details.
+    """
     username = get_service_name()
     password = secrets.token_urlsafe(32)
     hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -74,7 +80,7 @@ class PSMonitorDatabaseManager:
             self._connection = sqlite3.connect(DB_PATH)
 
 
-    def cursor(self):
+    def cursor(self) -> sqlite3.Cursor | None:
         """
         Retrieve a cursor object from the active database connection.
 
@@ -84,8 +90,10 @@ class PSMonitorDatabaseManager:
 
         if self._connection:
             return self._connection.cursor()
-        
-    
+
+        return None
+
+
     def commit(self):
         """
         Commit the current transaction to the database.
@@ -121,7 +129,7 @@ class PSMonitorDatabaseManager:
         if os.path.exists(DB_PATH):
             self._logger.debug("SQLite database already exists, skipping initialization.")
             return
-        
+
         self.connect()
         cur = self.cursor()
 
@@ -161,7 +169,7 @@ class PSMonitorDatabaseManager:
         Returns:
             tuple[str, str] | None: A tuple of (id, hashed_password) if found; otherwise None.
         """
-        
+
         self.connect()
         cur = self.cursor()
         cur.execute(
@@ -192,7 +200,7 @@ class PSMonitorDatabaseManager:
             (user.id, user.username, user.hashed_password)
         )
 
-    
+
     def flush_users(self) -> None:
         """
         Remove all users from the database.
