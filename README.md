@@ -48,7 +48,7 @@ The desktop application is built with [Tkinter](https://docs.python.org/3/librar
 
 ## Headless Server
 
-The server uses [Tornado](https://www.tornadoweb.org/en/stable/), a high-performance, non-blocking web framework built to efficiently manage large volumes of simultaneous, long-lived connections.
+The server uses [Tornado](https://www.tornadoweb.org/en/stable/), a high-performance, non-blocking web framework built to efficiently manage simultaneous, long-lived connections.
 
 The server manages:
 
