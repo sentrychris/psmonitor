@@ -60,7 +60,7 @@ While the server is embedded in the desktop GUI application, a [headless version
 
 ### Running the Headless Server
 
-To run the headless server, invoke it from the CLI:, for example, in Windows:
+To run the headless server, invoke it from the CLI, for example, in Windows:
 
 ```sh
 .\psmonitor-headless.exe --port=<port> --address=<address> --export-credentials
@@ -72,7 +72,7 @@ All options are optional:
 
 - `--address`: Sets the address the server will listen on (default: localhost).
 
-- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json
+- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json (default: false)
     > Note: please keep your credentials secure.
 
 ### HTTP
@@ -229,7 +229,7 @@ All options are optional:
 
 - `--address`: Sets the address the server will listen on (default: localhost).
 
-- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json
+- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json (default: false)
     > Note: please keep your credentials secure.
 
 
