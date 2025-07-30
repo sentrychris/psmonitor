@@ -51,7 +51,7 @@ class PSMonitorDatabaseManager:
     Manages a Tornado HTTP server running in a background thread.
     """
 
-    def __init__(self, logger: 'PSMonitorLogger' = None):
+    def __init__(self, logger: 'PSMonitorLogger'):
         """
         Initialize the PSMonitorDatabaseManager.
 
@@ -119,8 +119,7 @@ class PSMonitorDatabaseManager:
         """
 
         if os.path.exists(DB_PATH):
-            if self._logger:
-                self._logger.debug("SQLite database already exists, skipping initialization.")
+            self._logger.debug("SQLite database already exists, skipping initialization.")
             return
         
         self.connect()
@@ -149,8 +148,7 @@ class PSMonitorDatabaseManager:
 
         self.commit()
         self.close()
-        if self._logger:
-            self._logger.debug("SQLite database has been initialized")
+        self._logger.debug("SQLite database has been initialized")
 
 
     def get_user(self, username: str) -> tuple[str, str] | None:
