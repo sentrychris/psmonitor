@@ -13,6 +13,7 @@ License: MIT
 # Standard library imports
 import json
 import os
+import threading
 import tkinter as tk
 from tkinter import ttk
 from typing import TYPE_CHECKING
@@ -44,6 +45,8 @@ class PSMonitorAppSettingsHandler:
         self._log_status_label = None
         self._settings_status_label = None
         self._server_status_label = None
+        self._status_animation_index = 0
+        self._status_animation_job = None
         self._tooltip = None
 
         self._manager = manager
@@ -287,12 +290,36 @@ class PSMonitorAppSettingsHandler:
         address = self.address.get()
         port = self.port_number.get()
 
-        self._manager.client.close_websocket_connection()
-        self._manager.client.set_address_and_port(address, port)
-        self._manager.server.restart(port)
-        self._manager.client.safe_connect()
+        label = self._server_status_label
+        self._animate_status_label(label, "Restarting server")
 
-        self._show_server_actions_status("✔ Saved! Server restarted", "green", 2000)
+        def restart():
+            try:
+                self._manager.client.close_websocket_connection()
+                self._manager.client.set_address_and_port(address, port)
+                self._manager.server.restart(port)
+                self._manager.client.safe_connect()
+                self._window.after(
+                    ms=0,
+                    func=lambda: self._stop_status_animation(
+                        label=label,
+                        final_text="✔ Settings saved and server restarted",
+                        color="green",
+                        duration=3000
+                    )
+                )
+            except Exception:
+                self._window.after(
+                    ms=0,
+                    func=lambda: self._stop_status_animation(
+                        label=label,
+                        final_text="✖ Failed to restart server",
+                        color="red",
+                        duration=3000
+                    )
+                )
+
+        threading.Thread(target=restart, daemon=True).start()
 
 
     def _on_display_credentials_window(self) -> None:
@@ -444,6 +471,45 @@ class PSMonitorAppSettingsHandler:
 
         if hasattr(self, '_tooltip'):
             self._tooltip.withdraw()
+
+    def _animate_status_label(self, label, base_text="", color="gray", interval=300):
+        """
+        Animate the status label.
+        """
+
+        sequence = [".", "..", "...", ""]  # loop with blank to reset
+        label.config(text=f"{base_text} {sequence[self._status_animation_index]}", foreground=color)
+
+        self._status_animation_index = (self._status_animation_index + 1) % len(sequence)
+
+        # Schedule next frame
+        if self._status_animation_job is not None:
+            self._window.after_cancel(self._status_animation_job)
+
+        self._status_animation_job = self._window.after(
+            interval,
+            self._animate_status_label,
+            label,
+            base_text,
+            color,
+            interval
+        )
+
+
+    def _stop_status_animation(self, label, final_text="", color="green", duration=2000):
+        """
+        Stop the status label animation.
+        """
+
+        if self._status_animation_job is not None:
+            self._window.after_cancel(self._status_animation_job)
+            self._status_animation_job = None
+
+        self._status_animation_index = 0
+        label.config(text=final_text, foreground=color)
+
+        if duration:
+            self._window.after(duration, lambda: label.config(text=""))
 
 
     def _load_settings_from_file(self) -> None:
