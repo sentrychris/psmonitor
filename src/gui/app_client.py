@@ -23,7 +23,7 @@ import requests
 import websocket
 
 # Local application imports
-from core.auth_manager import get_credentials
+from core.auth import get_credentials
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:

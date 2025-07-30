@@ -18,7 +18,7 @@ from core.worker import Worker
 from core.server.base_handler import BaseHandler, workers, recycle
 from core.server.http.get_system_data import get_system_data
 from core.server.http.get_network_data import get_network_data
-from core.auth_manager import query_user, verify_password, generate_token
+from core.auth import query_user, verify_password, generate_token
 from core.decorators import jwt_required
 
 

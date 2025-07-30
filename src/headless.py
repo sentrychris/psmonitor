@@ -20,7 +20,7 @@ from tornado.ioloop import IOLoop
 # Local application imports
 from core import create_server, signal_handler
 from core.config import DEFAULT_PORT
-from core.database_manager import init_db
+from core.database import init_db
 from core.logging_manager import PSMonitorLogger
 
 

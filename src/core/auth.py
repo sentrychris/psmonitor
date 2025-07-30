@@ -19,7 +19,7 @@ import keyring
 import jwt
 
 # Local application imports
-import core.database_manager as db
+import core.database as db
 import core.config as cfg
 
 
