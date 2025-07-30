@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     username, password = get_credentials()
 
-    logger.info(
+    print(
         f"Access credentials:\n"
         f"Username: {username}\n"
         f"Password: {password}\n"

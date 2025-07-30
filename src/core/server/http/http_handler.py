@@ -68,9 +68,10 @@ class HttpWorkerHandler(BaseHandler):
         else:
             # Add the worker to the worker registry
             worker_id = worker.id
+            subscriber = worker.subscriber
             workers[worker_id] = worker
             # Construct URL for the paired websocket connection
-            connect_url = f"ws://{self.request.host}/connect?id={worker_id}"
+            connect_url = f"ws://{self.request.host}/connect?id={worker_id}&subscriber={subscriber}"
             message = "Websocket connection ready (Worker expires in 5 seconds if unclaimed)."
 
         self.write({
