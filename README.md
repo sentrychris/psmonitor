@@ -58,7 +58,7 @@ The server manages:
 
 It manages this using multiple threads through an executor. This allows PSMonitor to retrieve data asynchronously and mitigate blocking operations.
 
-While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.6.0.1001/psmonitor-headless.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on their local network or through port forwarding.
+While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v2.0.0.1011/psmonitor-headless.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on their local network or through port forwarding.
 
 ### Running the Headless Server
 
@@ -140,7 +140,7 @@ A single websocket endpoint is available:
 
 ### Running the headless server as a managed process
 
-If you would like to run the [headless server](https://github.com/sentrychris/psmonitor/releases/download/v1.6.0.1001/psmonitor-headless.exe) as a managed process, you can use the systemd [service file](./build_resources/headless/linux/psmonitor.service) provided.
+If you would like to run the [headless server](https://github.com/sentrychris/psmonitor/releases/download/v2.0.0.1011/psmonitor-headless.exe) as a managed process, you can use the systemd [service file](./build_resources/headless/linux/psmonitor.service) provided.
 
 1. Copy the service file and make any necessary changes:
     ```sh

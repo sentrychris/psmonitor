@@ -5,7 +5,7 @@ PSMonitor - System and network monitoring utility
 File: app_manager.py
 Author: Chris Rowles <christopher.rowles@outlook.com>
 Copyright: © 2025 Chris Rowles. All rights reserved.
-Version: 1.6.0.1001
+Version: 2.0.0.1011
 License: MIT
 --------------------------------------------------------------------------
 """
@@ -498,7 +498,7 @@ class PSMonitorApp(tk.Tk):
 
         label_version = ttk.Label(
             about_window,
-            text="v1.6.0.1001",
+            text="v2.0.0.1011",
             font=("Arial", 9, "bold")
         )
         label_version.pack(pady=1)

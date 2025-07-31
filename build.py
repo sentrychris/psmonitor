@@ -132,8 +132,6 @@ def main(
     """
     root = os.path.dirname(__file__)
     out_dir = os.path.join(root, "output")
-    dist_dir = os.path.join(out_dir, "dist")
-    build_dir = os.path.join(out_dir, "build")
 
     # Handle insert docstrings only (no build)
     if insert_docstrings_only:
@@ -163,10 +161,14 @@ def main(
     if not os.path.exists(build_spec):
         raise FileNotFoundError(f".spec file not found: {build_spec}")
 
+    dist_dir = os.path.join(out_dir, "dist", build_type)
+    build_dir = os.path.join(out_dir, "build", build_type)
+
     # Handle clean previous builds before new build
     if clean_build:
         print("Cleaning previous build directories...")
-        clean_dir(out_dir)
+        clean_dir(dist_dir)
+        clean_dir(build_dir)
 
     # Handle fetching UPX
     if os.name == "nt":
@@ -175,14 +177,10 @@ def main(
     else:
         upx_pkg = f"upx-{upx_ver}-amd64_linux"
         upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.tar.xz"
+
     upx_dir = get_upx(build_resources, upx_pkg, upx_url, os.name == "nt")
 
-    build_exe(
-        spec_file=build_spec,
-        upx_dir=upx_dir,
-        dist_dir=os.path.join(dist_dir, build_type),
-        build_dir=os.path.join(build_dir, build_type)
-    )
+    build_exe(build_spec, upx_dir, dist_dir, build_dir)
 
     if clean_upx:
         clean_dir(upx_dir)
