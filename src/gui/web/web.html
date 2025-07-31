@@ -175,30 +175,30 @@
                 }
             }
 
-            const system = {
-                cpu: {
-                    temp: document.querySelector("#cpu-temp"),
-                    usage: document.querySelector("#cpu-usage"),
-                    freq: document.querySelector("#cpu-freq"),
-                },
-                mem: {
-                    used: document.querySelector("#mem-used"),
-                    free: document.querySelector("#mem-free"),
-                    total: document.querySelector("#mem-total"),
-                    percent: document.querySelector("#mem-percent"),
-                },
-                disk: {
-                    used: document.querySelector("#disk-used"),
-                    free: document.querySelector("#disk-free"),
-                    total: document.querySelector("#disk-total"),
-                    percent: document.querySelector("#disk-percent"),
-                },
-                set: (key, metric, value) => {
-                    if (system[key] && Object.prototype.hasOwnProperty.call(system[key], metric)) {
-                        system[key][metric].innerText = value
-                    }
-                }
-            }
+const system = {
+    cpu: {
+        temp: document.querySelector("#cpu-temp"),
+        usage: document.querySelector("#cpu-usage"),
+        freq: document.querySelector("#cpu-freq"),
+    },
+    mem: {
+        used: document.querySelector("#mem-used"),
+        free: document.querySelector("#mem-free"),
+        total: document.querySelector("#mem-total"),
+        percent: document.querySelector("#mem-percent"),
+    },
+    disk: {
+        used: document.querySelector("#disk-used"),
+        free: document.querySelector("#disk-free"),
+        total: document.querySelector("#disk-total"),
+        percent: document.querySelector("#disk-percent"),
+    },
+    set: (key, metric, value) => {
+        if (system[key] && Object.prototype.hasOwnProperty.call(system[key], metric)) {
+            system[key][metric].innerText = value
+        }
+    }
+}
 
             const wifi = {
                 "name": document.querySelector("#wifi-name"),
@@ -254,19 +254,15 @@
                 fetch(`${window.location.origin}/system`, {
                     headers: { Authorization: `Bearer ${auth.token}` }
                 })
-                .then((response) => response.json())
-                .then((data) => {
-                    for (const key in data.cpu) {
-                        system.set("cpu", key, data.cpu[key])
+                .then(response => response.json())
+                .then(data => {
+                    for (const device in data) {
+                        for (const key in data[device]) {
+                            system.set(device, key, data[device][key]);
+                        }
                     }
-                    for (const key in data.mem) {
-                        system.set("mem", key, data.mem[key])
-                    }
-                    for (const key in data.disk) {
-                        system.set("disk", key, data.disk[key])
-                    }
-                    log.write("event", `Fetched system information from HTTP system/ endpoint`)
-                    log.write("output", JSON.stringify(data) + "\n\n")
+                    log.write("event", `Fetched system information from HTTP system/ endpoint`);
+                    log.write("output", JSON.stringify(data) + "\n\n");
                 })
                 .catch((error) => {
                     console.log(error)
