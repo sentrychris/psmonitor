@@ -215,6 +215,8 @@
             }
 
             document.querySelector("#endpoint-network").addEventListener("click", () => {
+                log.write("event", "Requesting /network endpoint...")
+
                 const auth = JSON.parse(localStorage.getItem('userAuth'));
                 fetch(`${window.location.origin}/network`, {
                     headers: { Authorization: `Bearer ${auth.token}` }
@@ -246,6 +248,8 @@
             })
 
             document.querySelector("#endpoint-system").addEventListener("click", () => {
+                log.write("event", "Requesting /system endpoint...")
+
                 const auth = JSON.parse(localStorage.getItem('userAuth'));
                 fetch(`${window.location.origin}/system`, {
                     headers: { Authorization: `Bearer ${auth.token}` }
@@ -279,8 +283,16 @@
                     method: "POST",
                     headers: { Authorization: `Bearer ${auth.token}` }
                 })
-                const worker = await client.json()
 
+                if (!client.ok) {
+                    if (client.status === 401)  {
+                        log.write("event", "ERROR! Failed to authorize user.")
+                    } else {
+                        log.write("event", "ERROR! Unable to create a worker.")
+                    }
+                }
+
+                const worker = await client.json()
                 log.write("event", `Created worker (${worker.id})`)
 
                 const url = `${window.location.protocol === "https:"
