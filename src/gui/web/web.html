@@ -175,30 +175,30 @@
                 }
             }
 
-const system = {
-    cpu: {
-        temp: document.querySelector("#cpu-temp"),
-        usage: document.querySelector("#cpu-usage"),
-        freq: document.querySelector("#cpu-freq"),
-    },
-    mem: {
-        used: document.querySelector("#mem-used"),
-        free: document.querySelector("#mem-free"),
-        total: document.querySelector("#mem-total"),
-        percent: document.querySelector("#mem-percent"),
-    },
-    disk: {
-        used: document.querySelector("#disk-used"),
-        free: document.querySelector("#disk-free"),
-        total: document.querySelector("#disk-total"),
-        percent: document.querySelector("#disk-percent"),
-    },
-    set: (key, metric, value) => {
-        if (system[key] && Object.prototype.hasOwnProperty.call(system[key], metric)) {
-            system[key][metric].innerText = value
-        }
-    }
-}
+            const system = {
+                cpu: {
+                    temp: document.querySelector("#cpu-temp"),
+                    usage: document.querySelector("#cpu-usage"),
+                    freq: document.querySelector("#cpu-freq"),
+                },
+                mem: {
+                    used: document.querySelector("#mem-used"),
+                    free: document.querySelector("#mem-free"),
+                    total: document.querySelector("#mem-total"),
+                    percent: document.querySelector("#mem-percent"),
+                },
+                disk: {
+                    used: document.querySelector("#disk-used"),
+                    free: document.querySelector("#disk-free"),
+                    total: document.querySelector("#disk-total"),
+                    percent: document.querySelector("#disk-percent"),
+                },
+                set: (key, metric, value) => {
+                    if (system[key] && Object.prototype.hasOwnProperty.call(system[key], metric)) {
+                        system[key][metric].innerText = value
+                    }
+                }
+            }
 
             const wifi = {
                 "name": document.querySelector("#wifi-name"),
@@ -214,7 +214,24 @@ const system = {
                 }
             }
 
-            document.querySelector("#endpoint-network").addEventListener("click", () => {
+            const button = {
+                httpNetwork: document.querySelector("#endpoint-network"),
+                httpSystem: document.querySelector("#endpoint-system"),
+                websocketOpen: document.querySelector("#endpoint-open"),
+                websocketClose: document.querySelector("#endpoint-close"),
+                logClear: document.querySelector("#output-clear"),
+                authorizeUser: document.querySelector("#auth-login")
+            }
+
+            const updateAuthStatus = (msg, success = false) => {
+                const statusEl = document.querySelector("#auth-status");
+                statusEl.innerText = msg;
+                statusEl.className = success ? "text-success small" : "text-danger small";
+            };
+
+            let connection = null
+
+            button.httpNetwork.addEventListener("click", () => {
                 log.write("event", "Requesting /network endpoint...")
 
                 const auth = JSON.parse(localStorage.getItem('userAuth'));
@@ -247,7 +264,7 @@ const system = {
                 })
             })
 
-            document.querySelector("#endpoint-system").addEventListener("click", () => {
+            button.httpSystem.addEventListener("click", () => {
                 log.write("event", "Requesting /system endpoint...")
 
                 const auth = JSON.parse(localStorage.getItem('userAuth'));
@@ -270,25 +287,24 @@ const system = {
                 })
             })
             
-            let connection = null
-            document.querySelector("#endpoint-open").addEventListener("click", async () => {
+            button.websocketOpen.addEventListener("click", async () => {
                 log.write("event", "Connecting to websocket")
 
                 const auth = JSON.parse(localStorage.getItem('userAuth'))
-                const client = await fetch(`${window.location.origin}/worker`, {
+                const response = await fetch(`${window.location.origin}/worker`, {
                     method: "POST",
                     headers: { Authorization: `Bearer ${auth.token}` }
                 })
 
-                if (!client.ok) {
-                    if (client.status === 401)  {
+                if (!response.ok) {
+                    if (response.status === 401)  {
                         log.write("event", "ERROR! Failed to authorize user.")
                     } else {
                         log.write("event", "ERROR! Unable to create a worker.")
                     }
                 }
 
-                const worker = await client.json()
+                const worker = await response.json()
                 log.write("event", `Created worker (${worker.id})`)
 
                 const url = `${window.location.protocol === "https:"
@@ -325,23 +341,14 @@ const system = {
                 }
             })
             
-            document.querySelector("#endpoint-close").addEventListener("click", () => {
+            button.websocketClose.addEventListener("click", () => {
                 if (connection) {
                     log.write("event", "Closing websocket connection")
-                    window.conn = connection
                     connection.close()
                 }
             })
 
-            document.querySelector("#output-clear").addEventListener("click", log.clear);
-
-            const updateAuthStatus = (msg, success = false) => {
-                const statusEl = document.querySelector("#auth-status");
-                statusEl.innerText = msg;
-                statusEl.className = success ? "text-success small" : "text-danger small";
-            };
-
-            document.querySelector("#auth-login").addEventListener("click", () => {
+            button.authorizeUser.addEventListener("click", async () => {
                 const username = document.querySelector("#auth-username").value.trim();
                 const password = document.querySelector("#auth-password").value.trim();
                 if (!username || !password) {
@@ -349,26 +356,27 @@ const system = {
                     return;
                 }
 
-                fetch(`${window.location.origin}/authenticate`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password })
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error("Login failed");
-                    return res.json();
-                })
-                .then(data => {
-                    localStorage.setItem('userAuth', JSON.stringify(data));
+                try {
+                    const response = await fetch(`${window.location.origin}/authenticate`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    if (!response.ok) throw new Error("Login failed");
+
+                    const auth = await response.json();
+                    localStorage.setItem('userAuth', JSON.stringify(auth));
                     updateAuthStatus("Authenticated", true);
                     log.write("event", "Access token obtained and stored");
-                })
-                .catch(err => {
+                } catch (err) {
                     localStorage.removeItem('userAuth');
                     updateAuthStatus("Login failed");
                     log.write("event", "ERROR: Failed to authenticate");
-                });
+                }
             });
+
+            button.logClear.addEventListener("click", log.clear);
         })
     </script>
 </body>
