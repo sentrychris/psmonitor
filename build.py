@@ -1,9 +1,8 @@
 """
 Build script for PSMonitor application.
 
-This script automates the process of downloading UPX (if needed),
-cleaning previous build artifacts, and building the PSMonitor
-executable for the specified build type (GUI or headless).
+This script automates the process of downloading UPX (if needed), cleaning previous build 
+artifacts, and building the PSMonitor executable for the specified build type (GUI or headless).
 
 Usage:
     To build executables:
