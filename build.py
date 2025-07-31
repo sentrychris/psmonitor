@@ -6,7 +6,17 @@ cleaning previous build artifacts, and building the PSMonitor
 executable for the specified build type (GUI or headless).
 
 Usage:
-    python build.py [gui|headless] [--clean] [--upx VERSION]
+    To build executables:
+    python build.py [--build TYPE] [--clean] [--upx VERSION] [--upx-clean]
+
+    To clean previous builds without building new executables
+    python build.py --clean
+
+    To insert docstring headers into source files
+    python build.py --insert-docstrings
+
+    # To generate the third party licenses file
+    python build.py --third-party-licenses
 
 Arguments:
     --build TYPE            Specify the build type: "gui" or "headless"
