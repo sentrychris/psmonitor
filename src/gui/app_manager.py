@@ -43,12 +43,11 @@ class PSMonitorApp(tk.Tk):
     GUI application for system monitoring.
     """
 
-    def __init__(
-            self,
-            data: dict,
-            server: 'PSMonitorServerManager' = None,
-            logger: 'PSMonitorLogger' = None,
-        ) -> None:
+    def __init__(self,
+        data: dict,
+        server: 'PSMonitorServerManager',
+        logger: 'PSMonitorLogger',
+    ) -> None:
         """
         Initializes the app with initial data.
         """
