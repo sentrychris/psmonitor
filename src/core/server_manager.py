@@ -33,7 +33,7 @@ class PSMonitorServerManager:
     Manages a Tornado HTTP server running in a background thread.
     """
 
-    def __init__(self, db: "PSMonitorDatabaseManager", logger: "PSMonitorLogger" = None):
+    def __init__(self, db: "PSMonitorDatabaseManager", logger: "PSMonitorLogger"):
         """
         Initializes the server manager with default state.
         """
