@@ -11,8 +11,11 @@ License: MIT
 """
 
 # Third-party imports
-from tornado.web import RequestHandler
+import jwt
+from tornado.web import RequestHandler, HTTPError
 
+# Local application imports
+from core.config import JWT_ALGORITHM, JWT_SECRET
 
 # Dictionary to store active workers
 workers = {}
@@ -40,6 +43,26 @@ class BaseHandler(RequestHandler):
     """
     BaseHandler class for handling HTTP requests. CORS headers are set by default.
     """
+
+    def authenticate_token(self):
+        """
+        Parses and validates the Authorization header, returning user info.
+        Raises HTTPError if invalid or missing.
+        """
+
+        auth_header = self.request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            raise HTTPError(401, "Missing or invalid Authorization header")
+
+        token = auth_header.removeprefix("Bearer ").strip()
+
+        try:
+            payload = jwt.decode(token.encode("utf-8"), JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            return payload
+        except jwt.ExpiredSignatureError as e:
+            raise HTTPError(401, "Access token expired") from e
+        except jwt.InvalidTokenError as e:
+            raise HTTPError(401, "Invalid access token") from e
 
 
     def set_default_headers(self):

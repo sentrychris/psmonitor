@@ -56,7 +56,7 @@ def prepend_header_to_file(filepath: str) -> None:
 
     if HEADER_PATTERN.match(contents):
         # Replace the old header with the current header
-        new_contents = header + "\n" + HEADER_PATTERN.sub('', contents, count=1).lstrip()
+        new_contents = header + "\n" + HEADER_PATTERN.sub("", contents, count=1).lstrip()
         action = "[✓] Docstring header replaced in"
     else:
         # Prepend the header

@@ -58,26 +58,26 @@ def get_statistics() -> dict:
 
     Returns:
         dict: A dictionary where each key is a network interface name, and the value is
-              another dictionary containing the following network statistics:
-                - 'mb_sent': Amount of data sent in megabytes.
-                - 'mb_received': Amount of data received in megabytes.
-                - 'pk_sent': Number of packets sent.
-                - 'pk_received': Number of packets received.
-                - 'error_in': Number of input errors.
-                - 'error_out': Number of output errors.
-                - 'dropout': Number of packets dropped.
+            another dictionary containing the following network statistics:
+                - "mb_sent": Amount of data sent in megabytes.
+                - "mb_received": Amount of data received in megabytes.
+                - "pk_sent": Number of packets sent.
+                - "pk_received": Number of packets received.
+                - "error_in": Number of input errors.
+                - "error_out": Number of output errors.
+                - "dropout": Number of packets dropped.
     """
 
     interfaces = {}
     for addr, stat in psutil.net_io_counters(pernic=True).items():
         interfaces[addr] = {
-            'mb_sent': stat.bytes_sent / (1024.0 * 1024.0),
-            'mb_received': stat.bytes_recv / (1024.0 * 1024.0),
-            'pk_sent': stat.packets_sent,
-            'pk_received': stat.packets_recv,
-            'error_in': stat.errin,
-            'error_out': stat.errout,
-            'dropout': stat.dropout,
+            "mb_sent": stat.bytes_sent / (1024.0 * 1024.0),
+            "mb_received": stat.bytes_recv / (1024.0 * 1024.0),
+            "pk_sent": stat.packets_sent,
+            "pk_received": stat.packets_recv,
+            "error_in": stat.errin,
+            "error_out": stat.errout,
+            "dropout": stat.dropout,
         }
 
     return interfaces

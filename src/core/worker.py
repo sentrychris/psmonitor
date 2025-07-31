@@ -10,6 +10,9 @@ License: MIT
 --------------------------------------------------------------------------
 """
 
+# Standard library imports
+import secrets
+
 # Third-party imports
 from tornado.ioloop import IOLoop
 
@@ -25,14 +28,15 @@ class Worker():
     manages its I/O loop operations.
 
     Attributes:
-        loop (IOLoop): The current IOLoop instance.
         id (str): A unique identifier for the worker instance.
+        subscriber (str): The UUID representing the subscriber for this worker instance.
         handler (WebSocketHandler): The WebSocket handler associated with this worker.
+        loop (IOLoop): The current IOLoop instance.
         mode (int): The I/O loop mode, default is IOLoop.READ.
     """
 
 
-    def __init__(self):
+    def __init__(self, subscriber: str):
         """
         Initializes the Worker instance.
 
@@ -40,9 +44,10 @@ class Worker():
         the handler and mode attributes.
         """
 
-        self.loop = IOLoop.current()
-        self.id = str(id(self))
+        self.id = str(secrets.token_urlsafe(32))
+        self.subscriber = subscriber
         self.handler = None
+        self.loop = IOLoop.current()
         self.mode = IOLoop.READ
 
 

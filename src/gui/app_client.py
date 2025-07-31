@@ -22,6 +22,9 @@ from typing import TYPE_CHECKING
 import requests
 import websocket
 
+# Local application imports
+from core.auth import get_credentials
+
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
     from gui.app_manager import PSMonitorApp
@@ -32,7 +35,7 @@ class PSMonitorAppClient():
     App client for connection to the tornado server.
     """
 
-    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+    def __init__(self, manager: "PSMonitorApp") -> None:
         """
         Initializes the app client.
         """
@@ -45,11 +48,13 @@ class PSMonitorAppClient():
         self.address = self._manager.server.address
 
         self.http_url = f"http://{self.address}:{self.port}"
-        self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
+        self.ws_url = f"ws://{self.address}:{self.port}/connect"
 
         self._ws = None
         self._ws_client_thread = None
 
+        self._auth_token = None
+        self._user_id = None
         self._worker_id = None
 
 
@@ -66,6 +71,13 @@ class PSMonitorAppClient():
         attempt = 0
         while attempt < max_attempts:
             if self.check_server_reachable():
+
+                try:
+                    self._authenticate()
+                except Exception as e:
+                    self._manager.logger.error("Failed to authenticate user")
+                    raise PermissionError("Failed to authenticate user.") from e
+
                 self._setup_connection()
                 return
 
@@ -92,7 +104,26 @@ class PSMonitorAppClient():
         self.port = port
 
         self.http_url = f"http://{self.address}:{self.port}"
-        self.ws_url = f"ws://{self.address}:{self.port}/connect?id="
+        self.ws_url = f"ws://{self.address}:{self.port}/connect"
+
+
+    def _authenticate(self) -> None:
+        """
+        Authenticate against the embedded server.
+        """
+
+        username, password = get_credentials()
+
+        response = requests.post(
+            f"{self.http_url}/authenticate",
+            json={"username": username, "password": password},
+            timeout=5
+        )
+
+        data = response.json()
+        self._auth_token = data.get("token")
+        self._user_id = data.get("user_id")
+        self._manager.logger.info("User has successfully authenticated")
 
 
     def _setup_connection(self) -> None:
@@ -101,7 +132,11 @@ class PSMonitorAppClient():
         """
 
         try:
-            response = requests.get(f'{self.http_url}/system', timeout=5)
+            response = requests.get(
+                url=f"{self.http_url}/system",
+                headers={"Authorization": f"Bearer {self._auth_token}"},
+                timeout=5
+            )
             self._manager.data.update(response.json())
             self._manager.update_gui_sections()
             self._start_websocket_connection()
@@ -115,9 +150,14 @@ class PSMonitorAppClient():
         """
 
         try:
-            response = requests.post(self.http_url, json={'connection': 'monitor'}, timeout=5)
+            response = requests.post(
+                url=f"{self.http_url}/worker",
+                headers={"Authorization": f"Bearer {self._auth_token}"},
+                timeout=5
+            )
             worker = response.json()
-            self._worker_id = worker['id']
+            self._worker_id = worker["id"]
+            self._manager.logger.debug(f"Worker obtained: {self._worker_id}")
             self._connect_websocket(self._worker_id)
         except requests.RequestException as e:
             self._manager.logger.error(f"Error obtaining worker for websocket connection: {e}")
@@ -134,7 +174,7 @@ class PSMonitorAppClient():
         websocket.enableTrace(False)
 
         self._ws = websocket.WebSocketApp(
-            f"{self.ws_url}{worker_id}",
+            f"{self.ws_url}?id={worker_id}&subscriber={self._user_id}",
             on_message=self.on_message,
             on_error=self.on_error,
             on_close=self.on_close,
@@ -149,7 +189,7 @@ class PSMonitorAppClient():
             )
             self._ws.run_forever()
 
-        # Run the websocket client in the another thread so it doesn't block the GUI's mainloop().
+        # Run the websocket client in the another thread so it doesn"t block the GUI"s mainloop().
         self._ws_client_thread = threading.Thread(
             target=run_ws_forever,
             name="PSMonitorWSClientThread",
@@ -248,4 +288,5 @@ class PSMonitorAppClient():
             ws (websocket.WebSocketApp): The websocket instance.
         """
 
-        self._manager.logger.info(f"Websocket connection is open ({ws.url})")
+        self._manager.logger.info("Websocket connection is open")
+        self._manager.logger.debug(f"Websocket URL: {ws.url}")

@@ -7,8 +7,18 @@
     <title>PSMonitor Web Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
+        body {
+            background: #e7eff3;
+            padding-top: 25px;
+            padding-bottom: 25px;
+        }
         p {
             margin-bottom: 0
+        }
+        .app-container {
+            background: white;
+            border: 2px solid #a4aac1;
+            border-radius: 8px;
         }
         .small {
             font-size: .75rem
@@ -19,13 +29,16 @@
         #event-log, #output-log {
             height: 500px;
             overflow-y: scroll;
-            border: 1px solid #aaaaaa;
-            background: #eeeeee;
+            border: 1px solid #a4aac1;
+            border-radius: 4px;
+            background: #f5f5f5;
+            padding: 5px;
         }
         #output-log p {
             word-wrap: break-word;
             color: #aaaaaa;
         }
+        #event-log p:last-child,
         #output-log p:last-child {
             color: #5f5feb;
             font-weight: 700;
@@ -33,7 +46,7 @@
     </style>
 </head>
 <body>
-    <div class="container py-4 px-5">
+    <div class="container app-container shadow-lg py-4 px-5">
         <div class="row">
             <div class="col d-flex align-items-center gap-3">
                 <h3>PSMonitor - <span class="text-muted">Web Dashboard</span></h3>
@@ -92,6 +105,23 @@
 
         <hr />
 
+        <p class="lead">Authentication</p>
+        <div class="d-flex justify-content-start align-items-center gap-3 mb-2">
+            <div class="input-group input-group-sm" style="width: 500px;max-width: 500px;">
+                <input type="text" id="auth-username" class="form-control" placeholder="Username">
+                <input type="password" id="auth-password" class="form-control" placeholder="Password">
+                <button class="btn btn-outline-success" id="auth-login">Authorize</button>
+            </div>
+            <p class="text-muted small" id="auth-status" style="white-space: nowrap;">Not authorized</p>
+        </div>
+        <div class="text-muted small" id="auth-status">
+            <p class="mb-2">How to find your credentials:</p>
+            <ul>
+                <li><strong>App</strong>: Go to File > Settings > View Credentials</li>
+                <li><strong>Headless</strong>: Credentials file is located at <code>~/.psmonitor/credentials.json</code></li>
+            </ul>
+        </div>
+
         <div class="d-flex align-items-center justify-content-start gap-5">
             <div class="me-5">
                 <p class="lead">Websocket Connection</p>
@@ -127,13 +157,13 @@
         <div class="row mt-3">
             <div class="col-4">
                 <p class="lead mb-2">Events:</p>
-                <div id="event-log" class="font-monospace small">
+                <div id="event-log" class="font-monospace small shadow">
                     
                 </div>
             </div>
             <div class="col-8">
                 <p class="lead mb-2">Messages:</p>
-                <div id="output-log" class="flex-fill font-monospace small">
+                <div id="output-log" class="flex-fill font-monospace small shadow">
                 </div>
             </div>
         </div>
@@ -146,40 +176,40 @@
                 ("0" + time.getSeconds()).slice(-2)
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener("DOMContentLoaded", () => {
 
             const log = {
-                event: document.querySelector('#event-log'),
-                output: document.querySelector('#output-log'),
+                event: document.querySelector("#event-log"),
+                output: document.querySelector("#output-log"),
                 write: (type, message) => {
-                    const node = document.createElement('p')
+                    const node = document.createElement("p")
                     node.innerText = `[${time()}] ${message}`
                     log[type].append(node)
                     log[type].scrollTop = log[type].scrollHeight
                 },
                 clear: () => {
-                    log.output.innerHTML = ''
-                    log.write('event', 'Output messages cleared')
+                    log.output.innerHTML = ""
+                    log.write("event", "Output messages cleared")
                 }
             }
 
             const system = {
                 cpu: {
-                    temp: document.querySelector('#cpu-temp'),
-                    usage: document.querySelector('#cpu-usage'),
-                    freq: document.querySelector('#cpu-freq'),
+                    temp: document.querySelector("#cpu-temp"),
+                    usage: document.querySelector("#cpu-usage"),
+                    freq: document.querySelector("#cpu-freq"),
                 },
                 mem: {
-                    used: document.querySelector('#mem-used'),
-                    free: document.querySelector('#mem-free'),
-                    total: document.querySelector('#mem-total'),
-                    percent: document.querySelector('#mem-percent'),
+                    used: document.querySelector("#mem-used"),
+                    free: document.querySelector("#mem-free"),
+                    total: document.querySelector("#mem-total"),
+                    percent: document.querySelector("#mem-percent"),
                 },
                 disk: {
-                    used: document.querySelector('#disk-used'),
-                    free: document.querySelector('#disk-free'),
-                    total: document.querySelector('#disk-total'),
-                    percent: document.querySelector('#disk-percent'),
+                    used: document.querySelector("#disk-used"),
+                    free: document.querySelector("#disk-free"),
+                    total: document.querySelector("#disk-total"),
+                    percent: document.querySelector("#disk-percent"),
                 },
                 set: (key, metric, value) => {
                     if (system[key] && Object.prototype.hasOwnProperty.call(system[key], metric)) {
@@ -189,12 +219,12 @@
             }
 
             const wifi = {
-                "name": document.querySelector('#wifi-name'),
-                "quality": document.querySelector('#wifi-quality'),
-                "channel": document.querySelector('#wifi-channel'),
-                "encryption": document.querySelector('#wifi-encryption'),
-                "address": document.querySelector('#wifi-address'),
-                "signal": document.querySelector('#wifi-signal'),
+                "name": document.querySelector("#wifi-name"),
+                "quality": document.querySelector("#wifi-quality"),
+                "channel": document.querySelector("#wifi-channel"),
+                "encryption": document.querySelector("#wifi-encryption"),
+                "address": document.querySelector("#wifi-address"),
+                "signal": document.querySelector("#wifi-signal"),
                 set: (key, value) => {
                     if (wifi[key]) {
                         wifi[key].innerText = value
@@ -202,110 +232,169 @@
                 }
             }
 
-            document.querySelector('#endpoint-network').addEventListener('click', () => {
-                fetch(`${window.location.origin}/network`)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        for (const key in wifi) {
-                            wifi.set(key, data.wireless[key])
-                        }
+            const button = {
+                httpNetwork: document.querySelector("#endpoint-network"),
+                httpSystem: document.querySelector("#endpoint-system"),
+                websocketOpen: document.querySelector("#endpoint-open"),
+                websocketClose: document.querySelector("#endpoint-close"),
+                logClear: document.querySelector("#output-clear"),
+                authorizeUser: document.querySelector("#auth-login")
+            }
 
-                        const { interfaces } = data;
-                        const nicContainer = document.querySelector('#net-interfaces');
-                        
-                        if (nicContainer) {
-                            nicContainer.innerHTML = ''
-                            for (const nic of interfaces) {
-                                const node = document.createElement('p')
-                                node.innerHTML = nic
-                                nicContainer.appendChild(node)
-                            }
-                        }
+            const updateAuthStatus = (msg, success = false) => {
+                const statusEl = document.querySelector("#auth-status");
+                statusEl.innerText = msg;
+                statusEl.className = success ? "text-success small" : "text-danger small";
+            };
 
-                        log.write('event', `Fetched network information from HTTP network/ endpoint`)
-                        log.write('output', JSON.stringify(data) + '\n\n')
-                    })
-                    .catch(() => {
-                        log.write('event', 'ERROR! Unable to fetch network information from the HTTP network/ endpoint')
-                    })
+            let connection = null
+
+            button.httpNetwork.addEventListener("click", () => {
+                log.write("event", "Requesting /network endpoint...")
+
+                const auth = JSON.parse(localStorage.getItem('userAuth'));
+                fetch(`${window.location.origin}/network`, {
+                    headers: { Authorization: `Bearer ${auth.token}` }
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    for (const key in wifi) {
+                        wifi.set(key, data.wireless[key])
+                    }
+
+                    const { interfaces } = data;
+                    const nicContainer = document.querySelector("#net-interfaces");
+                    
+                    if (nicContainer) {
+                        nicContainer.innerHTML = ""
+                        for (const nic of interfaces) {
+                            const node = document.createElement("p")
+                            node.innerHTML = nic
+                            nicContainer.appendChild(node)
+                        }
+                    }
+
+                    log.write("event", `Fetched network information from HTTP network/ endpoint`)
+                    log.write("output", JSON.stringify(data) + "\n\n")
+                })
+                .catch(() => {
+                    log.write("event", "ERROR! Unable to fetch network information from the HTTP network/ endpoint")
+                })
             })
 
-            document.querySelector('#endpoint-system').addEventListener('click', () => {
-                fetch(`${window.location.origin}/system`)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        for (const key in data.cpu) {
-                            system.set('cpu', key, data.cpu[key])
+            button.httpSystem.addEventListener("click", () => {
+                log.write("event", "Requesting /system endpoint...")
+
+                const auth = JSON.parse(localStorage.getItem('userAuth'));
+                fetch(`${window.location.origin}/system`, {
+                    headers: { Authorization: `Bearer ${auth.token}` }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    for (const device in data) {
+                        for (const key in data[device]) {
+                            system.set(device, key, data[device][key]);
                         }
-                        for (const key in data.mem) {
-                            system.set('mem', key, data.mem[key])
-                        }
-                        for (const key in data.disk) {
-                            system.set('disk', key, data.disk[key])
-                        }
-                        log.write('event', `Fetched system information from HTTP system/ endpoint`)
-                        log.write('output', JSON.stringify(data) + '\n\n')
-                    })
-                    .catch((error) => {
-                        console.log(error)
-                        log.write('event', 'ERROR! Unable to fetch system information from the HTTP system/ endpoint')
-                    })
+                    }
+                    log.write("event", `Fetched system information from HTTP system/ endpoint`);
+                    log.write("output", JSON.stringify(data) + "\n\n");
+                })
+                .catch((error) => {
+                    console.log(error)
+                    log.write("event", "ERROR! Unable to fetch system information from the HTTP system/ endpoint")
+                })
             })
             
-            let connection = null
-            document.querySelector('#endpoint-open').addEventListener('click', async () => {
-                log.write('event', 'Connecting to websocket')
-                const client = await fetch(location.pathname, {
-                    method: 'POST',
-                    body: { connection: 'monitor' }
-                })
-                const worker = await client.json()
+            button.websocketOpen.addEventListener("click", async () => {
+                log.write("event", "Connecting to websocket")
 
-                log.write('event', `Created worker (${worker.id})`)
+                const auth = JSON.parse(localStorage.getItem('userAuth'))
+                const response = await fetch(`${window.location.origin}/worker`, {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${auth.token}` }
+                })
+
+                if (!response.ok) {
+                    if (response.status === 401)  {
+                        log.write("event", "ERROR! Failed to authorize user.")
+                    } else {
+                        log.write("event", "ERROR! Unable to create a worker.")
+                    }
+                }
+
+                const worker = await response.json()
+                log.write("event", `Created worker (${worker.id})`)
 
                 const url = `${window.location.protocol === "https:"
                     ? "wss" 
                     : "ws"
-                }://${window.location.host}/connect?id=${worker.id}`
+                }://${window.location.host}/connect?id=${worker.id}&subscriber=${auth.user_id}`
 
                 connection = connection ?? new WebSocket(url)
                 
                 connection.onopen = () => {
-                    log.write('event', 'Websocket is connected')
-                    log.write('event', 'Receiving data...')
+                    log.write("event", "Websocket is connected")
+                    log.write("event", "Receiving data...")
                 }
                 
                 connection.onmessage = (response) => {
-                    log.write('output', response.data + "\n\n")
+                    log.write("output", response.data + "\n\n")
                     try {
                         const data = JSON.parse(response.data)
                         for (const key in data.cpu) {
-                            system.set('cpu', key, data.cpu[key])
+                            system.set("cpu", key, data.cpu[key])
                         }
                         for (const key in data.mem) {
-                            system.set('mem', key, data.mem[key])
+                            system.set("mem", key, data.mem[key])
                         }
                         for (const key in data.disk) {
-                            system.set('disk', key, data.disk[key])
+                            system.set("disk", key, data.disk[key])
                         }
                     } catch (error) {}
                 }
                 
                 connection.onclose = (response) => {
-                    log.write('event', 'Websocket connection closed')
+                    log.write("event", "Websocket connection closed")
                     connection = null;
                 }
             })
             
-            document.querySelector('#endpoint-close').addEventListener('click', () => {
+            button.websocketClose.addEventListener("click", () => {
                 if (connection) {
-                    log.write('event', 'Closing websocket connection')
-                    window.conn = connection
+                    log.write("event", "Closing websocket connection")
                     connection.close()
                 }
             })
 
-            document.querySelector('#output-clear').addEventListener('click', log.clear)
+            button.authorizeUser.addEventListener("click", async () => {
+                const username = document.querySelector("#auth-username").value.trim();
+                const password = document.querySelector("#auth-password").value.trim();
+                if (!username || !password) {
+                    updateAuthStatus("Missing username or password");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${window.location.origin}/authenticate`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    if (!response.ok) throw new Error("Login failed");
+
+                    const auth = await response.json();
+                    localStorage.setItem('userAuth', JSON.stringify(auth));
+                    updateAuthStatus("Authenticated", true);
+                    log.write("event", "Access token obtained and stored");
+                } catch (err) {
+                    localStorage.removeItem('userAuth');
+                    updateAuthStatus("Login failed");
+                    log.write("event", "ERROR: Failed to authenticate");
+                }
+            });
+
+            button.logClear.addEventListener("click", log.clear);
         })
     </script>
 </body>

@@ -20,11 +20,12 @@ from typing import TYPE_CHECKING
 from tornado.ioloop import IOLoop
 
 # Local application imports
+import core.config as cfg
 from core import create_server
-from core.config import DEFAULT_ADDRESS, DEFAULT_PORT, read_settings_file
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
+    from core.database_manager import PSMonitorDatabaseManager
     from core.logging_manager import PSMonitorLogger
 
 
@@ -33,15 +34,16 @@ class PSMonitorServerManager:
     Manages a Tornado HTTP server running in a background thread.
     """
 
-    def __init__(self, logger: 'PSMonitorLogger' = None):
+    def __init__(self, db: "PSMonitorDatabaseManager", logger: "PSMonitorLogger"):
         """
         Initializes the server manager with default state.
         """
 
+        self._db = db
         self._logger = logger
 
-        self.port = DEFAULT_PORT
-        self.address = DEFAULT_ADDRESS
+        self.port = cfg.DEFAULT_PORT
+        self.address = cfg.DEFAULT_ADDRESS
 
         self.load_settings()
 
@@ -67,7 +69,8 @@ class PSMonitorServerManager:
         self._ioloop = IOLoop()
 
         base_dir = os.path.dirname(os.path.dirname(__file__))
-        self._server = create_server(os.path.join(base_dir, 'gui', 'web'))
+        view_path = os.path.join(base_dir, 'gui', 'web')
+        self._server = create_server(self._db, self._logger, view_path)
         self._server.listen(port, address=self.address)
 
         queue_.put(self._server)
@@ -166,6 +169,6 @@ class PSMonitorServerManager:
         Read settings to apply outside of the GUI context
         """
 
-        stored_settings = read_settings_file(self._logger)
-        self.port = stored_settings.get("port_number", DEFAULT_PORT)
-        self.address = stored_settings.get("port_address", DEFAULT_ADDRESS)
+        stored_settings = cfg.read_settings_file(self._logger)
+        self.port = stored_settings.get("port_number", cfg.DEFAULT_PORT)
+        self.address = stored_settings.get("port_address", cfg.DEFAULT_ADDRESS)

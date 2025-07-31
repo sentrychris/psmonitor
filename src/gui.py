@@ -16,8 +16,9 @@ import sys
 
 # Local application imports
 from core import signal_handler
-from core.config import init_data
+from core.config import init_data, set_launch_mode
 from core.logging_manager import PSMonitorLogger
+from core.database_manager import PSMonitorDatabaseManager
 from core.server_manager import PSMonitorServerManager
 from gui.app_manager import PSMonitorApp
 
@@ -26,12 +27,18 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
+    set_launch_mode("gui")
+
     # Create logger and clear log for new session
     logger = PSMonitorLogger("app.log")
     logger.clear_log()
 
+    # Initialize DB if it hasn't already been initialized
+    db = PSMonitorDatabaseManager(logger)
+    db.initialize()
+
     # Create server manager to handle threaded server
-    server_manager = PSMonitorServerManager(logger)
+    server_manager = PSMonitorServerManager(db, logger)
 
     try:
         server_manager.start()

@@ -11,14 +11,18 @@ License: MIT
 """
 
 # Standard library imports
-import json
 import os
+import sys
+import json
+import secrets
 from typing import TYPE_CHECKING, Optional
 
 # Typing (type hints only, no runtime dependency)
 if TYPE_CHECKING:
     from core.logging_manager import PSMonitorLogger
 
+# App and service name
+APP_NAME = "PSMonitor"
 
 # Default server address and port
 DEFAULT_ADDRESS = "localhost"
@@ -39,8 +43,24 @@ DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_ENABLED = True
 
 # Settings path and full filepath (including filename).
-SETTINGS_DIR = os.path.join(os.path.expanduser('~'), '.psmonitor')
+SETTINGS_DIR = os.path.join(os.path.expanduser("~"), ".psmonitor")
 SETTINGS_FILE = os.path.join(SETTINGS_DIR, "settings.json")
+
+# JWT authentication
+JWT_ALGORITHM = "HS256"
+JWT_SECRET = secrets.token_urlsafe(64)
+ACCESS_TOKEN_EXPIRE_SECONDS = 10.0
+CREDENTIALS_FILE = os.path.join(SETTINGS_DIR, "credentials.json")
+
+# SQLite database
+DB_PATH = os.path.join(SETTINGS_DIR, "app.db")
+
+if getattr(sys, "frozen", False):
+    # Running as a bundled PyInstaller executable
+    BUNDLE_DIR = getattr(sys, "_MEIPASS")
+else:
+    # Running in normal Python environment
+    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), "bin"))
 
 
 default_settings = {
@@ -65,8 +85,44 @@ init_data = {
     "processes": []
 }
 
+# Launch mode
+_launch_mode = None
 
-def read_settings_file(logger: 'PSMonitorLogger' = None) -> dict:
+def set_launch_mode(mode: str):
+    """
+    Sets the launch mode for the application.
+    """
+
+    global _launch_mode
+    if _launch_mode is not None:
+        raise RuntimeError("Launch mode already set")
+    if mode not in ("gui", "headless"):
+        raise ValueError(f"Invalid launch mode: {mode}")
+    _launch_mode = mode
+
+
+def get_launch_mode() -> str:
+    """
+    Gets the launch mode for the application.
+    """
+
+    if _launch_mode is None:
+        raise RuntimeError("Launch mode not set")
+    return _launch_mode
+
+
+def get_service_name(name: str|None = None) -> str:
+    """
+    Return service name.
+    """
+
+    if name is None:
+        return APP_NAME
+
+    return f"{APP_NAME} {name}"
+
+
+def read_settings_file(logger: "PSMonitorLogger" = None) -> dict:
     """
     Read settings from file.
     """

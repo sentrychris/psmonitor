@@ -70,7 +70,7 @@ def get_wifi_data_windows() -> Optional[dict]:
             "signal": re.compile(r"^\s*Signal\s*:\s*(\d+)%$")
         }
 
-        for line in result.split('\n'):
+        for line in result.split("\n"):
             for key, pattern in patterns.items():
                 match_obj = pattern.match(line.strip())
                 if match_obj:
@@ -135,13 +135,13 @@ def get_wifi_interface() -> str:
     """
 
     proc = subprocess.Popen(
-        ['iw', 'dev'],
+        ["iw", "dev"],
         stdout=subprocess.PIPE,
         universal_newlines=True
     )
     out, _ = proc.communicate()
 
-    interface = 'wlan0'
+    interface = "wlan0"
     for line in out.split("\n"):
         addr = match(line, "Interface ")
         if addr is not None:
@@ -159,21 +159,21 @@ def run_wifi_speedtest() -> dict:
     """
 
     speedtest = subprocess.Popen(
-        'speedtest-cli --simple',
+        "speedtest-cli --simple",
         shell=True,
         stdout=subprocess.PIPE
-    ).stdout.read().decode('utf-8')
+    ).stdout.read().decode("utf-8")
 
-    ping = re.findall(r'Ping:\s(.*?)\s', speedtest, re.MULTILINE)
-    download = re.findall(r'Download:\s(.*?)\s', speedtest, re.MULTILINE)
-    upload = re.findall(r'Upload:\s(.*?)\s', speedtest, re.MULTILINE)
+    ping = re.findall(r"Ping:\s(.*?)\s", speedtest, re.MULTILINE)
+    download = re.findall(r"Download:\s(.*?)\s", speedtest, re.MULTILINE)
+    upload = re.findall(r"Upload:\s(.*?)\s", speedtest, re.MULTILINE)
 
     response = {}
     try:
         response.update({
-            'ping': ping[0].replace(',', '.'),
-            'download': download[0].replace(',', '.'),
-            'upload': upload[0].replace(',', '.')
+            "ping": ping[0].replace(",", "."),
+            "download": download[0].replace(",", "."),
+            "upload": upload[0].replace(",", ".")
         })
     except Exception:
         pass
@@ -206,7 +206,7 @@ def get_quality(cell: list) -> str:
         str: The quality of the cell as a percentage.
     """
 
-    quality = matching_line(cell, "Quality=").split()[0].split('/')
+    quality = matching_line(cell, "Quality=").split()[0].split("/")
     return str(int(round(float(quality[0]) / float(quality[1]) * 100))).rjust(3)
 
 

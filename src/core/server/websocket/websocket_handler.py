@@ -21,7 +21,7 @@ from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 # Local application imports
-from core.config import DEFAULT_MAX_WS_CONNECTIONS, get_setting
+import core.config as cfg
 from core.server.base_handler import workers
 from core.server.websocket.get_system_data import get_system_data
 from core.server.websocket.get_network_data import get_network_data
@@ -64,9 +64,9 @@ class WebsocketHandler(WebSocketHandler):
         self.loop = IOLoop.current()
         self.worker_ref = None
 
-        self.max_connections = get_setting(
+        self.max_connections = cfg.get_setting(
             key="max_ws_connections",
-            default=DEFAULT_MAX_WS_CONNECTIONS
+            default=cfg.DEFAULT_MAX_WS_CONNECTIONS
         )
 
         super().__init__(application, request, **kwargs)
@@ -88,22 +88,27 @@ class WebsocketHandler(WebSocketHandler):
 
     def open(self, *args, **kwargs):
         """
-        Handles the opening of a WebSocket connection. Retrieves the worker based on the 'id'
+        Handles the opening of a WebSocket connection. Retrieves the worker based on the "id"
         argument, sets the worker for this handler, and starts the monitoring coroutine.
         """
 
         if len(active_connections) >= self.max_connections:
-            self.write_message('Server is at full capacity. Please try again later.')
+            self.write_message("Server is at full capacity. Please try again later.")
             self.close()
             return
 
         active_connections.add(self)
 
         # Check worker ID exists in registry, if so then remove from shared pool
-        worker = workers.pop(self.get_argument('id'), None)
-
+        worker = workers.pop(self.get_argument("id"), None)
         if not worker:
-            self.close(reason='Invalid worker id')
+            self.close(reason="Invalid worker id")
+            return
+
+        # Check the subscriber for this worker is valid
+        subscriber = self.get_argument("subscriber", None)
+        if not subscriber or subscriber != worker.subscriber:
+            self.close(reason="Invalid subscriber")
             return
 
         self.set_nodelay(True)
@@ -115,7 +120,7 @@ class WebsocketHandler(WebSocketHandler):
         # collected when it is no longer needed.
         self.worker_ref = weakref.ref(worker)
 
-        self.write_message('connected to monitor, transmitting data...')
+        self.write_message("connected to monitor, transmitting data...")
         self.loop.add_callback(self.monitor_system)
 
 
@@ -171,7 +176,7 @@ class WebsocketHandler(WebSocketHandler):
         Sends a confirmation message back to the client.
         """
 
-        self.write_message(f'message received {message}')
+        self.write_message(f"message received {message}")
 
 
     def on_close(self):

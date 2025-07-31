@@ -19,21 +19,21 @@ import subprocess
 import sys
 
 # Local application imports
-from core.config import DEFAULT_LOG_ENABLED, DEFAULT_LOG_LEVEL, read_settings_file
+import core.config as cfg
 
 
 class PSMonitorLogger:
     """
     Concurrent logger.
 
-    Uses Python's `QueueHandler` and `QueueListener` to safely handle logging from
+    Uses Python"s `QueueHandler` and `QueueListener` to safely handle logging from
     multiple threads without risk of interleaved output or contention on shared I/O
     handlers.
 
     Architecture:
         - A single `queue.Queue` receives all log records via `QueueHandler`.
         - A dedicated background thread (`QueueListener`) consumes records from the 
-          queue and dispatches them to attached handlers (e.g., file and console).
+        queue and dispatches them to attached handlers (e.g., file and console).
     """
 
     def __init__(self, filename: str):
@@ -47,15 +47,15 @@ class PSMonitorLogger:
         self._logger.setLevel(logging.INFO)  # Default level
         self._logger.propagate = False  # Avoid duplicate logs
 
-        self._filepath = os.path.join(os.path.expanduser('~'), '.psmonitor-logs')
+        self._filepath = os.path.join(os.path.expanduser("~"), ".psmonitor-logs")
         os.makedirs(self._filepath, exist_ok=True)
         self._fullpath = os.path.join(self._filepath, filename)
 
         self._file_handler = logging.FileHandler(self._fullpath, encoding="utf-8")
         self._file_handler.setLevel(logging.INFO)
         formatter = logging.Formatter(
-            '[%(asctime)s] - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            "[%(asctime)s] - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
         )
         self._file_handler.setFormatter(formatter)
 
@@ -176,7 +176,7 @@ class PSMonitorLogger:
 
         try:
             subprocess.Popen([
-                'notepad.exe' if sys.platform == "win32" else "xdg-open",
+                "notepad.exe" if sys.platform == "win32" else "xdg-open",
                 self._fullpath
             ])
         except (OSError, ValueError) as e:
@@ -190,7 +190,7 @@ class PSMonitorLogger:
 
         try:
             # Truncate the log file to zero length, effectively clearing it
-            with open(self._fullpath, 'w', encoding="utf-8"):
+            with open(self._fullpath, "w", encoding="utf-8"):
                 pass
             self._logger.debug("Log file truncated")
         except (FileNotFoundError, PermissionError, IsADirectoryError) as e:
@@ -202,9 +202,9 @@ class PSMonitorLogger:
         Read settings to apply outside of the GUI context
         """
 
-        stored_settings = read_settings_file(self._logger)
-        self.set_level(stored_settings.get("log_level", DEFAULT_LOG_LEVEL))
-        self.set_enabled(stored_settings.get("logging_enabled", DEFAULT_LOG_ENABLED))
+        stored_settings = cfg.read_settings_file(self._logger)
+        self.set_level(stored_settings.get("log_level", cfg.DEFAULT_LOG_LEVEL))
+        self.set_enabled(stored_settings.get("logging_enabled", cfg.DEFAULT_LOG_ENABLED))
 
 
     def stop(self) -> None:

@@ -5,6 +5,7 @@ venv
 .env
 
 test.py
+bin/*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

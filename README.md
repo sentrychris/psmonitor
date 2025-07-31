@@ -20,7 +20,8 @@ View an example [web client dashboard for remote monitoring here](https://github
   - [Running the Headless Server as a Managed Process](#running-the-headless-server-as-a-managed-process)  
 - [Developers](#developers)  
   - [Building from Source](#building-from-source)  
-  - [Key points](#key-points)  
+  - [Key points](#key-points)
+  - [Authentication](#authentication)
   - [Threading](#threading)  
   - [Developing Custom GUI Windows](#developing-custom-gui-windows)  
 - [Connecting to the Headless Server from Your Own App](#connecting-to-the-headless-server-from-your-own-app)  
@@ -35,6 +36,7 @@ View an example [web client dashboard for remote monitoring here](https://github
 - **System Statistics**: Provides CPU, memory, and disk usage, uptime, and top processes.
 - **Network Statistics**: Monitors data sent and received on network interfaces.
 - **Websocket Server**: For remote monitoring on your local network or through port forwarding.
+- **Authentication**: For secure access to monitoring endpoints.
 
 
 ## GUI Application
@@ -46,17 +48,60 @@ The desktop application is built with [Tkinter](https://docs.python.org/3/librar
 
 ## Headless Server
 
-The server manages the execution of the monitoring scripts, using multiple threads managed through an executor to retrieve data asynchronously and mitigate blocking operations from calls to read system data.
+The server uses [Tornado](https://www.tornadoweb.org/en/stable/), a high-performance, non-blocking web framework built to efficiently manage simultaneous, long-lived connections.
 
-The server is built with [Tornado](#), a scalable, non-blocking web server designed to handle a large number of concurrent connections.
+The server manages:
 
-While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.6.0.1001/psmonitor-headless.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on the local network or through port forwarding.
+- Authentication
+- Pairing of client and websocket connections
+- Execution of the monitoring scripts
+
+It manages this using multiple threads through an executor. This allows PSMonitor to retrieve data asynchronously and mitigate blocking operations.
+
+While the server is embedded in the desktop GUI application, a [headless version](https://github.com/sentrychris/psmonitor/releases/download/v1.6.0.1001/psmonitor-headless.exe) is provided for people who want to build their own UI clients, or for people who want to setup remote monitoring either on their local network or through port forwarding.
+
+### Running the Headless Server
+
+To run the headless server, invoke it from the CLI, for example, in Windows:
+
+```sh
+.\psmonitor-headless.exe --port=<port> --address=<address> --export-credentials
+```
+
+All options are optional:
+
+- `--port`: Sets the port number the server will listen on (default: 4500).
+
+- `--address`: Sets the address the server will listen on (default: localhost).
+
+- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json (default: false)
+    > Note: please keep your credentials secure. To minimize risk, the credentials.json file is deleted upon first successful login. You can regenerate it by re-running the server with this flag.
 
 ### HTTP
 
-Three standard HTTP endpoints are provided:
+Four standard HTTP endpoints are available:
+
+#### **POST `/authenticate`**:
+
+Authenticates a user and returns a time-limited JWT bearer token.
+
+- Required JSON body:
+  ```json
+  {
+    "username": "your-username",
+    "password": "your-password"
+  }
+  ```
+
+#### **POST `/worker`**:
+
+> Requires a valid bearer token in the **Authorization** header.
+
+Creates a worker to pair HTTP connections to websocket sessions and responds with a worker ID, which is then used in the request to the websocket `/connect` endpoint.
 
 #### **GET `/system`**:
+
+> Requires a valid bearer token in the **Authorization** header.
 
 Retrieves system monitoring information
 
@@ -74,25 +119,24 @@ Retrieves system monitoring information
 
 #### **GET `/network`**:
 
+> Requires a valid bearer token in the **Authorization** header.
+
 Retrieves network monitoring information:
+
 - **Interfaces**: Visible network interfaces
 - **Wireless**: Name, Quality, Channel, Encryption, Address, Signal
 - **Statistics**: For each interface: MB sent, MB received, packets sent, packets received, errors receiving packets, error sending packets, dropout rate.
 
-#### **GET `/`**:
-Renders a simple dashboard to check or test the server.
-
-#### **POST `/`**:
-Creates a worker to pair HTTP connections to websocket sessions and manage execution of monitoring scripts. This endpoint responds with a worker ID which is then used in the request to the websocket `/connect` endpoint.
-
-
 ### Websocket
 
-A single websocket endpoint is provided.
+A single websocket endpoint is available:
 
-#### WS `/connect?id={<worker_id>}`
+#### WS `/connect?id={<worker_id>}&subscriber={<user_id>}`
 
-- Creates and connects to the websocket connection, data immediately begins being sent through the connection.
+- Requires a valid worker ID
+- Requires a valid user ID (subscriber) tied to the worker.
+- Creates and initializes the websocket connection.
+- Data immediately begins being sent through the tunnel.
 
 ### Running the headless server as a managed process
 
@@ -167,11 +211,37 @@ Step 6: Run the `build.py` script to generate a single-file executable:
 - Pass `--clean` if you want to clean the previous build directories.
 
 
+#### Running through the Interpreter
+
+To run the GUI app through the Python interpreter, simply invoke the GUI main script:
+
+```sh
+python src/gui.py
+```
+
+To run the headless app, invoke the headless server main script:
+
+```sh
+python src/headless.py --port=<port> --address=<address> --export-credentials
+```
+
+All options are optional:
+
+- `--port`: Sets the port number the server will listen on (default: 4500).
+
+- `--address`: Sets the address the server will listen on (default: localhost).
+
+- `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json (default: false)
+    > Note: please keep your credentials secure. To minimize risk, the credentials.json file is deleted upon first successful login. You can regenerate it by re-running the server with this flag.
+
+
 ### Key points
 
 Most of the code is either documented or self-explanatory, however, some key points:
 
 - Workers act as per-client session handlers that are created whenever a websocket connection is requested. The `WebSocketHandler` binds to a specific `worker` instance associated with that client, enabling individual data streams and cleanup.
+
+- Workers require authentication in order to be created. Once created, the user ID decoded from the JWT access token is assigned to the worker's `subscriber` attribute, which is then checked against the parameter supplied in the request to establish a websocket connection through the `/connect` endpoint.
 
 - Workers that are unclaimed within 5 seconds are removed from the executor thread pool and destroyed.
 
@@ -179,6 +249,17 @@ Most of the code is either documented or self-explanatory, however, some key poi
 
 - During the packing process, UPX is used to compress the executable, resulting in a file size that is ~10MB smaller.
 
+### Authentication
+
+PSMonitor uses secure authentication to protect access to monitoring endpoints.
+
+- On first run, a user account is automatically generated.
+- A strong password is randomly created, securely hashed, and stored in the database.
+- The plaintext password is:
+  - Stored securely in the system keyring, scoped to the current user account.
+  - Optionally and for headless mode only, written to a credentials file in the user's home directory.
+- Authentication is handled via time-limited [JWT](https://jwt.io/) access tokens (valid for 10 seconds by default).
+- Tokens must be included in the `Authorization: Bearer <token>` header for any authenticated endpoints.
 
 ### Threading
 
@@ -234,7 +315,7 @@ class PSMonitorChildHandlerTemplate:
     Handler template.
     """
 
-    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+    def __init__(self, manager: "PSMonitorApp") -> None:
         """
         Initializes the handler.
         """
@@ -249,7 +330,7 @@ class PSMonitorChildHandlerTemplate:
         Open window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
             self._window.lift()
@@ -267,7 +348,7 @@ class PSMonitorChildHandlerTemplate:
         Check if the window is active.
         """
 
-        return hasattr(self, '_window') and self._window.winfo_exists()
+        return hasattr(self, "_window") and self._window.winfo_exists()
 
 
     def close_window(self) -> None:
@@ -275,7 +356,7 @@ class PSMonitorChildHandlerTemplate:
         Close window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             self.on_close()
 
 
@@ -315,19 +396,31 @@ To connect to the server, you can use any client or language.
 
 ### JavaScript Example
 
-1. Retrieve the assigned worker:
+1. Authenticate using your username and password:
 
     ```js
-    const client = await fetch(`http://<server-address>`, {
-        method: 'POST',
-        body: { connection: 'monitor' }
-    });
-    const worker = await client.json()
+    response = await fetch(`http://localhost:4500/authenticate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+    const auth = await response.json()
     ```
 
-2. Open the WebSocket connection and retrieve data:
+2. Create a worker to securely pair and handle your websocket connection:
+
     ```js
-    const url = `ws://<server-address>:<port>/ws?id=${worker.id}`;
+    response = await fetch(`http://localhost:4500/worker`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${auth.token}` }
+    })
+    const worker = await response.json()
+    ```
+
+3. Open the WebSocket connection and retrieve data:
+
+    ```js
+    const url = `ws://localhost:4500/connect?id=${worker.id}&subscriber=${auth.user_id}`;
 
     connection = new WebSocket(url);
     connection.onopen = () => {
@@ -340,32 +433,42 @@ To connect to the server, you can use any client or language.
 
 ### Python Example
 
-1. Retrieve an assigned worker:
+1. Authenticate using your username and password:
 
     ```python
-    import requests
+    response = requests.post(
+        "http://localhost:4500/authenticate",
+        {"username": "your_username", "password": "your_password"}
+    )
+    response.raise_for_status()
+    auth = response.json()
+    ```
 
-    response = requests.post('http://<server-address>', json={'connection': 'monitor'})
+2. Create a worker to securely pair and handle your websocket connection:
+
+    ```python
+    response = requests.post(
+        "http://localhost:4500/worker",
+        headers={"Authorization": f"Bearer {auth['token']}"}
+    )
+    response.raise_for_status()
     worker = response.json()
     ```
 
-2. Open the WebSocket connection and retrieve data:
+3. Open the WebSocket connection and retrieve data:
+
     ```python
-    import asyncio
-    import websockets
-
     async def connect():
-        uri = f"ws://<server-address>:<port>/ws?id={worker['id']}"
-        async with websockets.connect(uri) as websocket:
-            async for message in websocket:
+        url = f"ws://localhost:4500/connect?id=${worker["id"]}&subscriber=${auth["user_id"]}"
+        async with websockets.connect(url) as ws:
+            async for message in ws:
                 print(message)
-
     asyncio.run(connect())
     ```
 
-You can use the quick dashboard located at `src/gui/web/web.html`  for further testing and exploration.
-
 I hope you like it!
+
+You can use the quick dashboard located at `src/gui/web/web.html`  for further testing and exploration.
 
 ## License
 This software is open-sourced software licensed under the MIT license.

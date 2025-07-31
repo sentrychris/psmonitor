@@ -23,7 +23,7 @@ class PSMonitorChildHandlerTemplate:
     Handler template.
     """
 
-    def __init__(self, manager: 'PSMonitorApp' = None) -> None:
+    def __init__(self, manager: "PSMonitorApp") -> None:
         """
         Initializes the handler.
         """
@@ -38,7 +38,7 @@ class PSMonitorChildHandlerTemplate:
         Open window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
             self._window.lift()
@@ -56,7 +56,7 @@ class PSMonitorChildHandlerTemplate:
         Check if the window is active.
         """
 
-        return hasattr(self, '_window') and self._window and self._window.winfo_exists()
+        return hasattr(self, "_window") and self._window and self._window.winfo_exists()
 
 
     def close_window(self) -> None:
@@ -64,7 +64,7 @@ class PSMonitorChildHandlerTemplate:
         Close window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             self.on_close()
 
 

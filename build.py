@@ -55,10 +55,10 @@ def get_upx(build_resources: str, upx_pkg: str, upx_url: str, is_windows: bool) 
         urllib.request.urlretrieve(upx_url, upx_path)
 
         if is_windows:
-            with zipfile.ZipFile(upx_path, 'r') as zip_ref:
+            with zipfile.ZipFile(upx_path, "r") as zip_ref:
                 zip_ref.extractall(build_resources)
         else:
-            with tarfile.open(upx_path, 'r:xz') as tar_ref:
+            with tarfile.open(upx_path, "r:xz") as tar_ref:
                 tar_ref.extractall(build_resources)
 
         os.remove(upx_path)
@@ -114,7 +114,7 @@ def main(
     Main function that orchestrates the build process for PSMonitor.
 
     Args:
-        build (str): The type to build for e.g. 'gui' or 'headless'.
+        build (str): The type to build for e.g. "gui" or "headless".
         clean_build (bool): Clean `build` and `dist` directories before build.
         clean_upx (bool): Delete the UPX directory after building
         upx_ver (str): The version of UPX to use to compress the executable.
@@ -144,7 +144,7 @@ def main(
     if not os.path.exists(build_spec):
         raise FileNotFoundError(f".spec file not found: {build_spec}")
 
-    if os.name == 'nt':
+    if os.name == "nt":
         upx_pkg = f"upx-{upx_ver}-win64"
         upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.zip"
     else:
@@ -156,7 +156,7 @@ def main(
         clean_dir(dist_dir)
         clean_dir(build_dir)
 
-    upx_dir = get_upx(build_resources, upx_pkg, upx_url, os.name == 'nt')
+    upx_dir = get_upx(build_resources, upx_pkg, upx_url, os.name == "nt")
 
     build_exe(build_spec, upx_dir, dist_dir, build_dir)
 
