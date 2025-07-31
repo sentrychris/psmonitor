@@ -110,6 +110,11 @@ class PSMonitorApp(tk.Tk):
             path = os.path.join(BASE_DIR, 'assets', 'icons', filename)
             self.platform_icons[platform] = self.load_image(path, width)
 
+        self._err_icon = self.load_image(
+            path=os.path.join(BASE_DIR, 'assets', 'icons', 'error.png'),
+            width=70
+        )
+
         self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
         self.create_gui_menu()
         self.create_gui_sections(data)
@@ -573,20 +578,23 @@ class PSMonitorApp(tk.Tk):
         """
         error_win = tk.Toplevel(self)
         error_win.title("Connection Error")
-        error_win.geometry("400x160")
+        error_win.geometry("400x270")
         error_win.resizable(False, False)
         error_win.transient(self)
         error_win.grab_set()
 
-        frame = ttk.Frame(error_win, padding=15)
+        frame = ttk.Frame(error_win, padding=10)
         frame.pack(expand=True, fill="both")
+
+        tk.Label(frame, image=self._err_icon).pack()
+        error_win.iconphoto(False, self._err_icon)
 
         # Message area
         label = ttk.Label(
             frame,
             text=(
                 "ERROR! Server connection has failed.\n\n"
-                "You can attempt to restart the server using the button below. "
+                "You can attempt to restart the server to fix the problem. "
                 "Please also check the app log for more details."
             ),
             justify="left",
