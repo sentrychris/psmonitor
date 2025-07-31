@@ -341,14 +341,10 @@
                     log.write("output", response.data + "\n\n")
                     try {
                         const data = JSON.parse(response.data)
-                        for (const key in data.cpu) {
-                            system.set("cpu", key, data.cpu[key])
-                        }
-                        for (const key in data.mem) {
-                            system.set("mem", key, data.mem[key])
-                        }
-                        for (const key in data.disk) {
-                            system.set("disk", key, data.disk[key])
+                        for (const device in data) {
+                            for (const key in data[device]) {
+                                system.set(device, key, data[device][key]);
+                            }
                         }
                     } catch (error) {}
                 }
