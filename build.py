@@ -121,44 +121,59 @@ def main(
         insert_docstrings_only (bool): Insert docstrings into source files instead.
         third_party_licenses_only (bool): Generate third-party licenses instead.
     """
+    root = os.path.dirname(__file__)
+    out_dir = os.path.join(root, "output")
+    dist_dir = os.path.join(out_dir, "dist")
+    build_dir = os.path.join(out_dir, "build")
 
+    # Handle insert docstrings only (no build)
     if insert_docstrings_only:
         print("Inserting docstrings into source .py files...")
         insert_docstrings()
         return
 
+    # Handle generating licenses only (no build)
     if third_party_licenses_only:
         print("Generating third-party licenses file...")
         generate_third_party_licenses()
         return
 
+    # Handle clean previous builds only (no build)
+    if clean_build and not build_type:
+        print("Cleaning previous build directories...")
+        clean_dir(out_dir)
+        return
+
+    # Right... Now we're building... Make sure the build type is valid
     if build_type not in ["gui", "headless"]:
         raise ValueError("Invalid build type. Must be: `gui` or `headless`.")
 
-    cwd = os.getcwd()
-    dist_dir = os.path.join(cwd, "output", "dist", build_type)
-    build_dir = os.path.join(cwd, "output", "build", build_type)
-    build_resources = os.path.join(cwd, "build_resources")
+    build_resources = os.path.join(root, "build_resources")
     build_spec = os.path.join(build_resources, build_type, "psmonitor.spec")
 
     if not os.path.exists(build_spec):
         raise FileNotFoundError(f".spec file not found: {build_spec}")
 
+    # Handle clean previous builds before new build
+    if clean_build:
+        print("Cleaning previous build directories...")
+        clean_dir(out_dir)
+
+    # Handle fetching UPX
     if os.name == "nt":
         upx_pkg = f"upx-{upx_ver}-win64"
         upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.zip"
     else:
         upx_pkg = f"upx-{upx_ver}-amd64_linux"
         upx_url = f"https://github.com/upx/upx/releases/download/v{upx_ver}/{upx_pkg}.tar.xz"
-
-    if clean_build:
-        print("Cleaning previous build directories...")
-        clean_dir(dist_dir)
-        clean_dir(build_dir)
-
     upx_dir = get_upx(build_resources, upx_pkg, upx_url, os.name == "nt")
 
-    build_exe(build_spec, upx_dir, dist_dir, build_dir)
+    build_exe(
+        spec_file=build_spec,
+        upx_dir=upx_dir,
+        dist_dir=os.path.join(dist_dir, build_type),
+        build_dir=os.path.join(build_dir, build_type)
+    )
 
     if clean_upx:
         clean_dir(upx_dir)
