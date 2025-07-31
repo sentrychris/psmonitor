@@ -36,8 +36,8 @@ def get_system_data() -> dict:
         "disk": psm.get_disk(),
         "user": psm.get_user(),
         "platform": {
-            'distro': psm.get_distro(),
-            'kernel': psm.get_kernel(),
+            "distro": psm.get_distro(),
+            "kernel": psm.get_kernel(),
             "uptime": psm.get_uptime()
         },
         "processes": psm.get_processes()

@@ -61,20 +61,20 @@ def get_cpu() -> dict:
     """
 
     if sys.platform == "win32":
-        executable_path = os.path.join(BUNDLE_DIR, 'libwincputemp.exe')
+        executable_path = os.path.join(BUNDLE_DIR, "libwincputemp.exe")
         proc = subprocess.check_output(
             executable_path,
             creationflags=subprocess.CREATE_NO_WINDOW
         )
-        cpu_temp = proc.decode('utf-8').rstrip('\r\n')
+        cpu_temp = proc.decode("utf-8").rstrip("\r\n")
     else:
-        cpu_temp = round(psutil.sensors_temperatures()['coretemp'][0].current, 2)
+        cpu_temp = round(psutil.sensors_temperatures()["coretemp"][0].current, 2)
 
 
     return {
-        'usage': round(psutil.cpu_percent(), 2),
-        'temp': cpu_temp,
-        'freq': round(psutil.cpu_freq().current, 2)
+        "usage": round(psutil.cpu_percent(), 2),
+        "temp": cpu_temp,
+        "freq": round(psutil.cpu_freq().current, 2)
     }
 
 
@@ -92,13 +92,13 @@ def get_disk() -> dict:
             - "percent": Disk usage percentage.
     """
 
-    disk_data = psutil.disk_usage('/')
+    disk_data = psutil.disk_usage("/")
 
     return {
-        'total': convert_bytes(disk_data.total),
-        'used': convert_bytes(disk_data.used),
-        'free': convert_bytes(disk_data.free),
-        'percent': disk_data.percent,
+        "total": convert_bytes(disk_data.total),
+        "used": convert_bytes(disk_data.used),
+        "free": convert_bytes(disk_data.free),
+        "percent": disk_data.percent,
     }
 
 
@@ -119,10 +119,10 @@ def get_memory() -> dict:
     memory_data = psutil.virtual_memory()
 
     return {
-        'total': convert_bytes(memory_data.total),
-        'used': convert_bytes(memory_data.used),
-        'free': convert_bytes(memory_data.free),
-        'percent': memory_data.percent,
+        "total": convert_bytes(memory_data.total),
+        "used": convert_bytes(memory_data.used),
+        "free": convert_bytes(memory_data.free),
+        "percent": memory_data.percent,
     }
 
 
@@ -141,37 +141,37 @@ def get_processes() -> list:
             - "mem": Memory usage of the process in MB.
     """
 
-    aggregated = defaultdict(lambda: {'mem': 0.0, 'pids': [], 'usernames': set()})
+    aggregated = defaultdict(lambda: {"mem": 0.0, "pids": [], "usernames": set()})
 
-    for proc in psutil.process_iter(['pid', 'name', 'username', 'memory_info']):
+    for proc in psutil.process_iter(["pid", "name", "username", "memory_info"]):
         try:
             info = proc.info
-            mem_mb = info['memory_info'].rss / (1024 * 1024)
-            name = info['name'] or 'unknown'
-            aggregated[name]['mem'] += mem_mb
-            aggregated[name]['pids'].append(info['pid'])
-            if info['username']:
-                aggregated[name]['usernames'].add(info['username'])
+            mem_mb = info["memory_info"].rss / (1024 * 1024)
+            name = info["name"] or "unknown"
+            aggregated[name]["mem"] += mem_mb
+            aggregated[name]["pids"].append(info["pid"])
+            if info["username"]:
+                aggregated[name]["usernames"].add(info["username"])
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
 
     combined_list = []
     for name, data in aggregated.items():
         combined_list.append({
-            'pid': data['pids'][0] if data['pids'] else '',
-            'name': name,
-            'username': ', '.join(data['usernames']) if data['usernames'] else '',
-            'mem': round(data['mem'], 2)
+            "pid": data["pids"][0] if data["pids"] else "",
+            "name": name,
+            "username": ", ".join(data["usernames"]) if data["usernames"] else "",
+            "mem": round(data["mem"], 2)
         })
 
-    return sorted(combined_list, key=lambda x: x['mem'], reverse=True)[:10]
+    return sorted(combined_list, key=lambda x: x["mem"], reverse=True)[:10]
 
 
 def get_uptime() -> str:
     """
     Retrieves system uptime.
 
-    This function reads the system uptime from the '/proc/uptime' file and formats
+    This function reads the system uptime from the "/proc/uptime" file and formats
     it into a human-readable string.
 
     Returns:
@@ -189,7 +189,7 @@ def get_uptime() -> str:
             return "N/A"  # Problem calling kernel32
     else:
         try:
-            with open('/proc/uptime', 'r', encoding='utf-8') as f:
+            with open("/proc/uptime", "r", encoding="utf-8") as f:
                 total_seconds = float(f.read().split()[0])
         except (FileNotFoundError, PermissionError, ValueError, OSError):
             return "N/A"
@@ -216,7 +216,7 @@ def get_user() -> str:
     On Windows, it uses the `getpass.getuser()` function.
 
     On Unix-like systems, it uses the `pwd` module to get the username associated
-    with the current process's user ID.
+    with the current process' user ID.
 
     Returns:
         str: The username of the current user.
@@ -245,11 +245,11 @@ def get_distro() -> str:
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         result = subprocess.check_output(
-            ['wmic', 'os', 'get', 'Caption'],
+            ["wmic", "os", "get", "Caption"],
             text=True,
             startupinfo=startupinfo
         )
-        os_name = result.strip().split('\n')
+        os_name = result.strip().split("\n")
 
         return os_name[2].strip() if len(os_name) > 1 else "Unknown OS"
 
