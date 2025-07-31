@@ -75,7 +75,7 @@ All options are optional:
 - `--address`: Sets the address the server will listen on (default: localhost).
 
 - `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json (default: false)
-    > Note: please keep your credentials secure.
+    > Note: please keep your credentials secure. To minimize risk, the credentials.json file is deleted upon first successful login. You can regenerate it by re-running the server with this flag.
 
 ### HTTP
 
@@ -232,7 +232,7 @@ All options are optional:
 - `--address`: Sets the address the server will listen on (default: localhost).
 
 - `--export-credentials`: Exports the credentials used to authenticate to the user's home directory at .psmonitor/credentials.json (default: false)
-    > Note: please keep your credentials secure.
+    > Note: please keep your credentials secure. To minimize risk, the credentials.json file is deleted upon first successful login. You can regenerate it by re-running the server with this flag.
 
 
 ### Key points
@@ -315,7 +315,7 @@ class PSMonitorChildHandlerTemplate:
     Handler template.
     """
 
-    def __init__(self, manager: 'PSMonitorApp') -> None:
+    def __init__(self, manager: "PSMonitorApp") -> None:
         """
         Initializes the handler.
         """
@@ -330,7 +330,7 @@ class PSMonitorChildHandlerTemplate:
         Open window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
             self._window.lift()
@@ -348,7 +348,7 @@ class PSMonitorChildHandlerTemplate:
         Check if the window is active.
         """
 
-        return hasattr(self, '_window') and self._window.winfo_exists()
+        return hasattr(self, "_window") and self._window.winfo_exists()
 
 
     def close_window(self) -> None:
@@ -356,7 +356,7 @@ class PSMonitorChildHandlerTemplate:
         Close window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             self.on_close()
 
 
@@ -396,19 +396,31 @@ To connect to the server, you can use any client or language.
 
 ### JavaScript Example
 
-1. Retrieve the assigned worker:
+1. Authenticate using your username and password:
 
     ```js
-    const client = await fetch(`http://<server-address>`, {
-        method: 'POST',
-        body: { connection: 'monitor' }
-    });
-    const worker = await client.json()
+    response = await fetch(`http://localhost:4500/authenticate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+    const auth = await response.json()
     ```
 
-2. Open the WebSocket connection and retrieve data:
+2. Create a worker to securely pair and handle your websocket connection:
+
     ```js
-    const url = `ws://<server-address>:<port>/ws?id=${worker.id}`;
+    response = await fetch(`http://localhost:4500/worker`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${auth.token}` }
+    })
+    const worker = await response.json()
+    ```
+
+3. Open the WebSocket connection and retrieve data:
+
+    ```js
+    const url = `ws://localhost:4500/connect?id=${worker.id}&subscriber=${auth.user_id}`;
 
     connection = new WebSocket(url);
     connection.onopen = () => {
@@ -421,28 +433,39 @@ To connect to the server, you can use any client or language.
 
 ### Python Example
 
-1. Retrieve an assigned worker:
+1. Authenticate using your username and password:
 
     ```python
-    import requests
+    response = requests.post(
+        "http://localhost:4500/authenticate",
+        {"username": "your_username", "password": "your_password"}
+    )
+    response.raise_for_status()
+    auth = response.json()
+    ```
 
-    response = requests.post('http://<server-address>', json={'connection': 'monitor'})
+2. Create a worker to securely pair and handle your websocket connection:
+
+    ```python
+    response = requests.post(
+        "http://localhost:4500/worker",
+        headers={"Authorization": f"Bearer {auth['token']}"}
+    )
+    response.raise_for_status()
     worker = response.json()
     ```
 
-2. Open the WebSocket connection and retrieve data:
+3. Open the WebSocket connection and retrieve data:
+
     ```python
-    import asyncio
-    import websockets
-
     async def connect():
-        uri = f"ws://<server-address>:<port>/ws?id={worker['id']}"
-        async with websockets.connect(uri) as websocket:
-            async for message in websocket:
+        url = f"ws://localhost:4500/connect?id=${worker["id"]}&subscriber=${auth["user_id"]}"
+        async with websockets.connect(url) as ws:
+            async for message in ws:
                 print(message)
-
     asyncio.run(connect())
     ```
+
 I hope you like it!
 
 ## License
