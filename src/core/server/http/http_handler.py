@@ -30,6 +30,19 @@ if TYPE_CHECKING:
     from core.database_manager import PSMonitorDatabaseManager
 
 
+class HttpWebUIHandler(BaseHandler):
+    """
+    HttpWebUIHandler class for displaying the web UI.
+    """
+
+    async def get(self):
+        """
+        Get the simple web UI.
+        """
+
+        self.render("web.html")
+
+
 class HttpWorkerHandler(BaseHandler):
     """
     HTTPWorkerHandler class for managing connections and serving requests for data. This

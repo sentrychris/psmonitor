@@ -11,6 +11,7 @@ License: MIT
 """
 
 # Standard library imports
+import os
 import signal
 
 # Third-party imports
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         logger.info(f"Connection credentials have been written to {credentials_file}")
         logger.info("Note: File will be deleted automatically after first connection.")
 
-    http = create_server(db, logger)
+    http = create_server(db, logger, os.path.join(os.path.dirname(__file__), 'gui', 'web'))
     http.listen(port=options.port, address=options.address)
 
     logger.info(f"Listening on http://{options.address}:{options.port}")

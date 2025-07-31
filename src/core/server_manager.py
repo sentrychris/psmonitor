@@ -11,6 +11,7 @@ License: MIT
 """
 
 # Standard library imports
+import os
 import queue
 import threading
 from typing import TYPE_CHECKING
@@ -67,7 +68,9 @@ class PSMonitorServerManager:
 
         self._ioloop = IOLoop()
 
-        self._server = create_server(self._db, self._logger)
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        view_path = os.path.join(base_dir, 'gui', 'web')
+        self._server = create_server(self._db, self._logger, view_path)
         self._server.listen(port, address=self.address)
 
         queue_.put(self._server)

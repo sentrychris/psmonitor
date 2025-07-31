@@ -468,6 +468,8 @@ To connect to the server, you can use any client or language.
 
 I hope you like it!
 
+You can use the quick dashboard located at `src/gui/web/web.html`  for further testing and exploration.
+
 ## License
 This software is open-sourced software licensed under the MIT license.
 

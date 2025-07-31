@@ -22,7 +22,7 @@ from tornado.httpserver import HTTPServer
 
 # Local application imports
 from core.server.http.http_handler import HttpAuthHandler, HttpWorkerHandler, \
-    HttpSystemHandler, HttpNetworkHandler
+    HttpSystemHandler, HttpNetworkHandler, HttpWebUIHandler
 from core.server.websocket.websocket_handler import WebsocketHandler
 from core.thread_pool import executor
 
@@ -47,12 +47,18 @@ def signal_handler(_sig, _frame):
     sys.exit(0)
 
 
-def create_server(db: "PSMonitorDatabaseManager", logger: "PSMonitorLogger") -> HTTPServer:
+def create_server(
+        db: "PSMonitorDatabaseManager",
+        logger: "PSMonitorLogger",
+        view_path: str
+    ) -> HTTPServer:
     """
     Create a server
     """
 
     return HTTPServer(create_app({
+        "template_path": view_path,
+        "static_path": view_path,
         "cookie_secret": uuid.uuid1().hex,
         "xsrf_cookies": False,
         "debug": False,
@@ -85,6 +91,7 @@ def create_app(settings: dict) -> Application | bool:
     """
 
     handlers = [
+        (r"/", HttpWebUIHandler),
         (r"/authenticate", HttpAuthHandler),
         (r"/worker", HttpWorkerHandler),
         (r"/system", HttpSystemHandler),

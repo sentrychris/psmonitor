@@ -158,6 +158,8 @@ class PSMonitorApp(tk.Tk):
 
         file_menu = tk.Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="Open Log...", command=self.logger.open_log)
+        file_menu.add_command(label="Open Web UI...", command=self.open_web_ui)
+        file_menu.add_separator()
         file_menu.add_command(label="Settings", command=self.settings_handler.open_window)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.shutdown)
@@ -548,6 +550,14 @@ class PSMonitorApp(tk.Tk):
         text_widget.insert("1.0", license_text)
         text_widget.config(state="disabled")  # Make read-only
         text_widget.pack(fill="both", expand=True, padx=5, pady=5)
+
+
+    def open_web_ui(self) -> None:
+        """
+        Opens the web UI for testing the websocket connection.
+        """
+
+        webbrowser.open_new(self.client.http_url)
 
 
     def refresh_data(self, new_data: dict) -> None:
