@@ -114,7 +114,10 @@ class PSMonitorApp(tk.Tk):
         self.create_gui_menu()
         self.create_gui_sections(data)
 
-        self.client.safe_connect()
+        try:
+            self.client.safe_connect()
+        except Exception:
+            self._show_connection_error()
 
         self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
@@ -562,3 +565,68 @@ class PSMonitorApp(tk.Tk):
         IOLoop.current().add_callback(IOLoop.current().stop)
 
         self.destroy()
+
+
+    def _show_connection_error(self):
+        """
+        Show a popup indicating that the server connection failed.
+        """
+        error_win = tk.Toplevel(self)
+        error_win.title("Connection Error")
+        error_win.geometry("400x160")
+        error_win.resizable(False, False)
+        error_win.transient(self)
+        error_win.grab_set()
+
+        frame = ttk.Frame(error_win, padding=15)
+        frame.pack(expand=True, fill="both")
+
+        # Message area
+        label = ttk.Label(
+            frame,
+            text=(
+                "ERROR! Server connection has failed.\n\n"
+                "You can attempt to restart the server using the button below. "
+                "Please also check the app log for more details."
+            ),
+            font=("Arial", 10),
+            justify="left",
+            wraplength=350,
+        )
+        label.pack(expand=True)
+
+        # Button row
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(fill="x", pady=(5, 5), padx=(10, 10))
+
+        def restart_server():
+            error_win.destroy()
+            try:
+                self.server.restart(self.settings_handler.port_number.get())
+                self.client.safe_connect()
+            except Exception:
+                self._show_connection_error()
+
+        ttk.Button(
+            button_frame,
+            text="Exit",
+            command=self.shutdown
+        ).pack(side="right")
+
+        ttk.Button(
+            button_frame,
+            text="Open Log...",
+            command=self.logger.open_log
+        ).pack(side="left", padx=(0, 5))
+
+        ttk.Button(
+            button_frame,
+            text="Restart Server",
+            command=restart_server
+        ).pack(side="left", padx=(0, 5))
+
+        # Optional: center window on screen
+        error_win.update_idletasks()
+        x = (error_win.winfo_screenwidth() - error_win.winfo_width()) // 2
+        y = (error_win.winfo_screenheight() - error_win.winfo_height()) // 2
+        error_win.geometry(f"+{x}+{y}")

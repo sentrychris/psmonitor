@@ -303,7 +303,7 @@ class PSMonitorAppSettingsHandler:
                     ms=0,
                     func=lambda: self._stop_status_animation(
                         label=label,
-                        final_text="✔ Settings saved and server restarted",
+                        final_text="✔ Settings saved and server restarted.",
                         color="green",
                         duration=3000
                     )
@@ -313,7 +313,7 @@ class PSMonitorAppSettingsHandler:
                     ms=0,
                     func=lambda: self._stop_status_animation(
                         label=label,
-                        final_text="✖ Failed to restart server",
+                        final_text="✖ Failed to restart server, check log.",
                         color="red",
                         duration=3000
                     )

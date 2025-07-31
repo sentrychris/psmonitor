@@ -74,10 +74,9 @@ class PSMonitorAppClient():
 
                 try:
                     self._authenticate()
-                except Exception:
-                    self._manager.logger.error("Failed to authenticate, shutting down")
-                    self._manager.shutdown()
-                    sys.exit(1)
+                except Exception as e:
+                    self._manager.logger.error("Failed to authenticate user")
+                    raise PermissionError("Failed to authenticate user.") from e
 
                 self._setup_connection()
                 return
