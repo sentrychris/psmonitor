@@ -7,7 +7,7 @@ executable for the specified build type (GUI or headless).
 
 Usage:
     To build executables:
-    python build.py [--build TYPE] [--clean] [--upx VERSION] [--upx-clean]
+    python build.py --build TYPE [--clean] [--upx VERSION] [--upx-clean]
 
     To clean previous builds without building new executables:
     python build.py --clean
