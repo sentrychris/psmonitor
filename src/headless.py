@@ -26,9 +26,9 @@ from core.database_manager import PSMonitorDatabaseManager
 
 
 # Define command-line options
-define('address', default='localhost', help='Listen address for the application')
-define('port', default=DEFAULT_PORT, help='Listen port for the application', type=int)
-define('export-credentials', default=False, help='Export connection credentials to file', type=bool)
+define("address", default="localhost", help="Listen address for the application")
+define("port", default=DEFAULT_PORT, help="Listen port for the application", type=int)
+define("export-credentials", default=False, help="Export connection credentials to file", type=bool)
 
 
 if __name__ == "__main__":

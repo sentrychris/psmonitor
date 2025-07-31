@@ -41,7 +41,7 @@ class PSMonitorGraph:
             data_callback: Callable[[], dict],
             y_label: str,
             window_title: str,
-            handler: 'PSMonitorAppGraphHandler' = None
+            handler: "PSMonitorAppGraphHandler" = None
         ) -> None:
         """
         Initializes the handler with initial data.
@@ -74,7 +74,7 @@ class PSMonitorGraph:
         Open graph window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
                 # Re-register the graph if needed
@@ -90,18 +90,18 @@ class PSMonitorGraph:
 
         # Create border frame
         border_frame = ttk.Frame(self._window, borderwidth=2, relief="sunken")
-        border_frame.pack(expand=True, fill='both', padx=3, pady=3)
+        border_frame.pack(expand=True, fill="both", padx=3, pady=3)
 
         # Create matplotlib figure and axis
         self._g_fig = Figure(figsize=(5, 3), dpi=100)
         self._g_fig.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)
 
         self._g_ax = self._g_fig.add_subplot(111)
-        self._g_ax.grid(axis='y', linewidth=0.5, alpha=0.7)
+        self._g_ax.grid(axis="y", linewidth=0.5, alpha=0.7)
         self._g_ax.set_xticklabels([])
         self._g_ax.set_ylabel(self._y_label)
-        self._g_ax.tick_params(axis='x', which='both', bottom=False, top=False)
-        self._g_ax.tick_params(axis='y', which='major', labelsize=7)
+        self._g_ax.tick_params(axis="x", which="both", bottom=False, top=False)
+        self._g_ax.tick_params(axis="y", which="major", labelsize=7)
         self._g_ax.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(nbins=20))
         self._g_ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(nbins=10))
         self._g_ax.set_ylim(0, 100)
@@ -109,11 +109,11 @@ class PSMonitorGraph:
         for spine in self._g_ax.spines.values():
             spine.set_alpha(0.3)
 
-        self._g_line, = self._g_ax.plot([], [], 'r-')
+        self._g_line, = self._g_ax.plot([], [], "r-")
 
         # Create canvas in border frame
         self._g_canvas = FigureCanvasTkAgg(self._g_fig, master=border_frame)
-        self._g_canvas.get_tk_widget().pack(expand=True, fill='both', padx=0, pady=0)
+        self._g_canvas.get_tk_widget().pack(expand=True, fill="both", padx=0, pady=0)
         self._g_canvas.draw()
 
         # Register self to graph handler when window opens
@@ -128,7 +128,7 @@ class PSMonitorGraph:
         Loop the graph update using interval from the parent handler.
         """
 
-        if not hasattr(self, '_window') or not self._window.winfo_exists():
+        if not hasattr(self, "_window") or not self._window.winfo_exists():
             return  # Stop if window is closed
 
         curr_value = self._sample_data()
@@ -146,7 +146,7 @@ class PSMonitorGraph:
         """
         Check if the graph is active
         """
-        return hasattr(self, '_window') and self._window.winfo_exists()
+        return hasattr(self, "_window") and self._window.winfo_exists()
 
 
     def close_window(self) -> None:
@@ -166,15 +166,15 @@ class PSMonitorGraph:
         self._window.destroy()
 
         # Explicitly clear matplotlib objects to free memory
-        if hasattr(self, '_g_fig'):
+        if hasattr(self, "_g_fig"):
             self._g_fig.clf()
             del self._g_fig
-        if hasattr(self, '_g_ax'):
+        if hasattr(self, "_g_ax"):
             del self._g_ax
-        if hasattr(self, '_g_canvas'):
+        if hasattr(self, "_g_canvas"):
             self._g_canvas.get_tk_widget().destroy()
             del self._g_canvas
-        if hasattr(self, '_g_line'):
+        if hasattr(self, "_g_line"):
             del self._g_line
 
         # Optionally delete the _window reference
@@ -241,7 +241,7 @@ class PSMonitorAppGraphHandler():
     Graph handler.
     """
 
-    def __init__(self, manager: 'PSMonitorApp'):
+    def __init__(self, manager: "PSMonitorApp"):
         """
         Initialize the graph handler.
         """

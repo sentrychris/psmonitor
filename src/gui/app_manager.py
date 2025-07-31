@@ -37,6 +37,11 @@ if TYPE_CHECKING:
 # Constants
 BASE_DIR = os.path.dirname(__file__)
 
+CONN_ERR_MSG = (
+    "ERROR! Server connection has failed.\n\n"
+    "You can attempt to restart the server to fix the problem. "
+    "Please also check the app log for more details."
+)
 
 class PSMonitorApp(tk.Tk):
     """
@@ -45,8 +50,8 @@ class PSMonitorApp(tk.Tk):
 
     def __init__(self,
         data: dict,
-        server: 'PSMonitorServerManager',
-        logger: 'PSMonitorLogger',
+        server: "PSMonitorServerManager",
+        logger: "PSMonitorLogger",
     ) -> None:
         """
         Initializes the app with initial data.
@@ -106,22 +111,22 @@ class PSMonitorApp(tk.Tk):
         }
 
         for platform, (filename, width) in platform_icon_defs.items():
-            path = os.path.join(BASE_DIR, 'assets', 'icons', filename)
+            path = os.path.join(BASE_DIR, "assets", "icons", filename)
             self.platform_icons[platform] = self.load_image(path, width)
 
         self._err_icon = self.load_image(
-            path=os.path.join(BASE_DIR, 'assets', 'icons', 'error.png'),
+            path=os.path.join(BASE_DIR, "assets", "icons", "error.png"),
             width=70
         )
 
-        self.set_window_icon(os.path.join(BASE_DIR, 'assets', 'icons', 'psmonitor.png'))
+        self.set_window_icon(os.path.join(BASE_DIR, "assets", "icons", "psmonitor.png"))
         self.create_gui_menu()
         self.create_gui_sections(data)
 
         try:
             self.client.safe_connect()
         except Exception:
-            self._show_connection_error()
+            self._open_error_window(CONN_ERR_MSG, actions={"restart_server": True})
 
         self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
@@ -191,7 +196,7 @@ class PSMonitorApp(tk.Tk):
         """
 
         main_frame = ttk.Frame(self)
-        main_frame.pack(expand=True, fill='both', padx=5, pady=5)
+        main_frame.pack(expand=True, fill="both", padx=5, pady=5)
 
         def make_labels(frame, defs):
             return {k: v(frame) for k, v in defs.items()}
@@ -284,11 +289,11 @@ class PSMonitorApp(tk.Tk):
         """
 
         with self._lock:
-            platform_data = self.data['platform'].copy()
-            disk_data = self.data['disk'].copy()
-            cpu_data = self.data['cpu'].copy()
-            mem_data = self.data['mem'].copy()
-            processes_data = self.data['processes'][:]
+            platform_data = self.data["platform"].copy()
+            disk_data = self.data["disk"].copy()
+            cpu_data = self.data["cpu"].copy()
+            mem_data = self.data["mem"].copy()
+            processes_data = self.data["processes"][:]
 
         # Update UI with copies outside the lock
         self.update_gui_section(self.platform_labels, platform_data)
@@ -296,7 +301,7 @@ class PSMonitorApp(tk.Tk):
         self.update_gui_section(self.cpu_labels, cpu_data)
         self.update_gui_section(self.mem_labels, mem_data)
 
-        self.data['processes'] = processes_data
+        self.data["processes"] = processes_data
         self.update_processes_table()
         self.graph_handler.update_active_graphs()
 
@@ -324,7 +329,7 @@ class PSMonitorApp(tk.Tk):
                 new_text = f"{label.prefix} {value} {suffix}".strip()
             else:
                 label = labels[key]
-                if key == 'distro':
+                if key == "distro":
                     new_text = f"{value}".strip()
                 else:
                     new_text = f"{label.prefix} {value}".strip()
@@ -355,7 +360,7 @@ class PSMonitorApp(tk.Tk):
 
         label_text = f"{text} {value} {suffix}".strip()
         label = ttk.Label(frame, text=label_text)
-        label.grid(sticky='w', padx=5, pady=2)
+        label.grid(sticky="w", padx=5, pady=2)
         label.prefix = text
 
         return label, suffix
@@ -374,17 +379,17 @@ class PSMonitorApp(tk.Tk):
         """
 
         container = ttk.Frame(frame)
-        container.grid(sticky='w', padx=5, pady=2)
+        container.grid(sticky="w", padx=5, pady=2)
 
-        platform_key = 'linux' if sys.platform == 'linux' else 'windows'
+        platform_key = "linux" if sys.platform == "linux" else "windows"
         icon = self.platform_icons[platform_key]
 
         icon_label = ttk.Label(container, image=icon)
         icon_label.image = icon
-        icon_label.pack(side='left')
+        icon_label.pack(side="left")
 
         text_label = ttk.Label(container, text=f"{value}")
-        text_label.pack(side='left')
+        text_label.pack(side="left")
 
         return text_label
 
@@ -422,21 +427,25 @@ class PSMonitorApp(tk.Tk):
         columns = ("pid", "name", "username", "mem")
         self.processes_tree = ttk.Treeview(frame, columns=columns, show="headings", height=8)
 
-        self.processes_tree.heading("pid", text="PID", anchor='center')
-        self.processes_tree.column("pid", anchor='center', width=60, minwidth=50)
-        self.processes_tree.heading("name", text="Name", anchor='center')
-        self.processes_tree.column("name", anchor='center', width=100, minwidth=80)
-        self.processes_tree.heading("username", text="Username", anchor='center')
-        self.processes_tree.column("username", anchor='center', width=120, minwidth=100)
-        self.processes_tree.heading("mem", text="Memory (MB)", anchor='center')
-        self.processes_tree.column("mem", anchor='center', width=80, minwidth=60)
+        self.processes_tree.heading("pid", text="PID", anchor="center")
+        self.processes_tree.column("pid", anchor="center", width=60, minwidth=50)
+        self.processes_tree.heading("name", text="Name", anchor="center")
+        self.processes_tree.column("name", anchor="center", width=100, minwidth=80)
+        self.processes_tree.heading("username", text="Username", anchor="center")
+        self.processes_tree.column("username", anchor="center", width=120, minwidth=100)
+        self.processes_tree.heading("mem", text="Memory (MB)", anchor="center")
+        self.processes_tree.column("mem", anchor="center", width=80, minwidth=60)
 
         # create empty fixed rows
         for i in range(self.max_process_rows):
             tag = "odd" if i % 2 == 0 else "even"
-            self.processes_tree.insert("", "end",
-                                       iid=f"proc{i}",
-                                       values=("", "", "", ""), tags=(tag,))
+            self.processes_tree.insert(
+                parent="",
+                index="end",
+                iid=f"proc{i}",
+                values=("", "", "", ""),
+                tags=(tag,)
+            )
 
         self.processes_tree.tag_configure("odd", background="lightgrey")
         self.processes_tree.tag_configure("even", background="white")
@@ -452,8 +461,8 @@ class PSMonitorApp(tk.Tk):
         """
 
         for i in range(self.max_process_rows):
-            if i < len(self.data['processes']):
-                process = self.data['processes'][i]
+            if i < len(self.data["processes"]):
+                process = self.data["processes"][i]
                 values = (
                     process.get("pid", ""),
                     process.get("name", ""),
@@ -470,7 +479,7 @@ class PSMonitorApp(tk.Tk):
 
     def open_about_window(self) -> None:
         """
-        Displays the 'About' window.
+        Displays the "About" window.
         """
 
         about_window = tk.Toplevel(self)
@@ -550,12 +559,12 @@ class PSMonitorApp(tk.Tk):
         """
 
         with self._lock:
-            self.data['cpu'] = new_data.get('cpu', self.data['cpu'])
-            self.data['mem'] = new_data.get('mem', self.data['mem'])
-            self.data['disk'] = new_data.get('disk', self.data['disk'])
-            self.data['user'] = new_data.get('user', self.data['user'])
-            self.data['platform']['uptime'] = new_data.get('uptime', self.data['uptime'])
-            self.data['processes'] = new_data.get('processes', self.data['processes'])
+            self.data["cpu"] = new_data.get("cpu", self.data["cpu"])
+            self.data["mem"] = new_data.get("mem", self.data["mem"])
+            self.data["disk"] = new_data.get("disk", self.data["disk"])
+            self.data["user"] = new_data.get("user", self.data["user"])
+            self.data["platform"]["uptime"] = new_data.get("uptime", self.data["uptime"])
+            self.data["processes"] = new_data.get("processes", self.data["processes"])
 
 
     def shutdown(self) -> None:
@@ -571,12 +580,16 @@ class PSMonitorApp(tk.Tk):
         self.destroy()
 
 
-    def _show_connection_error(self):
+    def _open_error_window(self, error_text: str, actions: dict[str, bool] | None = None):
         """
-        Show a popup indicating that the server connection failed.
+        Show a popup indicating a blocking error.
         """
+
+        default_actions = { "open_log": True, "restart_server": False }
+        actions = { **default_actions, **(actions or {}) }
+
         error_win = tk.Toplevel(self)
-        error_win.title("Connection Error")
+        error_win.title("Error")
         error_win.geometry("400x270")
         error_win.resizable(False, False)
         error_win.transient(self)
@@ -589,16 +602,7 @@ class PSMonitorApp(tk.Tk):
         error_win.iconphoto(False, self._err_icon)
 
         # Message area
-        label = ttk.Label(
-            frame,
-            text=(
-                "ERROR! Server connection has failed.\n\n"
-                "You can attempt to restart the server to fix the problem. "
-                "Please also check the app log for more details."
-            ),
-            justify="left",
-            wraplength=350,
-        )
+        label = ttk.Label(frame, text=error_text, justify="left", wraplength=350)
         label.pack(expand=True)
 
         # Button row
@@ -611,7 +615,7 @@ class PSMonitorApp(tk.Tk):
                 self.server.restart(self.settings_handler.port_number.get())
                 self.client.safe_connect()
             except Exception:
-                self._show_connection_error()
+                self._open_error_window(CONN_ERR_MSG, actions={"restart_server": True})
 
         ttk.Button(
             button_frame,
@@ -619,19 +623,20 @@ class PSMonitorApp(tk.Tk):
             command=self.shutdown
         ).pack(side="right")
 
-        ttk.Button(
-            button_frame,
-            text="Open Log...",
-            command=self.logger.open_log
-        ).pack(side="left", padx=(0, 5))
+        if actions.get("open_log"):
+            ttk.Button(
+                button_frame,
+                text="Open Log...",
+                command=self.logger.open_log
+            ).pack(side="left", padx=(0, 5))
 
-        ttk.Button(
-            button_frame,
-            text="Restart Server",
-            command=restart_server
-        ).pack(side="left", padx=(0, 5))
+        if actions.get("restart_server"):
+            ttk.Button(
+                button_frame,
+                text="Restart Server",
+                command=restart_server
+            ).pack(side="left", padx=(0, 5))
 
-        # Optional: center window on screen
         error_win.update_idletasks()
         x = (error_win.winfo_screenwidth() - error_win.winfo_width()) // 2
         y = (error_win.winfo_screenheight() - error_win.winfo_height()) // 2

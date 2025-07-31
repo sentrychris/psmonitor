@@ -32,9 +32,9 @@ class PSMonitorAppSettingsHandler:
     Settings handler.
     """
 
-    LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
+    LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR"]
 
-    def __init__(self, manager: 'PSMonitorApp') -> None:
+    def __init__(self, manager: "PSMonitorApp") -> None:
         """
         Initializes the handler.
         """
@@ -70,7 +70,7 @@ class PSMonitorAppSettingsHandler:
         Open graph window.
         """
 
-        if hasattr(self, '_window') and self._window and self._window.winfo_exists():
+        if hasattr(self, "_window") and self._window and self._window.winfo_exists():
             if not self._window.winfo_viewable():
                 self._window.deiconify()
             self._window.lift()
@@ -133,7 +133,7 @@ class PSMonitorAppSettingsHandler:
             logging_frame,
             textvariable=self.log_level,
             values=self.LOG_LEVELS,
-            state='readonly'
+            state="readonly"
         ).pack(anchor="w", fill="x", pady=5)
 
         # Buttons
@@ -415,7 +415,7 @@ class PSMonitorAppSettingsHandler:
         Show log actions status label
         """
 
-        if hasattr(self, '_log_status_label'):
+        if hasattr(self, "_log_status_label"):
             self._log_status_label.config(text=text, foreground=color)
             self._window.after(duration, lambda: self._log_status_label.config(text=""))
 
@@ -425,7 +425,7 @@ class PSMonitorAppSettingsHandler:
         Show actions status label
         """
 
-        if hasattr(self, '_server_status_label'):
+        if hasattr(self, "_server_status_label"):
             self._server_status_label.config(text=text, foreground=color)
             self._window.after(duration, lambda: self._server_status_label.config(text=""))
 
@@ -435,7 +435,7 @@ class PSMonitorAppSettingsHandler:
         Show actions status label
         """
 
-        if hasattr(self, '_settings_status_label'):
+        if hasattr(self, "_settings_status_label"):
             self._settings_status_label.config(text=text, foreground=color)
             self._window.after(duration, lambda: self._settings_status_label.config(text=""))
 
@@ -469,7 +469,7 @@ class PSMonitorAppSettingsHandler:
         Hide a tooltip
         """
 
-        if hasattr(self, '_tooltip'):
+        if hasattr(self, "_tooltip"):
             self._tooltip.withdraw()
 
     def _animate_status_label(self, label, base_text="", color="gray", interval=300):
@@ -566,7 +566,7 @@ class PSMonitorAppSettingsHandler:
         """
         Check if the settings window is active
         """
-        return hasattr(self, '_window') and self._window.winfo_exists()
+        return hasattr(self, "_window") and self._window.winfo_exists()
 
 
     def close_window(self) -> None:

@@ -41,23 +41,23 @@ def signal_handler(_sig, _frame):
         frame (FrameType): The current stack frame (not used in this handler).
     """
 
-    print('Shutting down gracefully...')
+    print("Shutting down gracefully...")
     IOLoop.current().stop()
     executor.shutdown(wait=True)
     sys.exit(0)
 
 
-def create_server(db: 'PSMonitorDatabaseManager', logger: 'PSMonitorLogger') -> HTTPServer:
+def create_server(db: "PSMonitorDatabaseManager", logger: "PSMonitorLogger") -> HTTPServer:
     """
     Create a server
     """
 
     return HTTPServer(create_app({
-        'cookie_secret': uuid.uuid1().hex,
-        'xsrf_cookies': False,
-        'debug': False,
-        'db': db,
-        'logger': logger
+        "cookie_secret": uuid.uuid1().hex,
+        "xsrf_cookies": False,
+        "debug": False,
+        "db": db,
+        "logger": logger
     }))
 
 
@@ -77,19 +77,19 @@ def create_app(settings: dict) -> Application | bool:
 
     Example:
         settings = {
-            'debug': True,
-            'static_path': '/path/to/static',
-            'template_path': '/path/to/templates'
+            "debug": True,
+            "static_path": "/path/to/static",
+            "template_path": "/path/to/templates"
         }
         app = create_app(settings)
     """
 
     handlers = [
-        (r'/authenticate', HttpAuthHandler),
-        (r'/worker', HttpWorkerHandler),
-        (r'/system', HttpSystemHandler),
-        (r'/network', HttpNetworkHandler),
-        (r'/connect', WebsocketHandler),
+        (r"/authenticate", HttpAuthHandler),
+        (r"/worker", HttpWorkerHandler),
+        (r"/system", HttpSystemHandler),
+        (r"/network", HttpNetworkHandler),
+        (r"/connect", WebsocketHandler),
     ]
 
     return Application(handlers, **settings)

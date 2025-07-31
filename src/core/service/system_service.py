@@ -28,7 +28,7 @@ from core.config import BUNDLE_DIR
 if sys.platform == "win32":
     import ctypes
     import getpass
-elif sys.platform == 'linux':
+elif sys.platform == "linux":
     import pwd # pylint: disable=import-error
 
 

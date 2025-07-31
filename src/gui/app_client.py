@@ -35,7 +35,7 @@ class PSMonitorAppClient():
     App client for connection to the tornado server.
     """
 
-    def __init__(self, manager: 'PSMonitorApp') -> None:
+    def __init__(self, manager: "PSMonitorApp") -> None:
         """
         Initializes the app client.
         """
@@ -115,7 +115,7 @@ class PSMonitorAppClient():
         username, password = get_credentials()
 
         response = requests.post(
-            f'{self.http_url}/authenticate',
+            f"{self.http_url}/authenticate",
             json={"username": username, "password": password},
             timeout=5
         )
@@ -133,8 +133,8 @@ class PSMonitorAppClient():
 
         try:
             response = requests.get(
-                url=f'{self.http_url}/system',
-                headers={'Authorization': f'Bearer {self._auth_token}'},
+                url=f"{self.http_url}/system",
+                headers={"Authorization": f"Bearer {self._auth_token}"},
                 timeout=5
             )
             self._manager.data.update(response.json())
@@ -152,11 +152,11 @@ class PSMonitorAppClient():
         try:
             response = requests.post(
                 url=f"{self.http_url}/worker",
-                headers={'Authorization': f'Bearer {self._auth_token}'},
+                headers={"Authorization": f"Bearer {self._auth_token}"},
                 timeout=5
             )
             worker = response.json()
-            self._worker_id = worker['id']
+            self._worker_id = worker["id"]
             self._manager.logger.debug(f"Worker obtained: {self._worker_id}")
             self._connect_websocket(self._worker_id)
         except requests.RequestException as e:
@@ -189,7 +189,7 @@ class PSMonitorAppClient():
             )
             self._ws.run_forever()
 
-        # Run the websocket client in the another thread so it doesn't block the GUI's mainloop().
+        # Run the websocket client in the another thread so it doesn"t block the GUI"s mainloop().
         self._ws_client_thread = threading.Thread(
             target=run_ws_forever,
             name="PSMonitorWSClientThread",

@@ -141,7 +141,7 @@ def get_wifi_interface() -> str:
     )
     out, _ = proc.communicate()
 
-    interface = 'wlan0'
+    interface = "wlan0"
     for line in out.split("\n"):
         addr = match(line, "Interface ")
         if addr is not None:

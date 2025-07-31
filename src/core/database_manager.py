@@ -57,7 +57,7 @@ class PSMonitorDatabaseManager:
     Manages a Tornado HTTP server running in a background thread.
     """
 
-    def __init__(self, logger: 'PSMonitorLogger'):
+    def __init__(self, logger: "PSMonitorLogger"):
         """
         Initialize the PSMonitorDatabaseManager.
 
@@ -149,7 +149,7 @@ class PSMonitorDatabaseManager:
 
         # Store the password in the system keyring
         keyring.set_password(
-            get_service_name('Auth'),
+            get_service_name("Auth"),
             username=user.username,
             password=user.password
         )
@@ -159,7 +159,7 @@ class PSMonitorDatabaseManager:
         self._logger.debug("SQLite database has been initialized")
 
 
-    def get_user(self, username: str) -> tuple[str, str] | None:
+    def get_user(self, username: str) -> dict[str, str] | None:
         """
         Retrieve a user record from the database by username.
 
@@ -167,7 +167,7 @@ class PSMonitorDatabaseManager:
             username (str): The username to look up.
 
         Returns:
-            tuple[str, str] | None: A tuple of (id, hashed_password) if found; otherwise None.
+            dict[str, str] | None: A dict if found; otherwise None.
         """
 
         self.connect()

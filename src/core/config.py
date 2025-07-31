@@ -55,12 +55,12 @@ CREDENTIALS_FILE = os.path.join(SETTINGS_DIR, "credentials.json")
 # SQLite database
 DB_PATH = os.path.join(SETTINGS_DIR, "app.db")
 
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     # Running as a bundled PyInstaller executable
-    BUNDLE_DIR = getattr(sys, '_MEIPASS')
+    BUNDLE_DIR = getattr(sys, "_MEIPASS")
 else:
     # Running in normal Python environment
-    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), 'bin'))
+    BUNDLE_DIR = os.path.abspath(os.path.join(os.getcwd(), "bin"))
 
 
 default_settings = {
@@ -122,7 +122,7 @@ def get_service_name(name: str|None = None) -> str:
     return f"{APP_NAME} {name}"
 
 
-def read_settings_file(logger: 'PSMonitorLogger' = None) -> dict:
+def read_settings_file(logger: "PSMonitorLogger" = None) -> dict:
     """
     Read settings from file.
     """

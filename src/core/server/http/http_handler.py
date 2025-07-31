@@ -133,20 +133,21 @@ class HttpAuthHandler(BaseHandler):
         """
 
         try:
-            db: 'PSMonitorDatabaseManager' = self.application.settings.get("db")
+            db: "PSMonitorDatabaseManager" = self.application.settings.get("db")
             data = tornado.escape.json_decode(self.request.body)
             username = data.get("username")
             password = data.get("password")
 
             user = db.get_user(username)
-            authenticated = verify_password(password=password, hashed=user["password"])
+            is_authenticated = verify_password(password=password, hashed=user["password"])
 
-            if not user or not authenticated:
+            if not user or not is_authenticated:
                 raise tornado.web.HTTPError(401, "Invalid credentials")
+            auth_token = generate_token(user["id"])
 
-            if get_launch_mode() == 'headless':
+            if get_launch_mode() == "headless":
                 delete_credentials_file()
 
-            self.write(generate_token(user["id"]))
+            self.write(auth_token)
         except Exception as e:
             raise tornado.web.HTTPError(400, f"Bad request, {e}") from e
