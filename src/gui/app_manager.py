@@ -589,7 +589,6 @@ class PSMonitorApp(tk.Tk):
                 "You can attempt to restart the server using the button below. "
                 "Please also check the app log for more details."
             ),
-            font=("Arial", 10),
             justify="left",
             wraplength=350,
         )
