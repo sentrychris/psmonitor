@@ -9,13 +9,13 @@ Usage:
     To build executables:
     python build.py [--build TYPE] [--clean] [--upx VERSION] [--upx-clean]
 
-    To clean previous builds without building new executables
+    To clean previous builds without building new executables:
     python build.py --clean
 
-    To insert docstring headers into source files
+    To insert docstring headers into source files:
     python build.py --insert-docstrings
 
-    # To generate the third party licenses file
+    # To generate the third party licenses file:
     python build.py --third-party-licenses
 
 Arguments:
